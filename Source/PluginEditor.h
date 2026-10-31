@@ -42,7 +42,7 @@ public:
 private:
     void timerCallback() override;
 
-    SundayOrganAudioProcessor& processor;
+    SundayOrganAudioProcessor& organ;
     sundayorgan::ui::OberliLookAndFeel lookAndFeel;
     std::unique_ptr<Content> content;
     juce::TooltipWindow tooltips { this, 600 };

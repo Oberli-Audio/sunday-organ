@@ -246,7 +246,8 @@ void Stepper::mouseDown (const juce::MouseEvent& e)
 
 void Stepper::mouseDrag (const juce::MouseEvent& e)
 {
-    if (e.mouseDownPosition.x < getHeight() || e.mouseDownPosition.x > getWidth() - getHeight()) return;
+    const float x = e.mouseDownPosition.x, h = (float) getHeight(), w = (float) getWidth();
+    if (x < h || x > w - h) return;
     const auto range = param.getNormalisableRange();
     const float pxPerStep = e.mods.isShiftDown() ? 16.0f : 6.0f;
     attachment.setValueAsCompleteGesture (juce::jlimit (range.start, range.end, dragStart + (float) juce::roundToInt ((float) -e.getDistanceFromDragStartY() / pxPerStep)));

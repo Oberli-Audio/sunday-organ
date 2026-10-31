@@ -921,8 +921,8 @@ static int run (int argc, char* argv[])
             if (auto* ranged = dynamic_cast<juce::RangedAudioParameter*> (p))
                 set (params, ranged->paramID.toRawUTF8(), (double) ranged->getValue());
         set (applied, "params", params);
-        juce::var noteList; for (int n : notes) noteList.append (n);
-        set (applied, "notes", noteList); set (applied, "gate", gate >= 0.0 ? juce::var (gate) : juce::var());
+        juce::var noteEcho; for (int n : notes) noteEcho.append (n);
+        set (applied, "notes", noteEcho); set (applied, "gate", gate >= 0.0 ? juce::var (gate) : juce::var());
         set (applied, "latency_samples", processor->getLatencySamples()); set (applied, "tail_seconds", tail);
         auto build = obj();
         set (build, "commit", BUILD_SHA);

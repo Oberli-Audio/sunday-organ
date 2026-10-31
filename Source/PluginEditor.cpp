@@ -418,7 +418,7 @@ public:
 
 //==============================================================================
 SundayOrganAudioProcessorEditor::SundayOrganAudioProcessorEditor (SundayOrganAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+    : AudioProcessorEditor (&p), organ (p)
 {
     setLookAndFeel (&lookAndFeel);
     content = std::make_unique<Content> (*this, p);
@@ -450,9 +450,9 @@ bool SundayOrganAudioProcessorEditor::loadFactory (int index)
 {
     const auto& bank = sundayorgan::Presets::factory();
     if (! juce::isPositiveAndBelow (index, (int) bank.size())) return false;
-    if (! sundayorgan::Presets::apply (*bank[(size_t) index].doc, processor.parameters())) return false;
-    processor.requestAllNotesOff();                                  // rule 16: a preset change releases every note
-    processor.currentPreset = index;
+    if (! sundayorgan::Presets::apply (*bank[(size_t) index].doc, organ.parameters())) return false;
+    organ.requestAllNotesOff();                                  // rule 16: a preset change releases every note
+    organ.currentPreset = index;
     content->frame();
     content->repaint();
     return true;
@@ -479,7 +479,7 @@ void SundayOrganAudioProcessorEditor::showMenu()
         auto folder = sundayorgan::Presets::userFolder();
         folder.createDirectory();
         auto file = folder.getNonexistentChildFile ("My preset", sundayorgan::State::kPresetExtension, false);
-        if (auto doc = sundayorgan::State::presetXml (processor.parameters(), file.getFileNameWithoutExtension(), "You", "Yours", {}, false))
+        if (auto doc = sundayorgan::State::presetXml (organ.parameters(), file.getFileNameWithoutExtension(), "You", "Yours", {}, false))
             doc->writeTo (file);
     });
     m.addSeparator();
@@ -492,8 +492,8 @@ void SundayOrganAudioProcessorEditor::showMenu()
         juce::String d;
         d << "Sunday Organ " << JucePlugin_VersionString << ", sound version 1\n"
           << juce::SystemStats::getOperatingSystemName() << ", " << juce::SystemStats::getCpuModel() << "\n"
-          << "Host: " << juce::PluginHostType().getHostDescription() << ", " << processor.getSampleRate() << " Hz\n"
-          << "Preset: " << sundayorgan::Presets::factory()[(size_t) juce::jmax (0, processor.currentPreset)].name << "\n";
+          << "Host: " << juce::PluginHostType().getHostDescription() << ", " << organ.getSampleRate() << " Hz\n"
+          << "Preset: " << sundayorgan::Presets::factory()[(size_t) juce::jmax (0, organ.currentPreset)].name << "\n";
         juce::SystemClipboard::copyTextToClipboard (d);
     });
     m.addItem ("About Sunday Organ", [this] { showAbout (true); });

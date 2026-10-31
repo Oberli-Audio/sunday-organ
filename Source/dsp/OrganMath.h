@@ -2,6 +2,7 @@
 
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
 
 /*  Shared helpers of the Sunday Organ DSP, each the C++ twin of one Faust library function the
     prototype (`sound design/dsp/tonewheel.dsp` v0.5) uses, so G5 can null module by module.
@@ -84,7 +85,7 @@ struct LagrangeDelay
     double tap (int d, int maxDelay) const noexcept
     {
         d = d < 0 ? 0 : (d > maxDelay ? maxDelay : d);       // de.delay: min(n, max(0, d))
-        return buf[(size_t) ((w - d) & (Size - 1))];
+        return buf[(std::size_t) ((w - d) & (Size - 1))];
     }
     /** Delay in samples (fractional), clamped to maxDelay like the prototype. Read after push(). */
     double read (double d, int maxDelay) const noexcept
