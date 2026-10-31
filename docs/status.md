@@ -24,10 +24,23 @@ Tier P, track I, at gate G6 (what runs on the Linux cloud box is done; the Mac, 
 | Doppler < 1 cent | 0.020 cent (delay path) | yes; full path EX-3 |
 | rotor rates within 2 % | worst 0.85 % (horn 0.82 / 6.67 Hz, drum 0.67 / 5.66 Hz) | yes |
 | no zipper on drawbars and split | largest sample step -2.45 dB (drawbars), -1.60 dB (split) below the brightest static state | yes |
-| presets -18 LUFS +/-1 LU | METRIC_LOUDNESS | METRIC_LOUDNESS_PASS |
+| presets -18 LUFS +/-1 LU | -18.03 to -17.37 LUFS (worst 0.63 LU from -18, Init); spread around the median 0.05 LU (`presetlint.py render` OK) | yes |
 
 ### G6 on this box (Linux x86_64, 4 cores, GCC 13)
-G6_TABLE
+| Check | Command | Result |
+|---|---|---|
+| CTest, every label | `ctest --preset all` | 8/8 pass; `suite_fast` once failed on its rule-20 assertion (p99.9 judged on this VM, a scheduling spike) and passed when re-run: typical p99.9 6-11 % at 48 k/64 |
+| Defining features, contracts, regressions | `HARNESS=... python3 tools/tests/test_features.py` (CTest `suite_features`) | 16 tests pass |
+| Harness contract | `python3 scripts/dsp-kit/dspkit.py smoke <harness>` | OK: 16 presets, p99.9 8.0 % |
+| Parameter table | `paramgen.py check parameters.csv --list-params <harness --list-params>`; `paramgen.py juce/manual` diffed | 38 parameters, round trip at 101 points, 0 warnings; Params.h and docs/parameters.md current. `--frozen`: no previous release yet |
+| Preset bank | `presetlint.py bank ... --tier P`; `presetlint.py render ... --tier P --notes 48,52,55,60 --gate 4` | bank OK (16, matches the harness); render OK: spread 0.05 LU, round trip clean (`docs/presets.md`, `docs/presets.json`) |
+| ASan + UBSan, harness | `cmake --preset asan -G Ninja && cmake --build build-asan`; `test_features.py` and `test_plugin.py --label fast` against it, `halt_on_error=1` | no sanitizer report; only the time budgets fail (instrumented build) |
+| ASan + UBSan, plugin in pluginval | libasan + libubsan preloaded into pluginval, L10, 6 rates x 7 blocks | SUCCESS, 168 runs (`docs/validation/pluginval-linux-L10-asan.log`; LeakSanitizer off for the host) |
+| Malloc trap (rule 1) | `PRODUCT_MALLOC_TRAP_SELFTEST=1 <harness> --notes=60 --gate=1` | aborts as it must ("malloc inside processBlock"); every harness render runs armed (Linux trap added, F-6 row); three heavy presets with all controllers, random blocks: clean |
+| pluginval L10, Linux VST3 | pluginval 2.0.0 built from source, `xvfb-run pluginval --strictness-level 10 --sample-rates 44100 ... 192000 --block-sizes 1 13 32 64 512 1024 4096` | SUCCESS, 168 runs, Steinberg validator stage included, after F-8 (`docs/validation/pluginval-linux-L10.log`) |
+| CPU (rule 20), reported only | `perf.py run --presets gospel-full,rock-drive,bass-split,split-comping --config 48000/64,44100/32 --seconds 20 --runs 3 --notes 36,...,79 --md docs/perf-linux-cloud.md` | p50 6.1-6.7 %, p99 11.5-12.9 %, p99.9 20.1-29.7 %, every max "scheduling"; idle p50 1.3 %. Not the budget machine (VM, system time 7.5 min vs user 4.4 min) |
+| Editor (plugin-ui-bob) | `SundayOrganGuiSnapshot --scale=1|1.5|2`, `--state=drawer|about` -> `docs/snapshots/`; `snapshot_contrast.py --metrics --theme charcoal` | 0 metrics outside the limits at 100/150/200 % and with the drawer; smallest text 5.41:1 (version on the header), section notes 5.86:1, labels 8.55:1, Leslie status 6.76:1 |
+| Code checklist (editor) | read in the code | focus never taken on click, Tab and arrows, accessible names (`setTitle`), double-click reset to the table's default, Shift fine, the host's parameter menu on right-click (null-checked), GUI scale machine-local (EditorSettings.xml), modified mark by comparison, units from `stringFromValue` (EX-4 for the splits), no LookAndFeel_V4 remnants in what is drawn (the PopupMenu takes the tokens), About with version and sound version. Open: the drag readout bubble, the diagnostics fields on About (Report a problem copies them) |
 
 ## Listening debt
 - 2026-10-31: nothing has been heard by anyone - neither the prototype renders (`sound design/renders/`, regenerate with the scores) nor the plugin. Init patch and three presets (Gospel Full, Ballad, Bass Split) to the one friend (F.18.7).
@@ -36,7 +49,7 @@ G6_TABLE
 - 2026-10-31: the bank (16 presets) is registrations from the B-3 literature, calibrated by measurement only.
 
 ## Open exceptions
-- EX-1 2026-10-31: rule 20 (CPU) on the Faust prototype, p99.9 74 % vs 25 % - the prototype only; the port: PERF_LINE. **Unacceptable if** the port's p99.9 exceeds 25 % on the M3 Pro under Rosetta, as `perf.py run`. Friends: none.
+- EX-1 2026-10-31: rule 20 (CPU) on the Faust prototype, p99.9 74 % vs 25 % - the prototype only; the port on this cloud VM: p50 6.1-6.7 %, p99.9 20.1-29.7 % at 48 k/64 with 10 keys on the heaviest presets (`docs/perf-linux-cloud.md`), so the M3 Pro under Rosetta decides. **Unacceptable if** the port's p99.9 exceeds 25 % on the M3 Pro under Rosetta, as `perf.py run`. Friends: none.
 - EX-3 2026-10-31: the full horn path deviates 3.5 cents p99 from the moving-source model (the Doppler delay alone 0.02 cent): the moving lowpass's phase swings with its cutoff, in the prototype and the plugin alike. **Unacceptable if** the delay path exceeds 1 cent, or the full path 5 cents, or the friend hears a vibrato beyond the Doppler. Friends: none.
 - EX-4 2026-10-31: the split parameters show numbers in the host (36, 60) - `paramgen.py` writes no value strings for `int` parameters, so `format_kind note` is lost (the editor shows C4 / Off through its own helper). **Unacceptable if** it reaches a release: the fix belongs in the kit (~/bob-skills), then regenerate `Source/Params.h`. Friends: an automation lane reads "60" instead of "C4".
 - EX-5 2026-10-31: rule 13's "shown failing" is done for every regression test (F-2 to F-7) but not yet for the ten presence tests of the defining features (`test_features.py` DefiningFeatures): no knockout build of each feature was made. **Unacceptable if** G7 is closed without it. Friends: none.

@@ -1,0 +1,277 @@
+{
+ "tier": "P",
+ "notes": "48,52,55,60",
+ "gate": 4.0,
+ "seconds": 6.0,
+ "seed": 1,
+ "loudness": {
+  "median_lufs": -17.983077149602295,
+  "spread_lu": 0.046474678784683476,
+  "span_lu": 0.0736700621152977,
+  "limit_lu": 1.0,
+  "presets": {
+   "init": {
+    "lufs": -17.370395811412248,
+    "swing": 0.0,
+    "true_peak": -9.851229311529915,
+    "click_db": -30.988593759783996,
+    "nan": 0,
+    "offset": 0.6126813381900469
+   },
+   "jazz-trio": {
+    "lufs": -17.95607450615386,
+    "swing": 0.0,
+    "true_peak": -10.233501638359146,
+    "click_db": -30.398620730934883,
+    "nan": 0,
+    "offset": 0.027002643448433616
+   },
+   "smoky-club": {
+    "lufs": -17.964244722678465,
+    "swing": 0.0,
+    "true_peak": -11.499431362734322,
+    "click_db": -30.310110066474884,
+    "nan": 0,
+    "offset": 0.01883242692382936
+   },
+   "bebop-lines": {
+    "lufs": -17.967898301544054,
+    "swing": 0.0,
+    "true_peak": -10.451229479805237,
+    "click_db": -30.3908553601389,
+    "nan": 0,
+    "offset": 0.015178848058241101
+   },
+   "gospel-full": {
+    "lufs": -18.022043960258923,
+    "swing": 0.0,
+    "true_peak": -8.807501006042001,
+    "click_db": -20.214939448493077,
+    "nan": 0,
+    "offset": -0.038966810656628326
+   },
+   "shout-chorus": {
+    "lufs": -18.02625226206741,
+    "swing": 0.0,
+    "true_peak": -10.477399847118605,
+    "click_db": -27.139956999782775,
+    "nan": 0,
+    "offset": -0.043175112465114296
+   },
+   "sunday-morning": {
+    "lufs": -17.983077149602295,
+    "swing": 0.0,
+    "true_peak": -11.157940399990151,
+    "click_db": -29.167642588377856,
+    "nan": 0,
+    "offset": 0.0
+   },
+   "sanctuary": {
+    "lufs": -17.97380446637139,
+    "swing": 0.0,
+    "true_peak": -9.760923658190038,
+    "click_db": -31.792024069817558,
+    "nan": 0,
+    "offset": 0.009272683230904022
+   },
+   "swell-pad": {
+    "lufs": -17.971013994887578,
+    "swing": 0.0,
+    "true_peak": -9.527088068329046,
+    "click_db": -30.48463056994631,
+    "nan": 0,
+    "offset": 0.012063154714716973
+   },
+   "quiet-prayer": {
+    "lufs": -17.972285347564785,
+    "swing": 0.0,
+    "true_peak": -10.329200012225277,
+    "click_db": -29.899177688148285,
+    "nan": 0,
+    "offset": 0.010791802037509513
+   },
+   "rock-drive": {
+    "lufs": -18.029184990726733,
+    "swing": 0.0,
+    "true_peak": -11.866858079991205,
+    "click_db": -27.372938672186923,
+    "nan": 0,
+    "offset": -0.046107841124438664
+   },
+   "power-chords": {
+    "lufs": -18.02908984724304,
+    "swing": 0.0,
+    "true_peak": -10.264296103212802,
+    "click_db": -25.895325093562604,
+    "nan": 0,
+    "offset": -0.04601269764074445
+   },
+   "ballad": {
+    "lufs": -18.014489557129735,
+    "swing": 0.0,
+    "true_peak": -9.486673290830694,
+    "click_db": -31.48584524330092,
+    "nan": 0,
+    "offset": -0.03141240752744068
+   },
+   "warm-ballad": {
+    "lufs": -18.00441029804835,
+    "swing": 0.0,
+    "true_peak": -10.089398973825283,
+    "click_db": -34.67488363052598,
+    "nan": 0,
+    "offset": -0.02133314844605394
+   },
+   "split-comping": {
+    "lufs": -18.02955182838698,
+    "swing": 0.0,
+    "true_peak": -9.99563655455299,
+    "click_db": -27.993667267214338,
+    "nan": 0,
+    "offset": -0.046474678784683476
+   },
+   "bass-split": {
+    "lufs": -17.95588176627168,
+    "swing": 0.0,
+    "true_peak": -10.57217547916131,
+    "click_db": -29.892141249590672,
+    "nan": 0,
+    "offset": 0.02719538333061422
+   }
+  }
+ },
+ "cpu": {
+  "init": {
+   "p99_pct": 7.840865999999987,
+   "p999_pct": 10.005084000000052,
+   "max_pct": 11.046674999999999,
+   "over_deadline": 0,
+   "first_block_pct": 9.001575
+  },
+  "jazz-trio": {
+   "p99_pct": 8.417482499999975,
+   "p999_pct": 12.391138500000215,
+   "max_pct": 61.401225000000004,
+   "over_deadline": 0,
+   "first_block_pct": 6.747075000000001,
+   "max_reading": "scheduling",
+   "note": "max 61.4 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "smoky-club": {
+   "p99_pct": 7.899232499999999,
+   "p999_pct": 11.775115650000117,
+   "max_pct": 35.772149999999996,
+   "over_deadline": 0,
+   "first_block_pct": 6.208350000000001
+  },
+  "bebop-lines": {
+   "p99_pct": 9.545410499999997,
+   "p999_pct": 14.820467700000489,
+   "max_pct": 33.846000000000004,
+   "over_deadline": 0,
+   "first_block_pct": 6.402900000000001
+  },
+  "gospel-full": {
+   "p99_pct": 8.5434405,
+   "p999_pct": 10.530916950000195,
+   "max_pct": 14.0406,
+   "over_deadline": 0,
+   "first_block_pct": 8.194575
+  },
+  "shout-chorus": {
+   "p99_pct": 9.338785499999972,
+   "p999_pct": 12.099858750000058,
+   "max_pct": 51.561975000000004,
+   "over_deadline": 0,
+   "first_block_pct": 6.316649999999999,
+   "max_reading": "scheduling",
+   "note": "max 240.3 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "sunday-morning": {
+   "p99_pct": 10.729253999999981,
+   "p999_pct": 15.600476850000161,
+   "max_pct": 160.45890000000003,
+   "over_deadline": 1,
+   "first_block_pct": 6.050325000000001,
+   "max_reading": "scheduling",
+   "note": "max 160.5 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "sanctuary": {
+   "p99_pct": 8.922677999999955,
+   "p999_pct": 18.61953690000061,
+   "max_pct": 56.817825000000006,
+   "over_deadline": 0,
+   "first_block_pct": 7.002149999999999,
+   "max_reading": "scheduling",
+   "note": "max 56.8 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "swell-pad": {
+   "p99_pct": 7.82987099999999,
+   "p999_pct": 14.619684600000546,
+   "max_pct": 152.2725,
+   "over_deadline": 2,
+   "first_block_pct": 5.57565,
+   "max_reading": "scheduling",
+   "note": "max 152.3 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "quiet-prayer": {
+   "p99_pct": 8.354653499999994,
+   "p999_pct": 12.814574700000291,
+   "max_pct": 170.30077500000002,
+   "over_deadline": 3,
+   "first_block_pct": 7.44105,
+   "max_reading": "scheduling",
+   "note": "max 170.3 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "rock-drive": {
+   "p99_pct": 9.232867499999955,
+   "p999_pct": 14.383180350000444,
+   "max_pct": 26.190224999999998,
+   "over_deadline": 0,
+   "first_block_pct": 6.527175
+  },
+  "power-chords": {
+   "p99_pct": 8.828257499999985,
+   "p999_pct": 15.637511400000204,
+   "max_pct": 48.62445000000001,
+   "over_deadline": 0,
+   "first_block_pct": 5.714625
+  },
+  "ballad": {
+   "p99_pct": 8.546068499999999,
+   "p999_pct": 16.19099235000047,
+   "max_pct": 65.561925,
+   "over_deadline": 0,
+   "first_block_pct": 5.586,
+   "max_reading": "scheduling",
+   "note": "max 65.6 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "warm-ballad": {
+   "p99_pct": 7.701137999999993,
+   "p999_pct": 14.905310850000275,
+   "max_pct": 71.5158,
+   "over_deadline": 0,
+   "first_block_pct": 5.661075,
+   "max_reading": "scheduling",
+   "note": "max 151.5 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "split-comping": {
+   "p99_pct": 7.583929499999998,
+   "p999_pct": 11.793780150000668,
+   "max_pct": 18.94755,
+   "over_deadline": 0,
+   "first_block_pct": 6.666150000000001
+  },
+  "bass-split": {
+   "p99_pct": 8.326696499999985,
+   "p999_pct": 22.710953700001024,
+   "max_pct": 139.2066,
+   "over_deadline": 1,
+   "first_block_pct": 5.41635,
+   "max_reading": "scheduling",
+   "note": "max 191.6 % moved between runs: scheduling, not DSP (perf.py)"
+  },
+  "_heaviest": "quiet-prayer"
+ },
+ "errors": []
+}
