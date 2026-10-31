@@ -118,7 +118,14 @@ set(PRODUCT_SOURCES
     Source/PluginEditor.cpp
     Source/PluginEditor.h
     Source/Params.h
-    Source/State.h)
+    Source/State.h
+    Source/dsp/OrganMath.h
+    Source/dsp/Tonewheels.h
+    Source/dsp/Contacts.h
+    Source/dsp/Busses.h
+    Source/dsp/Scanner.h
+    Source/dsp/Leslie.h
+    Source/dsp/Organ.h)
 
 target_sources(SundayOrgan PRIVATE ${PRODUCT_SOURCES})
 target_include_directories(SundayOrgan PRIVATE Source "${CMAKE_CURRENT_BINARY_DIR}/generated")

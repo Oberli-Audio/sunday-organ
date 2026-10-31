@@ -12,7 +12,7 @@
 // hash of its index, so two runs from reset are bit-identical (rule 8).
 
 declare name "Sunday Organ (prototype)";
-declare version "0.0.4";
+declare version "0.0.5";
 declare author "Oberli Audio";
 import("stdfaust.lib");
 sc = library("scanner.lib");
@@ -155,13 +155,16 @@ pedalSig = sum(p, NPED, pcontact(p) * (pBar16 * wheel(p) + pBar8 * wheel(p + 12)
 voices = (upperSig + vibLower * lowerSig) : sc.scanner(vibMode) : +((1 - vibLower) * lowerSig) : +(pedalSig);
 
 // ---------------------------------------------------------------- preamp
-// Asymmetric soft clip, first-order ADAA (rule 3), DC blocker after it (rule 4),
+// Asymmetric soft clip, first-order ADAA (rule 3), DC blocker after it (rule 4) at 5 Hz in
+// seconds (v0.4: fi.dcblocker was a fixed pole 0.995, 38 Hz at 48 kHz and 153 Hz at 192 kHz,
+// failures.md F-2),
 // rough level compensation (rule 5; measured at P, not here).
-preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblocker : /(comp)
+preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblockerat(DCHZ) : /(comp)
     with {
         g    = 1 + 11 * drive;
         bias = 0.15 * drive;
         comp = 1 + 1.2 * drive;
+        DCHZ = 5;
     };
 
 // ---------------------------------------------------------------- output

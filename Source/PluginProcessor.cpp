@@ -6,50 +6,65 @@
 
 namespace
 {
-template <typename T>
-T* param (juce::AudioProcessorValueTreeState& apvts, const char* id)
-{
-    auto* p = apvts.getRawParameterValue (id);
-    jassert (p != nullptr);   // the table and the code disagree: parameters.csv is the source
-    return p;
-}
+// parameters.csv order; raw[i] is the cached atomic of ids[i] (never a string lookup on the audio thread)
+constexpr const char* ids[38] = {
+    Params::upperBar1, Params::upperBar2, Params::upperBar3, Params::upperBar4, Params::upperBar5,
+    Params::upperBar6, Params::upperBar7, Params::upperBar8, Params::upperBar9,
+    Params::percOn, Params::percThird, Params::percSlow, Params::percSoft,
+    Params::vibratoMode, Params::vibratoLower, Params::leslieFast, Params::leslieBrake, Params::leslieOn,
+    Params::micSpread, Params::drive, Params::keyClick, Params::leakage, Params::expression, Params::outGain,
+    Params::lowerBar1, Params::lowerBar2, Params::lowerBar3, Params::lowerBar4, Params::lowerBar5,
+    Params::lowerBar6, Params::lowerBar7, Params::lowerBar8, Params::lowerBar9,
+    Params::pedalBar16, Params::pedalBar8, Params::pedalRelease, Params::splitKey, Params::pedalSplit };
+enum Index { iUpper = 0, iPercOn = 9, iPercThird, iPercSlow, iPercSoft, iVibMode, iVibLower, iFast, iBrake, iLeslieOn,
+             iSpread, iDrive, iClick, iLeak, iExpr, iOut, iLower, iPed16 = 33, iPed8, iPedRel, iSplit, iPedSplit };
 } // namespace
 
 SundayOrganAudioProcessor::SundayOrganAudioProcessor()
-    : AudioProcessor (BusesProperties()
-#if ! PRODUCT_IS_INSTRUMENT
-                          .withInput ("Input", juce::AudioChannelSet::stereo(), true)
-#endif
-                          .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
       apvts (*this, nullptr, "PARAMETERS", Params::createParameterLayout())
 {
-    outGainParam = param<std::atomic<float>> (apvts, Params::outGain);
-#if ! PRODUCT_IS_INSTRUMENT
-    mixParam = param<std::atomic<float>> (apvts, Params::mix);
-    bypassParam = param<std::atomic<float>> (apvts, Params::bypassParameterId);
-#endif
+    for (int i = 0; i < 38; ++i)
+    {
+        raw[(size_t) i] = apvts.getRawParameterValue (ids[i]);
+        jassert (raw[(size_t) i] != nullptr);   // the table and the code disagree: parameters.csv is the source
+    }
+}
+
+sundayorgan::dsp::Organ::Settings SundayOrganAudioProcessor::readSettings() noexcept
+{
+    auto v = [this] (int i) { return raw[(size_t) i]->load (std::memory_order_relaxed); };
+    auto on = [&] (int i) { return v (i) >= 0.5f; };
+    sundayorgan::dsp::Organ::Settings s;
+    for (int t = 0; t < 9; ++t) { s.upper[t] = juce::roundToInt (v (iUpper + t)); s.lower[t] = juce::roundToInt (v (iLower + t)); }
+    s.percOn = on (iPercOn); s.percThird = on (iPercThird); s.percSlow = on (iPercSlow); s.percSoft = on (iPercSoft);
+    s.vibratoMode = juce::jlimit (0, 6, juce::roundToInt (v (iVibMode)));
+    s.vibratoLower = on (iVibLower);
+    // Leslie Fast and Expression: the parameter or the player's controller, the one moved last
+    if (v (iFast) != lastFastParam) { lastFastParam = v (iFast); fastState = lastFastParam >= 0.5f; }
+    if (v (iExpr) != lastExprParam) { lastExprParam = v (iExpr); exprState = (double) lastExprParam / 100.0; }
+    s.fast = fastState;
+    s.expression = exprState;
+    s.brake = on (iBrake); s.leslieOn = on (iLeslieOn);
+    s.micSpreadDeg = v (iSpread);
+    s.drive = (double) v (iDrive) / 100.0;
+    s.click = (double) v (iClick) / 100.0;
+    s.leakage = (double) v (iLeak) / 100.0;
+    s.volumeDb = v (iOut);
+    s.pedal16 = juce::roundToInt (v (iPed16)); s.pedal8 = juce::roundToInt (v (iPed8));
+    s.pedalRelease = v (iPedRel);
+    s.splitKey = juce::roundToInt (v (iSplit)); s.pedalSplit = juce::roundToInt (v (iPedSplit));
+    return s;
 }
 
 void SundayOrganAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
-    // smoothing from the table (Params::smoothing): tau in ms -> JUCE ramp length (settle in about 4.6 tau)
-    auto tauMs = [] (const char* id) { for (const auto& s : Params::smoothing) if (std::strcmp (s.id, id) == 0) return s.tauMs; return 0.0f; };
-    gainSmoothed.reset (sampleRate, (double) tauMs (Params::outGain) * 4.6 / 1000.0);
-    gainSmoothed.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (outGainParam->load()));
-#if ! PRODUCT_IS_INSTRUMENT
-    mixSmoothed.reset (sampleRate, (double) tauMs (Params::mix) * 4.6 / 1000.0);
-    mixSmoothed.setCurrentAndTargetValue (mixParam->load() / 100.0f);
-    dryBuffer.setSize (2, juce::jmax (1, samplesPerBlock), false, false, true);
-#else
-    for (auto& v : voices)
-    {
-        v = Voice {};
-        v.env.setSampleRate (sampleRate);
-        v.env.setParameters ({ 0.01f, 0.1f, 0.8f, 0.3f });
-    }
-    sustainDown = false;
-#endif
+    organ.prepare (sampleRate, seed);
+    lastFastParam = lastExprParam = -1.0f;
+    organ.apply (readSettings());
+    organ.reset (prototypeStart);
+    organ.setProbe (probe);
     juce::dsp::ProcessSpec spec { sampleRate, (juce::uint32) juce::jmax (1, samplesPerBlock), 1 };
     for (auto* f : { &rmsFilterL, &rmsFilterR })
     {
@@ -62,115 +77,46 @@ void SundayOrganAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     rmsR.store (0.0f);
 }
 
-void SundayOrganAudioProcessor::releaseResources() {}
+void SundayOrganAudioProcessor::releaseResources()
+{
+    organ.allNotesOff();   // rule 16: deactivation releases every note
+}
 
 bool SundayOrganAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-        return false;
-#if ! PRODUCT_IS_INSTRUMENT
-    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::stereo()
-        && layouts.getMainInputChannelSet() != juce::AudioChannelSet::mono())
-        return false;
-#endif
-    return true;
+    return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
 }
 
 double SundayOrganAudioProcessor::getTailLengthSeconds() const
 {
-#if PRODUCT_IS_INSTRUMENT
-    return 0.3;   // the release of the skeleton's envelope; the real instrument reports its longest tail (D.2.5)
-#else
-    return 0.0;
-#endif
+    return 1.6;   // the longest release (Pedal Release 1.5 s) plus the contact ramps (D.2.5)
 }
 
 juce::AudioProcessorParameter* SundayOrganAudioProcessor::getBypassParameter() const
 {
-#if PRODUCT_IS_INSTRUMENT
     return nullptr;   // rule 7 does not apply to an instrument
-#else
-    return apvts.getParameter (Params::bypassParameterId);
-#endif
 }
 
 void SundayOrganAudioProcessor::processBlockBypassed (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
-    // an effect passes the input through, an instrument is silent; output channels beyond the input are cleared
-    for (int ch = getTotalNumInputChannels(); ch < getTotalNumOutputChannels(); ++ch)
-        buffer.clear (ch, 0, buffer.getNumSamples());
+    organ.allNotesOff();
+    buffer.clear();
 }
-
-#if PRODUCT_IS_INSTRUMENT
-void SundayOrganAudioProcessor::noteOn (int note, float velocity)
-{
-    Voice* slot = nullptr;
-    for (auto& v : voices)
-        if (v.note == note) { slot = &v; break; }                  // retrigger the same key
-    if (slot == nullptr)
-        for (auto& v : voices)
-            if (! v.active()) { slot = &v; break; }
-    if (slot == nullptr)
-        for (auto& v : voices)
-            if (! v.env.isActive()) { slot = &v; break; }
-    if (slot == nullptr)
-        slot = &voices[0];                                             // steal the first (the real instrument: oldest released, D.5)
-    slot->note = note;
-    slot->velocity = velocity;
-    slot->phase = 0.0f;
-    slot->env.noteOn();
-}
-
-void SundayOrganAudioProcessor::noteOff (int note)
-{
-    for (auto& v : voices)
-        if (v.note == note)
-            v.env.noteOff();
-}
-
-void SundayOrganAudioProcessor::renderVoices (juce::AudioBuffer<float>& out, int start, int numSamples)
-{
-    const float bend = std::pow (2.0f, pitchBendSemitones / 12.0f);
-    for (auto& v : voices)
-    {
-        if (! v.active())
-            continue;
-        if (! v.env.isActive())
-        {
-            v.note = -1;
-            continue;
-        }
-        const float hz = 440.0f * std::pow (2.0f, (float) (v.note - 69) / 12.0f) * bend;
-        v.increment = hz / (float) currentSampleRate;
-        auto* l = out.getWritePointer (0);
-        auto* r = out.getNumChannels() > 1 ? out.getWritePointer (1) : nullptr;
-        const float vibrato = modWheel * 0.005f;
-        for (int i = start; i < start + numSamples; ++i)
-        {
-            const float e = v.env.getNextSample();
-            const float s = std::sin (v.phase * juce::MathConstants<float>::twoPi) * v.velocity * 0.2f * e;
-            v.phase += v.increment * (1.0f + vibrato * std::sin ((float) i * 0.001f));
-            if (v.phase >= 1.0f) v.phase -= 1.0f;
-            l[i] += s;
-            if (r != nullptr) r[i] += s;
-        }
-    }
-}
-#endif
 
 void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
     juce::ScopedNoDenormals noDenormals;
     const int numSamples = buffer.getNumSamples();
-    for (int ch = getTotalNumInputChannels(); ch < getTotalNumOutputChannels(); ++ch)
-        buffer.clear (ch, 0, numSamples);
-    if (numSamples == 0)   // a zero-length block is legal (harness contract, D.5.1)
-        return;
-
-    gainSmoothed.setTargetValue (juce::Decibels::decibelsToGain (outGainParam->load()));
-
-#if PRODUCT_IS_INSTRUMENT
     buffer.clear();
+    if (numSamples == 0 || buffer.getNumChannels() < 2)   // a zero-length block is legal (harness contract, D.5.1)
+        return;
+    if (notesOffRequested.exchange (false))
+        organ.allNotesOff();
+
+    auto* l = buffer.getWritePointer (0);
+    auto* r = buffer.getWritePointer (1);
+    organ.apply (readSettings());
+
     // MIDI at sample offsets (rule 16): split the block at every event
     int pos = 0;
     for (const auto metadata : midi)
@@ -179,62 +125,46 @@ void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         const int at = juce::jlimit (0, numSamples, metadata.samplePosition);
         if (at > pos)
         {
-            renderVoices (buffer, pos, at - pos);
+            organ.render (l + pos, r + pos, at - pos);
             pos = at;
         }
-        if (msg.isNoteOn())            noteOn (msg.getNoteNumber(), msg.getFloatVelocity());
-        else if (msg.isNoteOff())      { if (! sustainDown) noteOff (msg.getNoteNumber()); }
-        else if (msg.isSustainPedalOn())  sustainDown = true;
-        else if (msg.isSustainPedalOff()) { sustainDown = false; for (auto& v : voices) if (v.active()) v.env.noteOff(); }
-        else if (msg.isPitchWheel())   pitchBendSemitones = 2.0f * (float) (msg.getPitchWheelValue() - 8192) / 8192.0f;
-        else if (msg.isController() && msg.getControllerNumber() == 1) modWheel = (float) msg.getControllerValue() / 127.0f;
-        else if (msg.isAllNotesOff() || msg.isAllSoundOff()) { for (auto& v : voices) v = Voice {}; }
-    }
-    if (pos < numSamples)
-        renderVoices (buffer, pos, numSamples - pos);
-    midi.clear();
-#else
-    juce::ignoreUnused (midi);
-    if (bypassParam->load() >= 0.5f)
-    {
-        processBlockBypassed (buffer, midi);
-        return;
-    }
-    // the skeleton's "wet" path is the input itself; the real effect renders into the buffer here
-    const int channels = juce::jmin (2, buffer.getNumChannels());
-    for (int ch = 0; ch < channels; ++ch)
-        dryBuffer.copyFrom (ch, 0, buffer, ch, 0, numSamples);
-    mixSmoothed.setTargetValue (mixParam->load() / 100.0f);
-    for (int i = 0; i < numSamples; ++i)
-    {
-        const float m = mixSmoothed.getNextValue();
-        const float dry = std::cos (m * juce::MathConstants<float>::halfPi);   // equal power
-        const float wet = std::sin (m * juce::MathConstants<float>::halfPi);
-        for (int ch = 0; ch < channels; ++ch)
+        const int ch = msg.getChannel();
+        if (msg.isNoteOn())                organ.noteOn (ch, msg.getNoteNumber());   // an organ has no velocity (brief)
+        else if (msg.isNoteOff())          organ.noteOff (ch, msg.getNoteNumber());
+        else if (msg.isSustainPedalOn())   organ.sustain (ch, true);
+        else if (msg.isSustainPedalOff())  organ.sustain (ch, false);
+        else if (msg.isAllNotesOff() || msg.isAllSoundOff()) organ.allNotesOff();
+        else if (msg.isController() && msg.getControllerNumber() == 1)
         {
-            auto* out = buffer.getWritePointer (ch);
-            out[i] = dryBuffer.getSample (ch, i) * dry + out[i] * wet;
+            const bool f = msg.getControllerValue() >= 64;       // mod wheel above half = fast
+            if (f != lastCcFast) { lastCcFast = f; fastState = f; auto s = organ.current(); s.fast = f; organ.apply (s); }
+        }
+        else if (msg.isController() && msg.getControllerNumber() == 11)
+        {
+            exprState = (double) msg.getControllerValue() / 127.0;
+            auto s = organ.current(); s.expression = exprState; organ.apply (s);
         }
     }
-#endif
+    if (pos < numSamples)
+        organ.render (l + pos, r + pos, numSamples - pos);
+    midi.clear();
 
-    // output gain, smoothed per sample (Law 5), then the level the editor shows
-    auto* l = buffer.getWritePointer (0);
-    auto* r = buffer.getNumChannels() > 1 ? buffer.getWritePointer (1) : nullptr;
+    // what the editor reads
+    hornRpm.store ((float) (organ.hornHz() * 60.0), std::memory_order_relaxed);
+    drumRpm.store ((float) (organ.drumHz() * 60.0), std::memory_order_relaxed);
+    hornTurn.store ((float) organ.hornAngle(), std::memory_order_relaxed);
+    drumTurn.store ((float) organ.drumAngle(), std::memory_order_relaxed);
+    fastNow.store (fastState, std::memory_order_relaxed);
+    exprNow.store ((float) exprState, std::memory_order_relaxed);
+    activeKeyCount.store (organ.activeKeys(), std::memory_order_relaxed);
     float lastL = 0.0f, lastR = 0.0f;
     for (int i = 0; i < numSamples; ++i)
     {
-        const float g = gainSmoothed.getNextValue();
-        l[i] *= g;
         lastL = rmsFilterL.processSample (0, l[i]);
-        if (r != nullptr)
-        {
-            r[i] *= g;
-            lastR = rmsFilterR.processSample (0, r[i]);
-        }
+        lastR = rmsFilterR.processSample (0, r[i]);
     }
     rmsL.store (lastL, std::memory_order_relaxed);
-    rmsR.store (r != nullptr ? lastR : lastL, std::memory_order_relaxed);
+    rmsR.store (lastR, std::memory_order_relaxed);
 }
 
 juce::AudioProcessorEditor* SundayOrganAudioProcessor::createEditor()

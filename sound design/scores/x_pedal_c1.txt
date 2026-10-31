@@ -1,0 +1,7 @@
+# duration 3
+0|Leslie on|0
+0|Drive|0
+0|P 8'|0
+0|P 16'|8
+0.2|pedal 24|1
+2.8|pedal 24|0

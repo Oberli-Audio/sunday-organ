@@ -60,8 +60,34 @@ static void rtsanSelfTestAllocation() { rtsanSelfTestSink = std::malloc (64); st
 // aborts the run. The plugin and JUCE are linked statically, so their calls bind here.
 // PRODUCT_MALLOC_TRAP=0 switches it off, PRODUCT_MALLOC_TRAP_SELFTEST=1 allocates once inside the
 // armed region and must abort. It misses locks, system calls, page faults and unbounded loops.
-#if JUCE_MAC && ! PRODUCT_HAS_RTSAN
- #include <malloc/malloc.h>
+#if defined(__SANITIZE_ADDRESS__)
+ #define PRODUCT_HAS_ASAN 1
+#elif defined(__has_feature)
+ #if __has_feature(address_sanitizer)
+  #define PRODUCT_HAS_ASAN 1
+ #endif
+#endif
+#ifndef PRODUCT_HAS_ASAN
+ #define PRODUCT_HAS_ASAN 0
+#endif
+#define PRODUCT_MALLOC_TRAP_BUILD ((JUCE_MAC || JUCE_LINUX) && ! PRODUCT_HAS_RTSAN && ! PRODUCT_HAS_ASAN)
+
+#if PRODUCT_MALLOC_TRAP_BUILD
+ #if JUCE_MAC
+  #include <malloc/malloc.h>
+ #else
+  #include <malloc.h>
+extern "C" void* __libc_malloc (size_t);
+extern "C" void* __libc_calloc (size_t, size_t);
+extern "C" void* __libc_realloc (void*, size_t);
+extern "C" void* __libc_memalign (size_t, size_t);
+// Linux (glibc): the same trap, forwarding to glibc's own entry points (Sunday Organ, 2026-10-31)
+static inline void* malloc_zone_malloc (void*, size_t n) { return __libc_malloc (n); }
+static inline void* malloc_zone_calloc (void*, size_t c, size_t n) { return __libc_calloc (c, n); }
+static inline void* malloc_zone_realloc (void*, void* p, size_t n) { return __libc_realloc (p, n); }
+static inline void* malloc_zone_memalign (void*, size_t a, size_t n) { return __libc_memalign (a, n); }
+static inline void* malloc_default_zone() { return nullptr; }
+ #endif
  #include <pthread.h>
  #include <unistd.h>
  #include <cerrno>
@@ -102,6 +128,10 @@ extern "C"
         *out = malloc_zone_memalign (malloc_default_zone(), alignment, n);
         return *out != nullptr ? 0 : ENOMEM;
     }
+   #if JUCE_LINUX
+    void* memalign (size_t a, size_t n)       { mallocTrap::check ("memalign");      return malloc_zone_memalign (malloc_default_zone(), a, n); }
+    void* aligned_alloc (size_t a, size_t n)  { mallocTrap::check ("aligned_alloc"); return malloc_zone_memalign (malloc_default_zone(), a, n); }
+   #endif
 }
 void* operator new (size_t n)                  { mallocTrap::check ("operator new");   if (auto* p = malloc_zone_malloc (malloc_default_zone(), n ? n : 1)) return p; throw std::bad_alloc(); }
 void* operator new[] (size_t n)                { mallocTrap::check ("operator new[]"); if (auto* p = malloc_zone_malloc (malloc_default_zone(), n ? n : 1)) return p; throw std::bad_alloc(); }
@@ -119,7 +149,7 @@ static void processBlockRealtime (juce::AudioProcessor& processor, juce::AudioBu
     if (rtsanSelfTest)
         rtsanSelfTestAllocation();
    #endif
-   #if JUCE_MAC && ! PRODUCT_HAS_RTSAN
+   #if PRODUCT_MALLOC_TRAP_BUILD
     static const bool trapOn = mallocTrap::enabled();
     if (trapOn)
     {
@@ -159,7 +189,12 @@ const char* const kUsage =
     "  --reprepare-at=<t>:<rate>/<block>      prepareToPlay again mid-render; repeatable\n"
     "  --preset-at=<t>:<slug>       load a factory preset at t seconds; repeatable\n"
     "  --profile --warmup=<n>       time every processBlock; exclude n blocks from the distribution\n"
-    "  --solo=<part>                product-specific isolation (see the hooks at the end of Main.cpp)\n"
+    "  --solo=<part>                probe point: upper|lower|pedals|voices|preamp|crossover (G5 module nulls)\n"
+    "  Sunday Organ: --lower=<n,...> (channel 2) --pedals=<n,...> (channel 3), held like --notes and\n"
+    "  released at --gate; --expr=<t>:<0..1>,... (CC11) --sustain=<t>:<0|1>,... (CC64, channel 1);\n"
+    "  --events=<score.txt> the prototype's score format (t|label|value, `sound design/scores`), each\n"
+    "  event on its own sample (the block ends before it); --proto-init: every smoother and both\n"
+    "  rotors start from 0, like the Faust prototype (G5)\n"
     "  --list-params | --list-presets   JSON lists; exit\n";
 
 struct Args
@@ -184,7 +219,8 @@ Args parseArgs (int argc, char* argv[])
 {
     static const juce::StringArray known { "help", "seed", "sample-rate", "block", "max-block", "seconds", "preset", "param",
         "automate", "bend", "mod", "notes", "midi", "gate", "reprepare-at", "in", "signal", "out", "state-in", "state-out",
-        "profile", "preset-at", "warmup", "solo", "list-params", "list-presets" };
+        "profile", "preset-at", "warmup", "solo", "list-params", "list-presets",
+        "lower", "pedals", "expr", "sustain", "events", "proto-init" };
     Args a;
     for (int i = 1; i < argc; ++i)
     {
@@ -440,15 +476,24 @@ double dbOf (double lin) { return lin > 0.0 ? 20.0 * std::log10 (lin) : -300.0; 
 //==============================================================================
 // Product hooks (the two TODOs of the contract). The skeleton has no solo parts and no product
 // metrics; a product fills these in beside its DSP (Horizon Pad: layers, keyboard, mix pocket).
-static bool applySolo (juce::AudioProcessor&, const juce::String& part)
+static bool probeOf (const juce::String& part, sundayorgan::dsp::Organ::Probe& probe)
 {
-    juce::ignoreUnused (part);
+    using P = sundayorgan::dsp::Organ::Probe;
+    static const std::pair<const char*, P> parts[] = { { "upper", P::upper }, { "lower", P::lower }, { "pedals", P::pedals },
+                                                       { "voices", P::voices }, { "preamp", P::preamp }, { "crossover", P::crossover } };
+    for (const auto& p : parts)
+        if (part == p.first) { probe = p.second; return true; }
     return false;   // unknown part: refused with exit 2
 }
 
-static juce::var productMetrics (const juce::AudioBuffer<float>&, double)
+static juce::var productMetrics (const SundayOrganAudioProcessor& p)
 {
-    return obj();
+    auto o = obj();
+    set (o, "horn_rpm", (double) p.hornSpeedRpm());
+    set (o, "drum_rpm", (double) p.drumSpeedRpm());
+    set (o, "leslie_fast", p.leslieFastNow());
+    set (o, "expression", (double) p.expressionNow());
+    return o;
 }
 
 //==============================================================================
@@ -507,6 +552,14 @@ static int run (int argc, char* argv[])
     layout.outputBuses.add (juce::AudioChannelSet::stereo());
     if (! processor->setBusesLayout (layout)) refuse ("the processor refuses the stereo layout");
     processor->setNonRealtime (false);
+    juce::String solo;
+    sundayorgan::dsp::Organ::Probe probe = sundayorgan::dsp::Organ::Probe::out;
+    if (args.has ("solo"))
+    {
+        solo = args.get ("solo");
+        if (! probeOf (solo, probe)) refuse ("--solo=" + solo + ": this product has no such part (upper, lower, pedals, voices, preamp, crossover)");
+    }
+    product->setTestOptions (seed, args.has ("proto-init"), probe);
     processor->prepareToPlay (rate, maxBlock);
 
     // -------- state in
@@ -526,12 +579,6 @@ static int run (int argc, char* argv[])
     {
         presetName = args.get ("preset");
         if (! loadPreset (apvts, presetName)) refuse ("no factory preset " + presetName + " in " + factoryFolder().getFullPathName() + " (see --list-presets)");
-    }
-    juce::String solo;
-    if (args.has ("solo"))
-    {
-        solo = args.get ("solo");
-        if (! applySolo (*processor, solo)) refuse ("--solo=" + solo + ": this product has no such part");
     }
     auto paramById = [&] (const juce::String& id) -> juce::RangedAudioParameter*
     {
@@ -571,6 +618,64 @@ static int run (int argc, char* argv[])
     const double gate = args.has ("gate") ? numberOr (args.get ("gate"), "--gate") : -1.0;
     auto bends = parseTimedList (args.get ("bend"), "--bend");
     auto mods = parseTimedList (args.get ("mod"), "--mod");
+    auto noteList = [&] (const char* flag)
+    {
+        std::vector<int> v;
+        for (auto n : juce::StringArray::fromTokens (args.get (flag), ",", ""))
+            if (n.trim().isNotEmpty()) v.push_back ((int) numberOr (n.trim(), flag));
+        return v;
+    };
+    const std::vector<int> lowerNotes = noteList ("lower"), pedalNotes = noteList ("pedals");
+    auto exprs = parseTimedList (args.get ("expr"), "--expr");
+    auto sustains = parseTimedList (args.get ("sustain"), "--sustain");
+
+    // --events: the prototype's scores (time|label|value). Each event lands on the first sample
+    // n >= t * fs, as the prototype's render harness applies it with TW_BLOCK=1.
+    struct ScoreEvent { juce::int64 at; juce::RangedAudioParameter* param; double plain; juce::MidiMessage msg; };
+    std::vector<ScoreEvent> score;
+    if (args.has ("events"))
+    {
+        juce::StringArray lines;
+        juce::File::getCurrentWorkingDirectory().getChildFile (args.get ("events")).readLines (lines);
+        static const std::pair<const char*, const char*> labels[] = {
+            { "16'", "upperBar1" }, { "5 1/3'", "upperBar2" }, { "8'", "upperBar3" }, { "4'", "upperBar4" }, { "2 2/3'", "upperBar5" },
+            { "2'", "upperBar6" }, { "1 3/5'", "upperBar7" }, { "1 1/3'", "upperBar8" }, { "1'", "upperBar9" },
+            { "L 16'", "lowerBar1" }, { "L 5 1/3'", "lowerBar2" }, { "L 8'", "lowerBar3" }, { "L 4'", "lowerBar4" }, { "L 2 2/3'", "lowerBar5" },
+            { "L 2'", "lowerBar6" }, { "L 1 3/5'", "lowerBar7" }, { "L 1 1/3'", "lowerBar8" }, { "L 1'", "lowerBar9" },
+            { "On", "percOn" }, { "Third", "percThird" }, { "Slow", "percSlow" }, { "Soft", "percSoft" }, { "Mode", "vibratoMode" },
+            { "Lower", "vibratoLower" }, { "Brake", "leslieBrake" }, { "Leslie on", "leslieOn" }, { "Mic spread", "micSpread" },
+            { "Key click", "keyClick" }, { "Leakage", "leakage" }, { "Drive", "drive" }, { "Volume", "outGain" },
+            { "P 16'", "pedalBar16" }, { "P 8'", "pedalBar8" }, { "Pedal release", "pedalRelease" },
+            { "Split key", "splitKey" }, { "Pedal split", "pedalSplit" } };
+        for (auto line : lines)
+        {
+            line = line.trim();
+            if (line.isEmpty() || line.startsWith ("#")) continue;
+            auto f = juce::StringArray::fromTokens (line, "|", "");
+            if (f.size() != 3) refuse ("--events: not t|label|value: " + line);
+            const double t = numberOr (f[0], "--events time"), v = numberOr (f[2], "--events value");
+            const auto at = (juce::int64) std::ceil (t * rate);
+            const auto label = f[1];
+            auto midiEvent = [&] (juce::MidiMessage m) { score.push_back ({ at, nullptr, 0.0, m }); };
+            if (label.startsWith ("key ")) midiEvent (v > 0.5 ? juce::MidiMessage::noteOn (1, label.substring (4).getIntValue(), 1.0f) : juce::MidiMessage::noteOff (1, label.substring (4).getIntValue()));
+            else if (label.startsWith ("lkey ")) midiEvent (v > 0.5 ? juce::MidiMessage::noteOn (2, label.substring (5).getIntValue(), 1.0f) : juce::MidiMessage::noteOff (2, label.substring (5).getIntValue()));
+            else if (label.startsWith ("pedal ")) midiEvent (v > 0.5 ? juce::MidiMessage::noteOn (3, label.substring (6).getIntValue(), 1.0f) : juce::MidiMessage::noteOff (3, label.substring (6).getIntValue()));
+            else if (label == "Fast") midiEvent (juce::MidiMessage::controllerEvent (1, 1, v > 0.5 ? 127 : 0));
+            else if (label == "Expression") midiEvent (juce::MidiMessage::controllerEvent (1, 11, juce::jlimit (0, 127, (int) std::lround (v * 127.0))));
+            else if (label == "Sustain") midiEvent (juce::MidiMessage::controllerEvent (1, 64, v > 0.5 ? 127 : 0));
+            else if (label == "Sustain 2") midiEvent (juce::MidiMessage::controllerEvent (2, 64, v > 0.5 ? 127 : 0));
+            else
+            {
+                const char* id = nullptr;
+                for (const auto& l : labels) if (label == l.first) id = l.second;
+                if (id == nullptr) refuse ("--events: unknown label " + label);
+                const bool percent = label == "Key click" || label == "Leakage" || label == "Drive";
+                score.push_back ({ at, paramById (id), percent ? v * 100.0 : v, juce::MidiMessage() });
+            }
+        }
+        std::stable_sort (score.begin(), score.end(), [] (const ScoreEvent& a, const ScoreEvent& b) { return a.at < b.at; });
+    }
+    size_t nextScore = 0, nextExpr = 0, nextSustain = 0;
     juce::MidiMessageSequence midiFile;
     if (args.has ("midi"))
     {
@@ -659,17 +764,33 @@ static int run (int argc, char* argv[])
 
         int n = randomBlocks ? (int) (blockRng() % (unsigned) (maxBlock + 1)) : block;
         n = (int) juce::jmin ((juce::int64) n, total - pos);
+        midi.clear();
+        while (nextScore < score.size() && score[nextScore].at <= pos)
+        {
+            const auto& e = score[nextScore++];
+            if (e.param != nullptr) e.param->setValueNotifyingHost (e.param->convertTo0to1 ((float) e.plain));
+            else midi.addEvent (e.msg, 0);
+        }
+        if (nextScore < score.size())
+            n = (int) juce::jmin ((juce::int64) n, score[nextScore].at - pos);
         for (const auto& r : ramps)
             paramById (r.id)->setValueNotifyingHost ((float) juce::jlimit (0.0, 1.0, rampValue (r, now)));
 
-        midi.clear();
         if (isInstrument)
         {
-            if (! notesOn && ! notes.empty()) { for (int note : notes) midi.addEvent (juce::MidiMessage::noteOn (1, note, 0.8f), 0); notesOn = true; }
+            if (! notesOn)
+            {
+                for (int note : notes) midi.addEvent (juce::MidiMessage::noteOn (1, note, 0.8f), 0);
+                for (int note : lowerNotes) midi.addEvent (juce::MidiMessage::noteOn (2, note, 0.8f), 0);
+                for (int note : pedalNotes) midi.addEvent (juce::MidiMessage::noteOn (3, note, 0.8f), 0);
+                notesOn = true;
+            }
             if (gate >= 0.0 && ! notesOff && now + (double) n / rate > gate)
             {
                 const int at = juce::jlimit (0, juce::jmax (0, n - 1), (int) std::llround ((gate - now) * rate));
                 for (int note : notes) midi.addEvent (juce::MidiMessage::noteOff (1, note), at);
+                for (int note : lowerNotes) midi.addEvent (juce::MidiMessage::noteOff (2, note), at);
+                for (int note : pedalNotes) midi.addEvent (juce::MidiMessage::noteOff (3, note), at);
                 notesOff = true;
             }
             while (nextBend < bends.size() && bends[nextBend].t < now + (double) n / rate)
@@ -683,6 +804,18 @@ static int run (int argc, char* argv[])
                 const int at = juce::jlimit (0, juce::jmax (0, n - 1), (int) std::llround ((mods[nextMod].t - now) * rate));
                 midi.addEvent (juce::MidiMessage::controllerEvent (1, 1, juce::jlimit (0, 127, (int) std::lround (mods[nextMod].v * 127.0))), at);
                 ++nextMod;
+            }
+            while (nextExpr < exprs.size() && exprs[nextExpr].t < now + (double) n / rate)
+            {
+                const int at = juce::jlimit (0, juce::jmax (0, n - 1), (int) std::llround ((exprs[nextExpr].t - now) * rate));
+                midi.addEvent (juce::MidiMessage::controllerEvent (1, 11, juce::jlimit (0, 127, (int) std::lround (exprs[nextExpr].v * 127.0))), at);
+                ++nextExpr;
+            }
+            while (nextSustain < sustains.size() && sustains[nextSustain].t < now + (double) n / rate)
+            {
+                const int at = juce::jlimit (0, juce::jmax (0, n - 1), (int) std::llround ((sustains[nextSustain].t - now) * rate));
+                midi.addEvent (juce::MidiMessage::controllerEvent (1, 64, sustains[nextSustain].v > 0.5 ? 127 : 0), at);
+                ++nextSustain;
             }
             while (midiFileIndex < midiFile.getNumEvents() && midiFile.getEventTime (midiFileIndex) < now + (double) n / rate)
             {
@@ -766,7 +899,7 @@ static int run (int argc, char* argv[])
     set (root, "contract", 3);
     {
         auto applied = obj();
-        set (applied, "seed", seed); set (applied, "sample_rate", rate); set (applied, "block", randomBlocks ? juce::var (blockArg) : juce::var (block));
+        set (applied, "seed", seed); set (applied, "sample_rate", rate == std::floor (rate) ? juce::var ((int) rate) : juce::var (rate));   // contract: an integer (dspkit compares the text) set (applied, "block", randomBlocks ? juce::var (blockArg) : juce::var (block));
         set (applied, "max_block", maxBlock); set (applied, "seconds", seconds);
         set (applied, "preset", presetName.isEmpty() ? juce::var() : juce::var (presetName)); set (applied, "solo", solo.isEmpty() ? juce::var() : juce::var (solo));
         auto params = obj();
@@ -814,7 +947,7 @@ static int run (int argc, char* argv[])
         set (pr, "first_block_pct", firstBlockPct); set (pr, "warmup_blocks", warmup);
         set (root, "profile", pr);
     }
-    set (root, "product", productMetrics (out, rate));
+    set (root, "product", productMetrics (*product));
     std::cout << juce::JSON::toString (root, true) << std::endl;
 
     if (stateRefused.isNotEmpty()) { std::cerr << "error: --state-in " << stateRefused << std::endl; return 2; }
