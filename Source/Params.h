@@ -53,23 +53,41 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     using namespace juce;
     AudioProcessorValueTreeState::ParameterLayout layout;
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar1, 1 }, "Upper 16'", 0, 8, 8,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar2, 1 }, "Upper 5 1/3'", 0, 8, 8,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar3, 1 }, "Upper 8'", 0, 8, 8,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar4, 1 }, "Upper 4'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar5, 1 }, "Upper 2 2/3'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar6, 1 }, "Upper 2'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar7, 1 }, "Upper 1 3/5'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar8, 1 }, "Upper 1 1/3'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar9, 1 }, "Upper 1'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterBool> (ParameterID { percOn, 1 }, "Percussion", false,
         AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
     layout.add (std::make_unique<AudioParameterBool> (ParameterID { percThird, 1 }, "Percussion Third", false,
@@ -119,36 +137,62 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             .withStringFromValueFunction ([] (float v, int) { return juce::String (v > 0 ? "+" : "") + fmt (v, 1) + " dB"; })
             .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); if (t == "-inf" || t == "-inf db" || t == "off") return -24.0f; double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar1, 1 }, "Lower 16'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar2, 1 }, "Lower 5 1/3'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar3, 1 }, "Lower 8'", 0, 8, 8,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar4, 1 }, "Lower 4'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar5, 1 }, "Lower 2 2/3'", 0, 8, 8,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar6, 1 }, "Lower 2'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar7, 1 }, "Lower 1 3/5'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar8, 1 }, "Lower 1 1/3'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar9, 1 }, "Lower 1'", 0, 8, 0,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalBar16, 1 }, "Pedal 16'", 0, 8, 6,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalBar8, 1 }, "Pedal 8'", 0, 8, 3,
-        AudioParameterIntAttributes()));
+        AudioParameterIntAttributes()
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; return fmt (v, 0) + ""; })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; }) (text)); })));
     layout.add (std::make_unique<AudioParameterFloat> (ParameterID { pedalRelease, 1 }, "Pedal Release",
         NormalisableRange<float> (0.01f, 1.5f, 0.0f, 0.246960f), 0.08f,
         AudioParameterFloatAttributes().withLabel ("s")
             .withStringFromValueFunction ([] (float v, int) { double s = v; return std::abs (s) < 1.0 ? fmt (s * 1000.0, 0) + " ms" : fmt (s, 2) + " s"; })
             .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); if (t.endsWith ("ms")) return (float) (x / 1000.0); if (t.endsWith ("min") || t.endsWith ("m")) return (float) (x * 60.0); return (float) (x); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { splitKey, 1 }, "Split Key", 36, 96, 36,
-        AudioParameterIntAttributes().withLabel ("note")));
+        AudioParameterIntAttributes().withLabel ("note")
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; static const char* n[] = { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" }; int m = juce::roundToInt (v); return juce::String (n[((m % 12) + 12) % 12]) + juce::String (m / 12 - 1); })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { auto t = s.trim().toLowerCase(); static const char* n[] = { "c#","d#","f#","g#","a#","c","d","e","f","g","a","b" }; static const int pc[] = { 1, 3, 6, 8, 10, 0, 2, 4, 5, 7, 9, 11 }; for (int i = 0; i < 12; ++i) if (t.startsWith (n[i])) { auto rest = t.substring ((int) std::strlen (n[i])); int base = pc[i]; if (rest.startsWith ("b")) { base -= 1; rest = rest.substring (1); } return (float) ((rest.getIntValue() + 1) * 12 + base); } return (float) t.getFloatValue(); }) (text)); })));
     layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalSplit, 1 }, "Pedal Split", 24, 48, 24,
-        AudioParameterIntAttributes().withLabel ("note")));
+        AudioParameterIntAttributes().withLabel ("note")
+            .withStringFromValueFunction ([] (int i, int) { const float v = (float) i; static const char* n[] = { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" }; int m = juce::roundToInt (v); return juce::String (n[((m % 12) + 12) % 12]) + juce::String (m / 12 - 1); })
+            .withValueFromStringFunction ([] (const juce::String& text) { return juce::roundToInt (([] (const juce::String& s) { auto t = s.trim().toLowerCase(); static const char* n[] = { "c#","d#","f#","g#","a#","c","d","e","f","g","a","b" }; static const int pc[] = { 1, 3, 6, 8, 10, 0, 2, 4, 5, 7, 9, 11 }; for (int i = 0; i < 12; ++i) if (t.startsWith (n[i])) { auto rest = t.substring ((int) std::strlen (n[i])); int base = pc[i]; if (rest.startsWith ("b")) { base -= 1; rest = rest.substring (1); } return (float) ((rest.getIntValue() + 1) * 12 + base); } return (float) t.getFloatValue(); }) (text)); })));
     return layout;
 }
 

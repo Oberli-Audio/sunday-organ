@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include <algorithm>
 #include <cmath>
 #include <initializer_list>
 
@@ -21,15 +22,21 @@ inline constexpr const char* kStateTag = "SundayOrganState";
 inline constexpr const char* kPresetTag = "OberliPreset";
 inline constexpr const char* kPresetExtension = ".oberlipreset";
 
-/** A float parameter is saved to 6 significant digits: JUCE keeps a float's plain value as
-    convertFrom0to1 (n) in float, so 30 comes back as 30.0000019 - rounded, the text is the same after
-    every load and save (bytewise round trip, D.5.3; failures.md F-4), 1e-6 relative, inaudible. */
-inline double sixDigits (double v)
+/** A float parameter is saved to 6 significant digits, on a grid no finer than a millionth of its
+    range's decade: JUCE keeps a float's plain value as convertFrom0to1 (n) in float, so 30 comes back
+    as 30.0000019, and where the compiler fuses start + span * n into one FMA (arm64) no n gives 0 dB
+    in -24..12 exactly (7.2e-7). Rounded, the text is the same after every load and save (bytewise
+    round trip, D.5.3; failures.md F-4, F-10), inaudible. */
+inline double savedValue (const juce::NormalisableRange<float>& range, double v)
 {
-    if (juce::exactlyEqual (v, 0.0) || ! std::isfinite (v))
+    if (! std::isfinite (v))
         return v;
-    const double scale = std::pow (10.0, 5.0 - std::floor (std::log10 (std::abs (v))));
-    return std::round (v * scale) / scale;
+    const double span = (double) range.end - (double) range.start;
+    int e = (int) std::floor (std::log10 (span)) - 6;   // the floor: a float's error in this range stays below half of it
+    if (! juce::exactlyEqual (v, 0.0))
+        e = std::max (e, (int) std::floor (std::log10 (std::abs (v))) - 5);
+    const double p = std::pow (10.0, std::abs (e));   // an exact power of ten, so the text stays short
+    return e < 0 ? std::round (v * p) / p : std::round (v / p) * p;
 }
 
 /** The normalised value whose plain value is nearest `plain`: a skewed range does not invert exactly in
@@ -70,7 +77,7 @@ inline std::unique_ptr<juce::XmlElement> toXml (const juce::AudioProcessorValueT
             // a float writes its stored plain value: convertFrom0to1 (getValue()) is a second float
             // round trip and drifts a skewed parameter on every save (failures.md F-4)
             if (auto* f = dynamic_cast<juce::AudioParameterFloat*> (p))
-                e->setAttribute ("value", sixDigits ((double) f->get()));
+                e->setAttribute ("value", savedValue (f->getNormalisableRange(), (double) f->get()));
             else
                 e->setAttribute ("value", ranged != nullptr ? (double) ranged->convertFrom0to1 (p->getValue()) : (double) p->getValue());
         }

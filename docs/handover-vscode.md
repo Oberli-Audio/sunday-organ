@@ -1,5 +1,9 @@
 # Handover: cloud session -> Claude Code in VS Code on Björn's Mac (2026-10-31)
 
+Done 2026-11-01 by Claude Code on the Mac, except A.3 (Björn plays): `docs/status.md` has the
+numbers, F-9 and F-10 the two Mac-only defects; part B is sound-design-bob 5.2.0 and skills-bob
+1.3.0 in ~/bob-skills (Björn decided all four B3 notes in).
+
 Written by the cloud session that took Sunday Organ from G1 to G6 on Linux (branch
 `g0-brief-and-sketch`). Read `CLAUDE.md`, `docs/status.md` (Gates, Open exceptions, Handoff) and
 this file; then do part A, then part B. Part B edits `~/bob-skills`, not this repo.

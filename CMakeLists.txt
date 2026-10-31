@@ -179,11 +179,18 @@ if (PRODUCT_RELEASE_SYMBOLS)
         target_link_options(SundayOrgan PUBLIC $<$<CONFIG:Release>:/DEBUG /OPT:REF /OPT:ICF>)
     elseif (APPLE)
         target_compile_options(SundayOrgan PUBLIC $<$<CONFIG:Release>:-g>)
+        set(PRODUCT_LTO_ARCHS ${CMAKE_OSX_ARCHITECTURES})
+        if (NOT PRODUCT_LTO_ARCHS)
+            set(PRODUCT_LTO_ARCHS ${CMAKE_HOST_SYSTEM_PROCESSOR})
+        endif()
         foreach(format VST3 Standalone)
             if (TARGET SundayOrgan_${format})
-                # with LTO the linker deletes its object (/tmp/lto.o) before dsymutil reads it: keep it
-                target_link_options(SundayOrgan_${format} PRIVATE
-                    "$<$<CONFIG:Release>:LINKER:-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/lto-${format}.o>")
+                # with LTO the linker deletes its object (/tmp/lto.o) before dsymutil reads it: keep it,
+                # one per architecture (a shared path keeps only the last slice's, F-9)
+                foreach(arch ${PRODUCT_LTO_ARCHS})
+                    target_link_options(SundayOrgan_${format} PRIVATE
+                        "$<$<CONFIG:Release>:SHELL:-Xarch_${arch} -Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/lto-${format}-${arch}.o>")
+                endforeach()
                 # strip runs after JUCE's ad-hoc signature and breaks it; macOS will not load a
                 # broken signature (on Apple Silicon and under Rosetta), so sign ad hoc again last
                 add_custom_command(TARGET SundayOrgan_${format} POST_BUILD
@@ -319,6 +326,12 @@ if (Python3_FOUND)
         add_test(NAME design_sources_in_git
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/check_sources.py" "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(design_sources_in_git PROPERTIES LABELS "fast;lint")
+        if (APPLE AND PRODUCT_RELEASE_SYMBOLS)
+            add_test(NAME release_bundles
+                     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/check_bundles.py" "${CMAKE_CURRENT_BINARY_DIR}"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+            set_tests_properties(release_bundles PROPERTIES LABELS fast)
+        endif()
         add_test(NAME preset_bank
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/dsp-kit/presetlint.py" bank
                          "${CMAKE_CURRENT_SOURCE_DIR}/presets.csv" --tier P --track ${PRODUCT_KIND}
