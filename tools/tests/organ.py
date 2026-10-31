@@ -20,9 +20,15 @@ LOWER = ["lowerBar%d" % i for i in range(1, 10)]
 
 
 def norm(pid, plain):
+    """The table's plain value -> JUCE's normalised one, skew included (a `centre` sits at 0.5)."""
+    import math
     r = TABLE[pid]
     lo, hi = float(r["min"]), float(r["max"])
-    return (float(plain) - lo) / (hi - lo)
+    p = (float(plain) - lo) / (hi - lo)
+    if r.get("centre"):
+        skew = math.log(0.5) / math.log((float(r["centre"]) - lo) / (hi - lo))
+        p = p ** skew if p > 0 else 0.0
+    return p
 
 
 def bars(reg, manual="upper"):

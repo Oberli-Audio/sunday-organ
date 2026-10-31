@@ -49,6 +49,15 @@ class Regressions(Timed):
             levels[fs] = rms_db(x[int(0.5 * fs):, 0])
         self.assertLess(max(levels.values()) - min(levels.values()), 0.2, "pedal C1 level depends on the rate: %r" % levels)
 
+    def test_state_round_trip_bytewise_with_skewed_params(self):           # F-4 (D.5.3, rule 19)
+        with tempfile.TemporaryDirectory() as d:
+            a, b, c = (os.path.join(d, n) for n in ("a.state", "b.state", "c.state"))
+            O.render({"drive": 30, "micSpread": 150, "pedalRelease": 0.3}, seconds=0.1, state_out=a)
+            O.render(None, seconds=0.1, state_in=a, state_out=b)
+            O.render(None, seconds=0.1, state_in=b, state_out=c)
+            self.assertEqual(open(a, "rb").read(), open(b, "rb").read(), "state changed on the first load and save")
+            self.assertEqual(open(b, "rb").read(), open(c, "rb").read(), "state drifts on every load and save")
+
 
 def steady(plain, seconds=1.2, **flags):
     x, fs, res = O.render(plain, seconds=seconds, **flags)

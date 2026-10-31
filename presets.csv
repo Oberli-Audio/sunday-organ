@@ -1,2 +1,17 @@
 slug,name,category,tags,edge,author,notes
-init,Init,Bed,,N,Oberli Audio,the parameter table's defaults (category: the brief's list; Bed until G0 decides)
+init,Init,Worship,,N,Oberli Audio,"the parameter table's defaults; upper 888000000"
+jazz-trio,Jazz Trio,Jazz,,N,Oberli Audio,"third percussion, C3, light drive; upper 888000000"
+smoky-club,Smoky Club,Jazz,,N,Oberli Audio,"second percussion soft, C3, worn; upper 838000000"
+bebop-lines,Bebop Lines,Jazz,,N,Oberli Audio,"dry, fast third percussion, sharp click; upper 888000000"
+gospel-full,Gospel Full,Gospel,,Y,Oberli Audio,"every drawbar out, C3, Leslie fast (loudest); upper 888888888"
+shout-chorus,Shout Chorus,Gospel,,N,Oberli Audio,"888800000, C3, fast; upper 888800000"
+sunday-morning,Sunday Morning,Gospel,,N,Oberli Audio,"third percussion, C3, warm drive; upper 888000000; lower 008080000"
+sanctuary,Sanctuary,Worship,,Y,Oberli Audio,"C2, mics opposite (widest); upper 886000000"
+swell-pad,Swell Pad,Worship,,N,Oberli Audio,"soft flutes, C3, for swells on CC11; upper 008400000"
+quiet-prayer,Quiet Prayer,Worship,,N,Oberli Audio,"very soft flutes, C1; upper 008500000; lower 006000000"
+rock-drive,Rock Drive,Rock,,Y,Oberli Audio,"V3, fast, heavy drive (most drive); upper 888000000"
+power-chords,Power Chords,Rock,,N,Oberli Audio,"dry, slow, driven; upper 888800000"
+ballad,Ballad,Ballad,,Y,Oberli Audio,"8' alone, C3, clean (darkest); upper 008000000"
+warm-ballad,Warm Ballad,Ballad,,N,Oberli Audio,"16' and 8', C2; upper 808000000"
+split-comping,Split Comping,Split,,N,Oberli Audio,"split at C4: lower comping, upper lead with percussion; upper 888000000; lower 008080000"
+bass-split,Bass Split,Split,,N,Oberli Audio,"C2-B2 play the pedals, the rest the upper manual; upper 888000000"

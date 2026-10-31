@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<OberliPreset name="Init" author="Oberli Audio" category="Bed"
+<OberliPreset name="Init" author="Oberli Audio" category="Worship"
               description="The parameter table's defaults."
               pluginVersion="0.1.0" created="2026-10-31" factory="true">
   <SundayOrganState version="1" dspVersion="1">
     <PARAMETERS>
-      <PARAM id="outGain" value="0"/>
+
     </PARAMETERS>
     <Extra/>
   </SundayOrganState>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OberliPreset name="Sanctuary" author="Oberli Audio" category="Worship"
+              description="C2, mics opposite (widest)."
+              pluginVersion="0.1.0" created="2026-10-31" factory="true">
+  <SundayOrganState version="1" dspVersion="1">
+    <PARAMETERS>
+      <PARAM id="vibratoMode" value="5"/>
+      <PARAM id="micSpread" value="180"/>
+      <PARAM id="drive" value="5"/>
+      <PARAM id="keyClick" value="15"/>
+      <PARAM id="upperBar1" value="8"/>
+      <PARAM id="upperBar2" value="8"/>
+      <PARAM id="upperBar3" value="6"/>
+      <PARAM id="upperBar4" value="0"/>
+      <PARAM id="upperBar5" value="0"/>
+      <PARAM id="upperBar6" value="0"/>
+      <PARAM id="upperBar7" value="0"/>
+      <PARAM id="upperBar8" value="0"/>
+      <PARAM id="upperBar9" value="0"/>
+      <PARAM id="outGain" value="2.4"/>
+    </PARAMETERS>
+    <Extra/>
+  </SundayOrganState>
+</OberliPreset>

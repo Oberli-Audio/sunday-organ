@@ -2,6 +2,9 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include <cmath>
+#include <initializer_list>
+
 /*  The product's state and preset format (sound-design-bob D.5.3, D.6.5).
 
     Session state and every preset file carry one <SundayOrganState version="N" dspVersion="M">
@@ -18,6 +21,39 @@ inline constexpr const char* kStateTag = "SundayOrganState";
 inline constexpr const char* kPresetTag = "OberliPreset";
 inline constexpr const char* kPresetExtension = ".oberlipreset";
 
+/** A float parameter is saved to 6 significant digits: JUCE keeps a float's plain value as
+    convertFrom0to1 (n) in float, so 30 comes back as 30.0000019 - rounded, the text is the same after
+    every load and save (bytewise round trip, D.5.3; failures.md F-4), 1e-6 relative, inaudible. */
+inline double sixDigits (double v)
+{
+    if (v == 0.0 || ! std::isfinite (v))
+        return v;
+    const double scale = std::pow (10.0, 5.0 - std::floor (std::log10 (std::abs (v))));
+    return std::round (v * scale) / scale;
+}
+
+/** The normalised value whose plain value is nearest `plain`: a skewed range does not invert exactly in
+    float, so the neighbours of convertTo0to1 are tried too - the state then round-trips bytewise
+    (D.5.3; failures.md F-4). */
+inline float normalisedFor (const juce::RangedAudioParameter& p, double plain)
+{
+    float best = p.convertTo0to1 ((float) plain);
+    double err = std::abs ((double) p.convertFrom0to1 (best) - plain);
+    float down = best, up = best;
+    for (int i = 0; i < 64 && err > 0.0; ++i)
+    {
+        down = std::nextafter (down, -1.0f);
+        up = std::nextafter (up, 2.0f);
+        for (float c : { down, up })
+            if (c >= 0.0f && c <= 1.0f)
+            {
+                const double e = std::abs ((double) p.convertFrom0to1 (c) - plain);
+                if (e < err) { err = e; best = c; }
+            }
+    }
+    return best;
+}
+
 /** The state element for the current parameter values. Plain units, shortest round-trip text. */
 inline std::unique_ptr<juce::XmlElement> toXml (const juce::AudioProcessorValueTreeState& apvts)
 {
@@ -31,7 +67,12 @@ inline std::unique_ptr<juce::XmlElement> toXml (const juce::AudioProcessorValueT
             auto* e = params->createNewChildElement ("PARAM");
             e->setAttribute ("id", withId->paramID);
             auto* ranged = dynamic_cast<juce::RangedAudioParameter*> (p);
-            e->setAttribute ("value", ranged != nullptr ? (double) ranged->convertFrom0to1 (p->getValue()) : (double) p->getValue());
+            // a float writes its stored plain value: convertFrom0to1 (getValue()) is a second float
+            // round trip and drifts a skewed parameter on every save (failures.md F-4)
+            if (auto* f = dynamic_cast<juce::AudioParameterFloat*> (p))
+                e->setAttribute ("value", sixDigits ((double) f->get()));
+            else
+                e->setAttribute ("value", ranged != nullptr ? (double) ranged->convertFrom0to1 (p->getValue()) : (double) p->getValue());
         }
     root->createNewChildElement ("Extra");
     return root;
@@ -64,7 +105,7 @@ inline bool fromXml (const juce::XmlElement& root, juce::AudioProcessorValueTree
                 }
         const auto range = ranged->getNormalisableRange();
         plain = juce::jlimit ((double) range.start, (double) range.end, plain);
-        ranged->setValueNotifyingHost (ranged->convertTo0to1 ((float) plain));
+        ranged->setValueNotifyingHost (normalisedFor (*ranged, plain));
     }
     return true;
 }
