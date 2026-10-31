@@ -1,4 +1,4 @@
-# Sonic brief (owner-confirmed: PENDING - draft 2026-10-31 from the v0.2 sketch; amend below, never edit the YAML once confirmed)
+# Sonic brief (owner-confirmed 2026-10-31; amend below, never edit the YAML)
 
 ```yaml
 name: Sunday Organ
@@ -21,6 +21,7 @@ must_do:
   - Play from one keyboard (split key) or three MIDI channels (1 upper, 2 lower, 3 pedals)
   - Leslie fast/slow on the mod wheel, brake, the speed change audible as the instrument's signature
   - Sustain pedal (CC64) latches keys (rule 14)
+  - Expression pedal (CC11) as a swell before the preamp, so it also changes the drive
   - Load in Ableton Live 10.1 under Rosetta and Live on Windows, recall state exactly
 defining_features:          # each one gets a presence test (rule 13)
   - "Shared tonewheels: two keys on the same wheel sum phase-coherently (+6 dB, not +3)"
@@ -34,7 +35,6 @@ defining_features:          # each one gets a presence test (rule 13)
 out_of_scope:
   - Velocity response (an organ has none), voice stealing, per-note pitch bend
   - Leslie cabinet impulse responses, other cabinets, tube-amp model of the 122 beyond the drive stage
-  - Expression pedal curve beyond a plain CC11 volume (open question)
   - Effects after the Leslie (reverb, EQ): the DAW does that
 core_controls:
   - "Upper drawbars: the sound itself, from flute to full"
@@ -52,7 +52,7 @@ signal_flow: |
                             └────────────────┼─> + pedals ─> preamp drive ─> Leslie ─> volume ─> L/R
                                               (horn > 800 Hz | drum 200-800 | mono < 200)
 cpu_budget: { p999_pct: 25, max_pct: 50, idle_pct: 2, at: 48k/64, slice: x86_64-rosetta, preset: heaviest }
-cpu_reference_machine: "Björn's Mac running Ableton Live 10.1 under Rosetta (model to be named)"
+cpu_reference_machine: "Apple M3 Pro, Ableton Live 10.1 under Rosetta (x86_64 slice)"
 instances_expected: 1 per project, 1 in a live rig
 latency_budget: 0 samples (played live; no look-ahead, no oversampling latency)
 sample_rates: [44100, 48000, 88200, 96000, 176400, 192000]
@@ -76,17 +76,14 @@ quality_targets:
   thd_n_db:           { target: "< -60 dB at Drive 0", method: "C4 8' only, Leslie off, harmonic_profile; the organ itself is sine-pure" }
   response_error_db:  { target: "+/-0.5 dB", method: "Leslie with rotors braked, crossover sum of an impulse, both mics (E.6.6)" }
   loudness:           { target: "presets -18 LUFS +/-1 LU", method: "presetlint.py render on the reference chord, F.13.9 protocol" }
-  keyboard_span_lu:   { target: "< 6 LU per manual over C2-C7 at 888000000", method: "register battery, every 3rd key, integrated per note (sketch: 6.8 LU - wheel level taper to add)" }
+  keyboard_span_lu:   { target: "< 6 LU per manual over C2-C7 at 888000000", method: "register battery, every 3rd key, integrated per note; reached with a per-wheel level taper (sketch without taper: 6.8 LU)" }
   low_register:       { target: "side/mid below 150 Hz < -30 dB", method: "pedals + lower chord with Leslie fast (sketch: -33 dB)" }
   other:
     - { target: "Doppler within 1 cent of the moving-source model", method: "tests/doppler_check.py on the horn path, 2 kHz, fast (sketch: 0.22 cent)" }
     - { target: "rotor rates within 2 % of 0.83/6.67 Hz (horn), 0.67/5.67 Hz (drum)", method: "AM rate of a steady note per band after settling" }
     - { target: "no zipper on drawbar moves and split moves", method: "maximum-rate automation, max_click_db" }
 open_questions:
-  - "Rotor spin-up/down times, percussion decay, scanner depths: by ear now; a reference recording of a B-3/122 to measure against?"
-  - "Keyboard span: taper the wheel levels to < 6 LU, or keep it organ-flat?"
-  - "Expression pedal (CC11): in v1 or later?"
-  - "The CPU reference machine: which Mac?"
+  - "none at confirmation; constants without a reference (rotor times, percussion decay, scanner depths) are set by ear and carried as listening debt"
 ```
 
 ## Amendments

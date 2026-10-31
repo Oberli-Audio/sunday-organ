@@ -29,6 +29,7 @@ inline constexpr const char* micSpread = "micSpread";
 inline constexpr const char* drive = "drive";
 inline constexpr const char* keyClick = "keyClick";
 inline constexpr const char* leakage = "leakage";
+inline constexpr const char* expression = "expression";
 inline constexpr const char* outGain = "outGain";
 inline constexpr const char* lowerBar1 = "lowerBar1";
 inline constexpr const char* lowerBar2 = "lowerBar2";
@@ -107,6 +108,11 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         AudioParameterFloatAttributes().withLabel ("%")
             .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " %"; })
             .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { expression, 1 }, "Expression",
+        NormalisableRange<float> (0.0f, 100.0f, 0.0f, 1.000000f), 100.0f,
+        AudioParameterFloatAttributes().withLabel ("%")
+            .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " %"; })
+            .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
     layout.add (std::make_unique<AudioParameterFloat> (ParameterID { outGain, 1 }, "Output",
         NormalisableRange<float> (-24.0f, 12.0f, 0.0f, 1.000000f), 0.0f,
         AudioParameterFloatAttributes().withLabel ("dB")
@@ -171,6 +177,7 @@ inline constexpr Smoothing smoothing[] = {
     { drive, 20.0f, "linear", "sample" },
     { keyClick, 20.0f, "linear", "event" },
     { leakage, 20.0f, "linear", "block" },
+    { expression, 20.0f, "db", "block" },
     { outGain, 20.0f, "db", "block" },
     { lowerBar1, 0.0f, "crossfade", "block" },
     { lowerBar2, 0.0f, "crossfade", "block" },
@@ -214,6 +221,7 @@ inline constexpr Help help[] = {
     { drive, "Overdrives the preamp before the Leslie. Range 0 % to 100 %, default 20 %.", "clean / warm / growl" },
     { keyClick, "How sharply the key contacts switch on; more is a brighter click. Range 0 % to 100 %, default 50 %.", "soft / worn / sharp" },
     { leakage, "Faint bleed of other tonewheels into each key, like an older organ. Range 0 % to 100 %, default 30 %.", "clean / aged / dusty" },
+    { expression, "Swell pedal: louder and, into the preamp, more drive. Range 0 % to 100 %, default 100 %.", "silent / half / full swell" },
     { outGain, "Output level of the instrument. Range -24.0 dB to +12.0 dB, default 0.0 dB.", "quiet / unity / loud" },
     { lowerBar1, "Level of the sub-octave in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
     { lowerBar2, "Level of the fifth above the sub in the lower manual. Range 0 to 8, default 0.", "off / half / full" },

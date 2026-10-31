@@ -21,6 +21,7 @@ micSpread,1,float,plain,Mic Spread,Spread,Leslie,N,deg,0,180,120,90,N,,,plain,0,
 drive,1,float,plain,Drive,Drive,Voice,Y,%,0,100,20,35,N,,,percent,0,,Y,20,linear,sample,clean / warm / growl,Overdrives the preamp before the Leslie,level-compensated (rule 5)
 keyClick,1,float,plain,Key Click,Click,Voice,N,%,0,100,50,,N,,,percent,0,,Y,20,linear,event,soft / worn / sharp,How sharply the key contacts switch on; more is a brighter click,read at note-on
 leakage,1,float,plain,Leakage,Leak,Voice,N,%,0,100,30,,N,,,percent,0,,Y,20,linear,block,clean / aged / dusty,"Faint bleed of other tonewheels into each key, like an older organ",
+expression,1,float,plain,Expression,Expr,Voice,N,%,0,100,100,,N,,0,percent,0,,Y,20,db,block,silent / half / full swell,"Swell pedal: louder and, into the preamp, more drive",MIDI CC11; before the preamp
 outGain,1,float,plain,Output,Out,Output,Y,dB,-24,12,0,,Y,,,db,1,,Y,20,db,block,quiet / unity / loud,Output level of the instrument,
 lowerBar1,1,int,plain,Lower 16',L16,Lower,N,,0,8,0,,N,,9,plain,0,,Y,0,crossfade,block,off / half / full,Level of the sub-octave in the lower manual,about 3 dB per step; step crossfaded 15 ms in the DSP
 lowerBar2,1,int,plain,Lower 5 1/3',L5 1/3,Lower,N,,0,8,0,,N,,9,plain,0,,Y,0,crossfade,block,off / half / full,Level of the fifth above the sub in the lower manual,about 3 dB per step; step crossfaded 15 ms in the DSP
