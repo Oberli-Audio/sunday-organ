@@ -1,0 +1,154 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="bundle.css">
+<style>
+html,body { margin:0; background:var(--ground); }
+.oa-plugin { width:1280px; border-radius:0; border:0; }
+.body { display:grid; grid-template-columns:1fr auto; padding:28px; gap:0; }
+.rows { display:flex; flex-direction:column; gap:28px; padding-right:28px; }
+.row { display:flex; gap:24px; align-items:flex-start; }
+.group { display:flex; flex-direction:column; gap:14px; }
+.group + .group.sep { border-left:1px solid var(--line); padding-left:24px; }
+.head { display:flex; justify-content:space-between; align-items:center; gap:16px; min-height:28px; }
+.section { color:var(--ink-muted); }
+.bars { display:flex; gap:6px; }
+.bar { display:flex; flex-direction:column; align-items:center; width:30px; }
+.bar .oa-label { letter-spacing:0.02em; white-space:nowrap; }
+.bar .oa-label.dim { color:var(--ink-subtle); }
+.rail { position:relative; width:30px; }
+.rail .track { position:absolute; left:13px; top:7px; bottom:7px; width:4px; border-radius:2px; background:var(--line-strong); }
+.rail .fill { position:absolute; left:13px; bottom:7px; width:4px; border-radius:2px; background:var(--accent); }
+.rail .tick { position:absolute; left:5px; width:5px; height:1px; background:var(--line); }
+.rail .thumb { position:absolute; left:8px; width:14px; height:14px; box-sizing:border-box; border-radius:50%; background:var(--surface-panel); border:1.5px solid var(--line-control); }
+.rail .thumb::after { content:""; position:absolute; left:2px; top:50%; width:5px; height:2px; margin-top:-1px; border-radius:1px; background:var(--accent); }
+.knobs { display:flex; gap:20px; align-items:flex-end; }
+.grid2 { display:grid; grid-template-columns:auto auto; gap:8px; }
+.rotor { display:flex; flex-direction:column; align-items:center; gap:4px; width:76px; }
+.rotor .sub { color:var(--ink-subtle); }
+.state { font:500 11px/14px var(--font-sans); color:var(--ink-subtle); }
+.state b { color:var(--accent); font-weight:600; }
+.field { display:flex; flex-direction:column; gap:4px; }
+.field .box { height:28px; box-sizing:border-box; padding:0 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; min-width:96px;
+  border-radius:var(--radius-md); border:1px solid var(--line-control); background:var(--surface-sunken); font:500 12px/16px var(--font-sans); font-feature-settings:"tnum" 1; }
+.field .box span { color:var(--ink-subtle); }
+.output { border-left:1px solid var(--line); padding-left:28px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:24px; }
+.ghost { width:28px; height:28px; display:grid; place-items:center; color:var(--ink-muted); }
+</style></head><body>
+<div class="oa-root"><div class="oa-plugin" data-accent="coral">
+ <div class="oa-header">
+  <div class="oa-header-left"><svg width="69.2" height="18.0" role="img" aria-label="Oberli Audio" style="height:18px; display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 -743 2932 763"><circle cx="360.0" cy="-350.0" r="360.0" fill="#EDE8DF"/><rect x="298.8" y="-656.0" width="122.4" height="244.8" rx="61.2" fill="#1C1B19" transform="rotate(38 360.0 -350.0)"/><path d="M1110.0 10Q1056.0 10 1019.5 -7.5Q983.0 -25 958.0 -54V-26Q958.0 -15 950.5 -7.5Q943.0 0 932.0 0H791.0Q780.0 0 772.5 -7.5Q765.0 -15 765.0 -26V-684Q765.0 -695 772.5 -702.5Q780.0 -710 791.0 -710H945.0Q955.0 -710 963.0 -702.5Q971.0 -695 971.0 -684V-477Q995.0 -501 1029.5 -515.5Q1064.0 -530 1110.0 -530Q1157.0 -530 1195.0 -514.5Q1233.0 -499 1261.0 -470.0Q1289.0 -441 1305.0 -397.5Q1321.0 -354 1323.0 -298Q1324.0 -277 1324.0 -261.0Q1324.0 -245 1323.0 -223Q1320.0 -164 1304.0 -120.0Q1288.0 -76 1260.0 -47.0Q1232.0 -18 1194.5 -4.0Q1157.0 10 1110.0 10ZM1042.0 -146Q1068.0 -146 1082.5 -156.5Q1097.0 -167 1103.5 -185.5Q1110.0 -204 1112.0 -228Q1115.0 -260 1112.0 -292Q1110.0 -316 1103.5 -334.5Q1097.0 -353 1082.5 -363.5Q1068.0 -374 1042.0 -374Q1017.0 -374 1002.0 -364.0Q987.0 -354 979.5 -338.0Q972.0 -322 971.0 -301Q970.0 -281 970.0 -264.5Q970.0 -248 971.0 -226Q972.0 -204 978.5 -186.0Q985.0 -168 1000.5 -157.0Q1016.0 -146 1042.0 -146Z" fill="#EDE8DF"/><path d="M1646.0 10Q1521.0 10 1447.5 -54.5Q1374.0 -119 1372.0 -252Q1372.0 -256 1372.0 -262.5Q1372.0 -269 1372.0 -272Q1375.0 -355 1408.5 -412.5Q1442.0 -470 1502.5 -500.0Q1563.0 -530 1645.0 -530Q1737.0 -530 1797.5 -493.5Q1858.0 -457 1888.0 -396.5Q1918.0 -336 1918.0 -261V-233Q1918.0 -223 1910.0 -215.0Q1902.0 -207 1891.0 -207H1583.0Q1583.0 -207 1583.0 -205.0Q1583.0 -203 1583.0 -201Q1583.0 -177 1589.5 -158.5Q1596.0 -140 1610.0 -129.5Q1624.0 -119 1644.0 -119Q1657.0 -119 1666.0 -123.0Q1675.0 -127 1682.0 -133.5Q1689.0 -140 1694.0 -146Q1703.0 -155 1708.5 -157.5Q1714.0 -160 1726.0 -160H1883.0Q1892.0 -160 1898.5 -154.0Q1905.0 -148 1904.0 -139Q1903.0 -121 1887.0 -95.5Q1871.0 -70 1839.5 -46.0Q1808.0 -22 1759.0 -6.0Q1710.0 10 1646.0 10ZM1583.0 -319H1707.0V-321Q1707.0 -348 1700.0 -367.0Q1693.0 -386 1679.0 -395.5Q1665.0 -405 1645.0 -405Q1625.0 -405 1611.0 -395.5Q1597.0 -386 1590.0 -367.0Q1583.0 -348 1583.0 -321Z" fill="#EDE8DF"/><path d="M2006.0 0Q1995.0 0 1987.5 -7.5Q1980.0 -15 1980.0 -26V-494Q1980.0 -505 1987.5 -512.5Q1995.0 -520 2006.0 -520H2151.0Q2162.0 -520 2169.5 -512.5Q2177.0 -505 2177.0 -494V-457Q2207.0 -486 2245.5 -503.0Q2284.0 -520 2330.0 -520H2375.0Q2386.0 -520 2394.0 -512.5Q2402.0 -505 2402.0 -494V-365Q2402.0 -354 2394.0 -346.5Q2386.0 -339 2375.0 -339H2263.0Q2227.0 -339 2208.0 -320.0Q2189.0 -301 2189.0 -265V-26Q2189.0 -15 2181.5 -7.5Q2174.0 0 2163.0 0Z" fill="#EDE8DF"/><path d="M2472.0 0Q2461.0 0 2453.5 -7.5Q2446.0 -15 2446.0 -26V-684Q2446.0 -695 2453.5 -702.5Q2461.0 -710 2472.0 -710H2621.0Q2631.0 -710 2639.0 -702.5Q2647.0 -695 2647.0 -684V-26Q2647.0 -15 2639.0 -7.5Q2631.0 0 2621.0 0Z" fill="#EDE8DF"/><path d="M2757.0 0Q2746.0 0 2738.5 -7.5Q2731.0 -15 2731.0 -26V-494Q2731.0 -505 2738.5 -512.5Q2746.0 -520 2757.0 -520H2905.0Q2916.0 -520 2924.0 -512.5Q2932.0 -505 2932.0 -494V-26Q2932.0 -15 2924.0 -7.5Q2916.0 0 2905.0 0ZM2759.0 -585Q2748.0 -585 2740.5 -592.5Q2733.0 -600 2733.0 -611V-716Q2733.0 -727 2740.5 -735.0Q2748.0 -743 2759.0 -743H2903.0Q2914.0 -743 2922.0 -735.0Q2930.0 -727 2930.0 -716V-611Q2930.0 -600 2922.0 -592.5Q2914.0 -585 2903.0 -585Z" fill="#EDE8DF"/></svg>
+<div class="oa-divider"></div><div class="plugin-name">Sunday Organ</div></div>
+  <div class="oa-header-right"><div class="oa-pill"><span class="arrow"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="name">Init</span><span class="arrow"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+   <span class="meta" style="color:var(--ink-subtle);">0.1.0</span><span class="ghost"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></div>
+ </div>
+ <div class="body"><div class="rows">
+  <div class="row">
+   <div class="group"><div class="head"><div class="section">WHEELS</div></div><div class="bars"><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:36.8px"></div><div class="thumb" style="top:61.2px"></div></div>
+<div class="oa-label ">MOD</div><div class="oa-value">38 %</div></div></div></div>
+   <div class="group sep"><div class="head"><div class="section">UPPER</div><div class="state">channel 1, from C4 up</div></div>
+     <div class="bars"><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:98.0px"></div><div class="thumb" style="top:0.0px"></div></div>
+<div class="oa-label ">16'</div><div class="oa-value">8</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:98.0px"></div><div class="thumb" style="top:0.0px"></div></div>
+<div class="oa-label dim">5 1/3'</div><div class="oa-value">8</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:98.0px"></div><div class="thumb" style="top:0.0px"></div></div>
+<div class="oa-label ">8'</div><div class="oa-value">8</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">4'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">2 2/3'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">2'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">1 3/5'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">1 1/3'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">1'</div><div class="oa-value">0</div></div></div></div>
+   <div class="group sep"><div class="head"><div class="section">LOWER</div><div class="state">channel 2, below C4</div></div>
+     <div class="bars"><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">16'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">5 1/3'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:98.0px"></div><div class="thumb" style="top:0.0px"></div></div>
+<div class="oa-label ">8'</div><div class="oa-value">8</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">4'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:98.0px"></div><div class="thumb" style="top:0.0px"></div></div>
+<div class="oa-label dim">2 2/3'</div><div class="oa-value">8</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">2'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">1 3/5'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label dim">1 1/3'</div><div class="oa-value">0</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:0.0px"></div><div class="thumb" style="top:98.0px"></div></div>
+<div class="oa-label ">1'</div><div class="oa-value">0</div></div></div></div>
+   <div class="group sep"><div class="head"><div class="section">PEDALS</div><div class="state">channel 3</div></div>
+     <div class="knobs" style="align-items:flex-start"><div class="bars"><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:73.5px"></div><div class="thumb" style="top:24.5px"></div></div>
+<div class="oa-label ">16'</div><div class="oa-value">6</div></div><div class="bar"><div class="rail" style="height:112px"><div class="tick" style="bottom:6.5px"></div><div class="tick" style="bottom:18.8px"></div><div class="tick" style="bottom:31.0px"></div><div class="tick" style="bottom:43.2px"></div><div class="tick" style="bottom:55.5px"></div><div class="tick" style="bottom:67.8px"></div><div class="tick" style="bottom:80.0px"></div><div class="tick" style="bottom:92.2px"></div><div class="tick" style="bottom:104.5px"></div><div class="track"></div>
+<div class="fill" style="height:36.8px"></div><div class="thumb" style="top:61.2px"></div></div>
+<div class="oa-label ">8'</div><div class="oa-value">3</div></div></div><div class="oa-knob"><svg width="32" height="32" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+<path class="arc" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 0 1 50.00 4.00"/>
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(0.0 50 50)"/></svg>
+<div class="oa-label">Release</div><div class="oa-value">0.08 s</div></div></div></div>
+   <div class="group sep"><div class="head"><div class="section">KEYBOARD</div></div>
+     <div class="field"><div class="oa-label" style="margin:0">Split</div><div class="box">C4<span><svg width="14" height="14" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+     <div class="field"><div class="oa-label" style="margin:0">Pedal split</div><div class="box">Off<span><svg width="14" height="14" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div></div>
+  </div>
+  <div class="row">
+   <div class="group"><div class="head"><div class="section">PERCUSSION</div></div>
+     <div class="grid2"><button class="oa-toggle" aria-pressed="true"><span class="led"></span>On</button><button class="oa-toggle" aria-pressed="true"><span class="led"></span>Third</button><button class="oa-toggle" aria-pressed="false"><span class="led"></span>Slow</button><button class="oa-toggle" aria-pressed="false"><span class="led"></span>Soft</button></div>
+     <div class="state">upper only, cuts 1'</div></div>
+   <div class="group sep"><div class="head"><div class="section">VIBRATO</div></div>
+     <div class="oa-seg" role="radiogroup" style="align-self:flex-start"><button aria-checked="false">Off</button><button aria-checked="false">V1</button><button aria-checked="false">V2</button><button aria-checked="false">V3</button><button aria-checked="false">C1</button><button aria-checked="false">C2</button><button aria-checked="true">C3</button></div><div><button class="oa-toggle" aria-pressed="false"><span class="led"></span>Lower</button></div></div>
+   <div class="group sep"><div class="head"><div class="section">LESLIE</div><div class="state"><b>Fast</b>, spinning up</div></div>
+     <div class="knobs" style="align-items:flex-start; gap:16px"><div class="rotor"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+<circle cx="28" cy="28" r="25" fill="var(--surface-sunken)" stroke="var(--line-strong)" stroke-width="1.5"/>
+<g transform="rotate(128 28 28)"><rect x="25.5" y="7" width="5" height="21" rx="2.5" fill="var(--accent)"/>
+<rect x="25.5" y="28" width="5" height="13" rx="2.5" fill="var(--line-control)"/></g>
+<circle cx="28" cy="28" r="4" fill="var(--surface-panel)" stroke="var(--line-control)" stroke-width="1.5"/></svg>
+<div class="oa-label">Horn</div><div class="oa-value">312 rpm</div><div class="meta sub">to 400</div></div><div class="rotor"><svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+<circle cx="28" cy="28" r="25" fill="var(--surface-sunken)" stroke="var(--line-strong)" stroke-width="1.5"/>
+<g transform="rotate(301 28 28)"><rect x="25.5" y="7" width="5" height="21" rx="2.5" fill="var(--accent)"/>
+<rect x="25.5" y="28" width="5" height="13" rx="2.5" fill="var(--line-control)"/></g>
+<circle cx="28" cy="28" r="4" fill="var(--surface-panel)" stroke="var(--line-control)" stroke-width="1.5"/></svg>
+<div class="oa-label">Drum</div><div class="oa-value">141 rpm</div><div class="meta sub">to 340</div></div>
+       <div style="display:flex; flex-direction:column; gap:8px"><button class="oa-toggle" aria-pressed="true"><span class="led"></span>Fast</button><button class="oa-toggle" aria-pressed="false"><span class="led"></span>Brake</button><button class="oa-toggle" aria-pressed="true"><span class="led"></span>Leslie</button></div><div class="oa-knob"><svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+<path class="arc" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 0 1 82.53 17.47"/>
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(45.0 50 50)"/></svg>
+<div class="oa-label">Spread</div><div class="oa-value">120°</div></div></div></div>
+   <div class="group sep"><div class="head"><div class="section">VOICE</div></div>
+     <div class="knobs"><div class="oa-knob"><svg width="64" height="64" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+<path class="arc" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 0 1 25.35 11.16"/>
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(-32.4 50 50)"/></svg>
+<div class="oa-label">Drive</div><div class="oa-value">20 %</div></div><div class="oa-knob"><svg width="32" height="32" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+<path class="arc" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 0 1 50.00 4.00"/>
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(0.0 50 50)"/></svg>
+<div class="oa-label">Click</div><div class="oa-value">50 %</div></div><div class="oa-knob"><svg width="32" height="32" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+<path class="arc" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 0 1 12.79 22.96"/>
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(-54.0 50 50)"/></svg>
+<div class="oa-label">Leakage</div><div class="oa-value">30 %</div></div></div></div>
+  </div>
+ </div>
+ <div class="output"><div class="oa-knob"><svg width="64" height="64" viewBox="0 0 100 100" aria-hidden="true">
+<path class="track" vector-effect="non-scaling-stroke" stroke-width="3" d="M17.47 82.53 A46 46 0 1 1 82.53 82.53"/>
+
+<circle class="cap" vector-effect="non-scaling-stroke" stroke-width="1.5" cx="50" cy="50" r="36"/>
+<rect class="ptr" x="43.88" y="19.4" width="12.24" height="24.48" rx="6.12" transform="rotate(45.0 50 50)"/></svg>
+<div class="oa-label">Output</div><div class="oa-value">0.0 dB</div></div>
+  <div class="oa-meter"><div style="display:flex; gap:3px;"><div class="well"><div class="bar" style="height:54%; background:var(--meter-level);"></div></div><div class="well"><div class="bar" style="height:58%; background:var(--meter-level);"></div></div></div><span class="clipled">CLIP</span></div>
+ </div></div>
+</div></div></body></html>

@@ -1,4 +1,4 @@
-# Third-party notices - {{Product}}
+# Third-party notices - Sunday Organ
 
 Generated 2026-10-31 by ship-bob notices.py from notices.toml. Do not edit by hand; edit the manifest.
 

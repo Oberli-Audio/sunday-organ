@@ -1,8 +1,8 @@
 [product]
-name = "{{Product}}"              # bundle name
-slug = "{{slug}}"                 # folder names; the tag stays v<VERSION> (one repo per plugin)
-asset_name = "{{ProductId}}"      # version-free asset names: {{ProductId}}-macOS.zip, {{ProductId}}-Windows-x64.zip
-repo = "{{Repo}}"                 # GitHub owner/repo
+name = "Sunday Organ"              # bundle name
+slug = "sunday-organ"                 # folder names; the tag stays v<VERSION> (one repo per plugin)
+asset_name = "SundayOrgan"      # version-free asset names: SundayOrgan-macOS.zip, SundayOrgan-Windows-x64.zip
+repo = "Oberli-Audio/sunday-organ"                 # GitHub owner/repo
 formats = ["VST3"]                # the shipped set; add "AU" or "CLAP" when the product wants them (the CMake FORMATS line follows)
 
 [macos]

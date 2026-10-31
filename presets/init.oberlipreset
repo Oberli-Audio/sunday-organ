@@ -2,11 +2,11 @@
 
 <OberliPreset name="Init" author="Oberli Audio" category="Bed"
               description="The parameter table's defaults."
-              pluginVersion="0.1.0" created="{{Date}}" factory="true">
-  <{{ProductId}}State version="1" dspVersion="1">
+              pluginVersion="0.1.0" created="2026-10-31" factory="true">
+  <SundayOrganState version="1" dspVersion="1">
     <PARAMETERS>
-{{InitParams}}
+      <PARAM id="outGain" value="0"/>
     </PARAMETERS>
     <Extra/>
-  </{{ProductId}}State>
+  </SundayOrganState>
 </OberliPreset>

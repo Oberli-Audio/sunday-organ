@@ -1,0 +1,83 @@
+{
+  "_note": "Tier S starting points. Volume offsets set from renders on the reference chord so the bank sits at its median loudness (dB, integrated over the hold).",
+  "presets": [
+    {
+      "name": "Init",
+      "upper": "888000000",
+      "params": {}
+    },
+    {
+      "name": "Jazz Perc",
+      "upper": "888000000",
+      "params": {
+        "On": 1,
+        "Third": 1,
+        "Mode": 6,
+        "Drive": 0.15,
+        "Volume": -0.7
+      }
+    },
+    {
+      "name": "Gospel Full",
+      "upper": "888888888",
+      "params": {
+        "Mode": 6,
+        "Drive": 0.5,
+        "Fast": 1,
+        "Volume": -1.7
+      }
+    },
+    {
+      "name": "Ballad",
+      "upper": "008000000",
+      "params": {
+        "Mode": 6,
+        "Drive": 0.0,
+        "Key click": 0.2,
+        "Volume": 10.3
+      }
+    },
+    {
+      "name": "Sanctuary",
+      "upper": "886000000",
+      "params": {
+        "Mode": 5,
+        "Drive": 0.05,
+        "Mic spread": 160,
+        "Key click": 0.15,
+        "Volume": 2.9
+      }
+    },
+    {
+      "name": "Rock Drive",
+      "upper": "888000000",
+      "params": {
+        "Drive": 0.85,
+        "Fast": 1,
+        "Mode": 3,
+        "Volume": -0.6
+      }
+    },
+    {
+      "name": "Bright Comp",
+      "upper": "008880000",
+      "params": {
+        "On": 1,
+        "Third": 0,
+        "Mode": 2,
+        "Drive": 0.25
+      }
+    },
+    {
+      "name": "Split Comping",
+      "upper": "888000000",
+      "params": {
+        "Split key": 60,
+        "On": 1,
+        "Third": 1,
+        "Mode": 6,
+        "Volume": 0.6
+      }
+    }
+  ]
+}

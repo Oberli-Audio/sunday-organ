@@ -1,57 +1,93 @@
-# Sonic brief (owner-confirmed <date>; amend below, never edit the YAML)
+# Sonic brief (owner-confirmed: PENDING - draft 2026-10-31 from the v0.2 sketch; amend below, never edit the YAML once confirmed)
 
 ```yaml
-name:
-track:           # instrument | effect | control | analysis  -- which playbook file leads
-stages:          # the signal-flow stages it owns (F.0): control, generation, processing,
-                 # mix, output, analysis - each brings its contract and tests
-type:            # synth | acoustic-emulation | dynamics | eq | creative-fx | utility | meter | midi-fx
-musical_role:    # rhythm | bass | harmonic-bed | melodic | texture | effect  -- briefs I.7
-tier:            # S (sketch) | P (product) | F (flagship)  -- tiers.md, F.0.1
-one_sentence:
-references:      # 2-3 named products and how this differs
+name: Sunday Organ
+track: instrument
+stages: [control, generation, processing, output]
+                 # control: MIDI channels 1-3, split points, sustain, mod wheel -> Leslie
+                 # generation: tonewheels, contacts, drawbars, percussion
+                 # processing: scanner vibrato/chorus, preamp drive, Leslie
+                 # output: stereo, volume
+type: acoustic-emulation
+musical_role: harmonic-bed
+tier: P
+one_sentence: A tonewheel organ and rotary speaker for church, gospel and worship bands - drawbars, percussion, the scanner and a Leslie that speeds up and slows down like a real one.
+references:
+  - "Hammond B-3 with Leslie 122: the target sound and behaviour; differs: one plugin, 61-key split for one-keyboard players"
+  - "setBfree (GPL): read for ideas only, no code taken; differs: modern editor, measured Leslie Doppler, loudness-matched bank"
+  - "Native Instruments Vintage Organs / Arturia B-3 V: commercial references; differs: free, smaller, one sound done well"
 must_do:
-defining_features:  # the audible features that make it *this* product; each one
-                    # gets a presence test (rule 13), e.g. "Expanse carries a +1 oct shimmer"
+  - Upper and lower manual with 9 drawbars each, pedals with 16' and 8'
+  - Play from one keyboard (split key) or three MIDI channels (1 upper, 2 lower, 3 pedals)
+  - Leslie fast/slow on the mod wheel, brake, the speed change audible as the instrument's signature
+  - Sustain pedal (CC64) latches keys (rule 14)
+  - Load in Ableton Live 10.1 under Rosetta and Live on Windows, recall state exactly
+defining_features:          # each one gets a presence test (rule 13)
+  - "Shared tonewheels: two keys on the same wheel sum phase-coherently (+6 dB, not +3)"
+  - "Drawbar steps of about 3 dB; 0 is silent"
+  - "Key click from contact switching: audible transient at note-on that scales with Key Click"
+  - "Percussion: single trigger, 2nd or 3rd harmonic, fast/slow, cuts the 1' drawbar while on"
+  - "Scanner: V1-V3 pitch swing increasing, C1-C3 with dry mix, at about 6.9 Hz"
+  - "Leslie: horn and drum at their own speeds, separate spin-up and spin-down, never locked; brake stops both"
+  - "Leslie Doppler of a moving source: within 1 cent of the geometric model"
+  - "Below about 150 Hz mono and unmodulated (rule 15)"
 out_of_scope:
-core_controls:   # 3-5, with what each does sonically
-signal_flow:     # ASCII block diagram
-cpu_budget:      # rule 20, per instance: { p999_pct: 25, max_pct: 50, idle_pct: 2,
-                 #   at: 48k/64 (F adds 44.1k/32), slice: x86_64-rosetta, preset: heaviest }
-cpu_reference_machine:  # the concrete machine the budget is written for (F.14.4)
-instances_expected:     # realistic count per project / live rig
-latency_budget:  # samples, and whether latency is acceptable at all
-sample_rates:    [44100, 48000, 88200, 96000, 176400, 192000]
-channels:        # mono | stereo | mono-to-stereo
-register:        # instruments: the lowest and highest key it plays, e.g. C0-C7 - set by
-                 # listening at P and F (I.2.3), silent outside it; re-asked after any
-                 # sound-design pass that moves the bass or the top
-register_intent: # per register, what the sound should do (I.2, F.4), e.g.
-                 #   below C3: tight, mono, dark - foundation, no phasing
-                 #   C3-C5: the voiced sound
-                 #   above C5: opens but never shrill
-presets:         # F.14.3
-  bank_size:          # P: 12-20 instrument / 8-12 effect; F: 30-60
-  categories:         # the fixed list, e.g. [Bed, Motion, Dark, Bright, Keys-like, FX]
-  reference_chord:    # default C3-E3-G3-C4, velocity 100, 4 s hold, 4 s tail
-  loudness_window:    # default short-term max over the hold; pads: from end of attack to note-off
-  edge_presets:       # the 3-4 the translation battery runs on (widest, darkest, most reverb, loudest bass)
-  naming:             # ships in English; voice of the product
-mix_context:     # what it plays with, and the band it must leave free, e.g.
-                 #   "under acoustic guitar, piano, group vocals: leave 1-4 kHz,
-                 #    keep 200-500 Hz no hotter than the voiced default"
-quality_targets: # every target is a pair: the threshold AND the method that
-                 # measures it on this instrument. A target with no working method
-                 # is found out at G3, which is too late.
-  alias_floor_db:     { target: , method: }   # ASR/NMR only for harmonic output; else B.5 rate comparison
-  thd_n_db:           { target: , method: }
-  response_error_db:  { target: , method: }
-  loudness:           { target: , method: }   # e.g. presets -18 LUFS +/-1 LU, F.13.9 protocol
-  keyboard_span_lu:   { target: , method: }   # e.g. < 6 LU per layer over the register, F.13.10
-  low_register:       { target: , method: }   # e.g. roughness at C2 no worse than 3x C4, register battery 1.4
+  - Velocity response (an organ has none), voice stealing, per-note pitch bend
+  - Leslie cabinet impulse responses, other cabinets, tube-amp model of the 122 beyond the drive stage
+  - Expression pedal curve beyond a plain CC11 volume (open question)
+  - Effects after the Leslie (reverb, EQ): the DAW does that
+core_controls:
+  - "Upper drawbars: the sound itself, from flute to full"
+  - "Leslie Fast: slow chorale vs fast tremolo, and the ramp between them"
+  - "Drive: clean church organ to growl"
+  - "Vibrato/chorus: still vs the classic C3 shimmer"
+  - "Percussion: the bright attack of jazz and gospel lines"
+signal_flow: |
+  MIDI ch1 + split ─┬─> upper keys ─┐
+  MIDI ch2 ─────────┼─> lower keys ─┤   91 tonewheels (shared, free-running)
+  MIDI ch3 + split ─┴─> pedal keys ─┤          │
+                                     └─ contacts (9 per key) ─> drawbar busses
+     upper ─> + percussion ─┐
+     lower ──(vibrato lower)┼─> scanner V/C ─┐
+                            └────────────────┼─> + pedals ─> preamp drive ─> Leslie ─> volume ─> L/R
+                                              (horn > 800 Hz | drum 200-800 | mono < 200)
+cpu_budget: { p999_pct: 25, max_pct: 50, idle_pct: 2, at: 48k/64, slice: x86_64-rosetta, preset: heaviest }
+cpu_reference_machine: "Björn's Mac running Ableton Live 10.1 under Rosetta (model to be named)"
+instances_expected: 1 per project, 1 in a live rig
+latency_budget: 0 samples (played live; no look-ahead, no oversampling latency)
+sample_rates: [44100, 48000, 88200, 96000, 176400, 192000]
+channels: stereo
+register: "upper and lower C2-C7 (MIDI 36-96), pedals C1-C3 (MIDI 24-48) - set by listening at G2"
+register_intent:
+  - "pedals C1-C3: round, mono, foundation; no Leslie wobble below 200 Hz"
+  - "below C3 on the manuals: warm, never muddy with 16' out"
+  - "C3-C5: the voiced sound, where the Leslie and percussion are judged"
+  - "above C5: bright with upper drawbars, foldback keeps the top from turning shrill"
+presets:
+  bank_size: 16
+  categories: [Jazz, Gospel, Worship, Rock, Ballad, Split]
+  reference_chord: C3-E3-G3-C4, 4 s hold, 2 s tail (no velocity)
+  loudness_window: integrated over the hold
+  edge_presets: [Gospel Full (loudest), Ballad (darkest), Rock Drive (most drive), Sanctuary (widest)]
+  naming: English, plain, short; the registration digits in the preset notes, not the name
+mix_context: "with acoustic guitar, piano, bass and group vocals in a worship band: the default leaves 1-4 kHz to the vocals (upper drawbars out), pedals off when a bass player is there"
+quality_targets:
+  alias_floor_db:     { target: "< -80 dB re fundamental", method: "C7, 8' only, Drive 1, Leslie off: largest non-harmonic peak below 20 kHz (harmonic output, so a spectral floor; sketch: -99.9 dB)" }
+  thd_n_db:           { target: "< -60 dB at Drive 0", method: "C4 8' only, Leslie off, harmonic_profile; the organ itself is sine-pure" }
+  response_error_db:  { target: "+/-0.5 dB", method: "Leslie with rotors braked, crossover sum of an impulse, both mics (E.6.6)" }
+  loudness:           { target: "presets -18 LUFS +/-1 LU", method: "presetlint.py render on the reference chord, F.13.9 protocol" }
+  keyboard_span_lu:   { target: "< 6 LU per manual over C2-C7 at 888000000", method: "register battery, every 3rd key, integrated per note (sketch: 6.8 LU - wheel level taper to add)" }
+  low_register:       { target: "side/mid below 150 Hz < -30 dB", method: "pedals + lower chord with Leslie fast (sketch: -33 dB)" }
   other:
+    - { target: "Doppler within 1 cent of the moving-source model", method: "tests/doppler_check.py on the horn path, 2 kHz, fast (sketch: 0.22 cent)" }
+    - { target: "rotor rates within 2 % of 0.83/6.67 Hz (horn), 0.67/5.67 Hz (drum)", method: "AM rate of a steady note per band after settling" }
+    - { target: "no zipper on drawbar moves and split moves", method: "maximum-rate automation, max_click_db" }
 open_questions:
+  - "Rotor spin-up/down times, percussion decay, scanner depths: by ear now; a reference recording of a B-3/122 to measure against?"
+  - "Keyboard span: taper the wheel levels to < 6 LU, or keep it organ-flat?"
+  - "Expression pedal (CC11): in v1 or later?"
+  - "The CPU reference machine: which Mac?"
 ```
 
 ## Amendments
-- <date>: <what changed, why, which gates re-open>
+- (none yet)

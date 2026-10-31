@@ -1,0 +1,17 @@
+# duration 14.5
+0|Leslie on|0
+0.0|Mode|0
+0.1|key 48|1
+0.1|key 52|1
+0.1|key 55|1
+0.1|key 60|1
+2.0|Mode|1
+4.0|Mode|2
+6.0|Mode|3
+8.0|Mode|4
+10.0|Mode|5
+12.0|Mode|6
+13.9|key 48|0
+13.9|key 52|0
+13.9|key 55|0
+13.9|key 60|0

@@ -1,0 +1,34 @@
+id,name,type,min,max,default
+drawbar_16,16',int,0,8,8
+drawbar_5_1_3,5 1/3',int,0,8,8
+drawbar_8,8',int,0,8,8
+drawbar_4,4',int,0,8,0
+drawbar_2_2_3,2 2/3',int,0,8,0
+drawbar_2,2',int,0,8,0
+drawbar_1_3_5,1 3/5',int,0,8,0
+drawbar_1_1_3,1 1/3',int,0,8,0
+drawbar_1,1',int,0,8,0
+lower_16,Lower 16',int,0,8,0
+lower_5_1_3,Lower 5 1/3',int,0,8,0
+lower_8,Lower 8',int,0,8,8
+lower_4,Lower 4',int,0,8,0
+lower_2_2_3,Lower 2 2/3',int,0,8,8
+lower_2,Lower 2',int,0,8,0
+lower_1_3_5,Lower 1 3/5',int,0,8,0
+lower_1_1_3,Lower 1 1/3',int,0,8,0
+lower_1,Lower 1',int,0,8,0
+split_key,Split Key,int,36,96,36
+perc_on,Percussion,bool,0,1,0
+perc_third,Percussion Third,bool,0,1,0
+perc_slow,Percussion Slow,bool,0,1,0
+perc_soft,Percussion Soft,bool,0,1,0
+vibrato_mode,Vibrato,choice,0,6,0
+vibrato_lower,Vibrato Lower,bool,0,1,0
+key_click,Key Click,float,0,1,0.5
+leakage,Leakage,float,0,1,0.3
+drive,Drive,float,0,1,0.2
+volume,Volume,float,-24,12,0
+leslie_fast,Leslie Fast,bool,0,1,0
+leslie_brake,Leslie Brake,bool,0,1,0
+leslie_on,Leslie,bool,0,1,1
+mic_spread,Mic Spread,float,0,180,120

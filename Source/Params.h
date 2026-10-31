@@ -7,9 +7,43 @@
 namespace Params
 {
 // IDs are frozen at the first shared build (rule 19). Never rename, never reuse.
-inline constexpr const char* mix = "mix";
+inline constexpr const char* upperBar1 = "upperBar1";
+inline constexpr const char* upperBar2 = "upperBar2";
+inline constexpr const char* upperBar3 = "upperBar3";
+inline constexpr const char* upperBar4 = "upperBar4";
+inline constexpr const char* upperBar5 = "upperBar5";
+inline constexpr const char* upperBar6 = "upperBar6";
+inline constexpr const char* upperBar7 = "upperBar7";
+inline constexpr const char* upperBar8 = "upperBar8";
+inline constexpr const char* upperBar9 = "upperBar9";
+inline constexpr const char* percOn = "percOn";
+inline constexpr const char* percThird = "percThird";
+inline constexpr const char* percSlow = "percSlow";
+inline constexpr const char* percSoft = "percSoft";
+inline constexpr const char* vibratoMode = "vibratoMode";
+inline constexpr const char* vibratoLower = "vibratoLower";
+inline constexpr const char* leslieFast = "leslieFast";
+inline constexpr const char* leslieBrake = "leslieBrake";
+inline constexpr const char* leslieOn = "leslieOn";
+inline constexpr const char* micSpread = "micSpread";
+inline constexpr const char* drive = "drive";
+inline constexpr const char* keyClick = "keyClick";
+inline constexpr const char* leakage = "leakage";
 inline constexpr const char* outGain = "outGain";
-inline constexpr const char* bypass = "bypass";
+inline constexpr const char* lowerBar1 = "lowerBar1";
+inline constexpr const char* lowerBar2 = "lowerBar2";
+inline constexpr const char* lowerBar3 = "lowerBar3";
+inline constexpr const char* lowerBar4 = "lowerBar4";
+inline constexpr const char* lowerBar5 = "lowerBar5";
+inline constexpr const char* lowerBar6 = "lowerBar6";
+inline constexpr const char* lowerBar7 = "lowerBar7";
+inline constexpr const char* lowerBar8 = "lowerBar8";
+inline constexpr const char* lowerBar9 = "lowerBar9";
+inline constexpr const char* pedalBar16 = "pedalBar16";
+inline constexpr const char* pedalBar8 = "pedalBar8";
+inline constexpr const char* pedalRelease = "pedalRelease";
+inline constexpr const char* splitKey = "splitKey";
+inline constexpr const char* pedalSplit = "pedalSplit";
 
 inline juce::String fmt (double v, int decimals) { return decimals <= 0 ? juce::String (juce::roundToInt (v)) : juce::String (v, decimals); }   // decimals 0 = rounded integer, as paramgen's Python prints it
 
@@ -17,8 +51,59 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 {
     using namespace juce;
     AudioProcessorValueTreeState::ParameterLayout layout;
-    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { mix, 1 }, "Mix",
-        NormalisableRange<float> (0.0f, 100.0f, 0.0f, 1.000000f), 100.0f,
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar1, 1 }, "Upper 16'", 0, 8, 8,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar2, 1 }, "Upper 5 1/3'", 0, 8, 8,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar3, 1 }, "Upper 8'", 0, 8, 8,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar4, 1 }, "Upper 4'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar5, 1 }, "Upper 2 2/3'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar6, 1 }, "Upper 2'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar7, 1 }, "Upper 1 3/5'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar8, 1 }, "Upper 1 1/3'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { upperBar9, 1 }, "Upper 1'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { percOn, 1 }, "Percussion", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { percThird, 1 }, "Percussion Third", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { percSlow, 1 }, "Percussion Slow", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { percSoft, 1 }, "Percussion Soft", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterChoice> (ParameterID { vibratoMode, 1 }, "Vibrato", StringArray { "Off", "V1", "V2", "V3", "C1", "C2", "C3" }, 0,
+        AudioParameterChoiceAttributes()));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { vibratoLower, 1 }, "Vibrato Lower", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { leslieFast, 1 }, "Leslie Fast", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { leslieBrake, 1 }, "Leslie Brake", false,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { leslieOn, 1 }, "Leslie", true,
+        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { micSpread, 1 }, "Mic Spread",
+        NormalisableRange<float> (0.0f, 180.0f, 0.0f, 1.000000f), 120.0f,
+        AudioParameterFloatAttributes().withLabel ("deg")
+            .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " deg"; })
+            .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { drive, 1 }, "Drive",
+        NormalisableRange<float> (0.0f, 100.0f, 0.0f, 0.660252f), 20.0f,
+        AudioParameterFloatAttributes().withLabel ("%")
+            .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " %"; })
+            .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { keyClick, 1 }, "Key Click",
+        NormalisableRange<float> (0.0f, 100.0f, 0.0f, 1.000000f), 50.0f,
+        AudioParameterFloatAttributes().withLabel ("%")
+            .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " %"; })
+            .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { leakage, 1 }, "Leakage",
+        NormalisableRange<float> (0.0f, 100.0f, 0.0f, 1.000000f), 30.0f,
         AudioParameterFloatAttributes().withLabel ("%")
             .withStringFromValueFunction ([] (float v, int) { return fmt (v, 0) + " %"; })
             .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
@@ -27,26 +112,123 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         AudioParameterFloatAttributes().withLabel ("dB")
             .withStringFromValueFunction ([] (float v, int) { return juce::String (v > 0 ? "+" : "") + fmt (v, 1) + " dB"; })
             .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); if (t == "-inf" || t == "-inf db" || t == "off") return -24.0f; double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); return (float) x; })));
-    layout.add (std::make_unique<AudioParameterBool> (ParameterID { bypass, 1 }, "Bypass", false,
-        AudioParameterBoolAttributes().withStringFromValueFunction ([] (bool b, int) { return juce::String (b ? "On" : "Off"); })));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar1, 1 }, "Lower 16'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar2, 1 }, "Lower 5 1/3'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar3, 1 }, "Lower 8'", 0, 8, 8,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar4, 1 }, "Lower 4'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar5, 1 }, "Lower 2 2/3'", 0, 8, 8,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar6, 1 }, "Lower 2'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar7, 1 }, "Lower 1 3/5'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar8, 1 }, "Lower 1 1/3'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { lowerBar9, 1 }, "Lower 1'", 0, 8, 0,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalBar16, 1 }, "Pedal 16'", 0, 8, 6,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalBar8, 1 }, "Pedal 8'", 0, 8, 3,
+        AudioParameterIntAttributes()));
+    layout.add (std::make_unique<AudioParameterFloat> (ParameterID { pedalRelease, 1 }, "Pedal Release",
+        NormalisableRange<float> (0.01f, 1.5f, 0.0f, 0.246960f), 0.08f,
+        AudioParameterFloatAttributes().withLabel ("s")
+            .withStringFromValueFunction ([] (float v, int) { double s = v; return std::abs (s) < 1.0 ? fmt (s * 1000.0, 0) + " ms" : fmt (s, 2) + " s"; })
+            .withValueFromStringFunction ([] (const juce::String& s) { juce::String t = s.trim().replace (",", ".").toLowerCase(); double x = t.retainCharacters ("0123456789.+-").getDoubleValue(); if (t.endsWith ("ms")) return (float) (x / 1000.0); if (t.endsWith ("min") || t.endsWith ("m")) return (float) (x * 60.0); return (float) (x); })));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { splitKey, 1 }, "Split Key", 36, 96, 36,
+        AudioParameterIntAttributes().withLabel ("note")));
+    layout.add (std::make_unique<AudioParameterInt> (ParameterID { pedalSplit, 1 }, "Pedal Split", 24, 48, 24,
+        AudioParameterIntAttributes().withLabel ("note")));
     return layout;
 }
 
 // Smoothing per parameter: tau in ms (0 = none) and domain (D.1, Law 5). Read once in prepareToPlay.
 struct Smoothing { const char* id; float tauMs; const char* domain; const char* controlRate; };
 inline constexpr Smoothing smoothing[] = {
-    { mix, 20.0f, "linear", "block" },
+    { upperBar1, 0.0f, "crossfade", "block" },
+    { upperBar2, 0.0f, "crossfade", "block" },
+    { upperBar3, 0.0f, "crossfade", "block" },
+    { upperBar4, 0.0f, "crossfade", "block" },
+    { upperBar5, 0.0f, "crossfade", "block" },
+    { upperBar6, 0.0f, "crossfade", "block" },
+    { upperBar7, 0.0f, "crossfade", "block" },
+    { upperBar8, 0.0f, "crossfade", "block" },
+    { upperBar9, 0.0f, "crossfade", "block" },
+    { percOn, 0.0f, "crossfade", "event" },
+    { percThird, 0.0f, "crossfade", "event" },
+    { percSlow, 0.0f, "crossfade", "event" },
+    { percSoft, 0.0f, "crossfade", "event" },
+    { vibratoMode, 0.0f, "crossfade", "event" },
+    { vibratoLower, 0.0f, "crossfade", "event" },
+    { leslieFast, 0.0f, "crossfade", "event" },
+    { leslieBrake, 0.0f, "crossfade", "event" },
+    { leslieOn, 0.0f, "crossfade", "event" },
+    { micSpread, 50.0f, "linear", "block" },
+    { drive, 20.0f, "linear", "sample" },
+    { keyClick, 20.0f, "linear", "event" },
+    { leakage, 20.0f, "linear", "block" },
     { outGain, 20.0f, "db", "block" },
-    { bypass, 0.0f, "crossfade", "event" },
+    { lowerBar1, 0.0f, "crossfade", "block" },
+    { lowerBar2, 0.0f, "crossfade", "block" },
+    { lowerBar3, 0.0f, "crossfade", "block" },
+    { lowerBar4, 0.0f, "crossfade", "block" },
+    { lowerBar5, 0.0f, "crossfade", "block" },
+    { lowerBar6, 0.0f, "crossfade", "block" },
+    { lowerBar7, 0.0f, "crossfade", "block" },
+    { lowerBar8, 0.0f, "crossfade", "block" },
+    { lowerBar9, 0.0f, "crossfade", "block" },
+    { pedalBar16, 0.0f, "crossfade", "block" },
+    { pedalBar8, 0.0f, "crossfade", "block" },
+    { pedalRelease, 0.0f, "linear", "event" },
+    { splitKey, 0.0f, "crossfade", "block" },
+    { pedalSplit, 0.0f, "crossfade", "block" },
 };
 
 // Help text per parameter, from the table's tooltip and meaning columns (D.9.0). The editor
 // calls slider.setTooltip (tooltipFor (id)) and setHelpText (tooltipFor (id)); never types text.
 struct Help { const char* id; const char* tooltip; const char* meaning; };
 inline constexpr Help help[] = {
-    { mix, "Dry to wet balance (equal power). Range 0 % to 100 %, default 100 %.", "dry / balanced / wet" },
-    { outGain, "Output level after the mix. Range -24.0 dB to +12.0 dB, default 0.0 dB.", "quiet / unity / loud" },
-    { bypass, "Bypass the plugin (latency compensated). Default Off.", "" },
+    { upperBar1, "Level of the sub-octave in the upper manual. Range 0 to 8, default 8.", "off / half / full" },
+    { upperBar2, "Level of the fifth above the sub in the upper manual. Range 0 to 8, default 8.", "off / half / full" },
+    { upperBar3, "Level of the fundamental in the upper manual. Range 0 to 8, default 8.", "off / half / full" },
+    { upperBar4, "Level of the octave in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { upperBar5, "Level of the twelfth in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { upperBar6, "Level of the fifteenth in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { upperBar7, "Level of the seventeenth in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { upperBar8, "Level of the nineteenth in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { upperBar9, "Level of the twenty-second in the upper manual. Range 0 to 8, default 0.", "off / half / full" },
+    { percOn, "Adds a decaying harmonic to the first note of each phrase. Default Off.", "" },
+    { percThird, "Percussion on the third harmonic instead of the second. Default Off.", "" },
+    { percSlow, "Longer percussion decay. Default Off.", "" },
+    { percSoft, "Quieter percussion. Default Off.", "" },
+    { vibratoMode, "Scanner vibrato V1 to V3, or chorus C1 to C3 mixed with the dry sound. Options Off, V1, V2, V3, C1, C2, C3; default Off.", "" },
+    { vibratoLower, "Sends the lower manual through the vibrato too. Default Off.", "" },
+    { leslieFast, "Speeds the rotors up to tremolo; they ramp, they do not jump. Default Off.", "" },
+    { leslieBrake, "Stops both rotors where they are. Default Off.", "" },
+    { leslieOn, "Plays through the rotary speaker, or straight from the organ. Default On.", "" },
+    { micSpread, "Angle between the two microphones on the horn: the stereo width. Range 0 deg to 180 deg, default 120 deg.", "mono / two mics / opposite sides" },
+    { drive, "Overdrives the preamp before the Leslie. Range 0 % to 100 %, default 20 %.", "clean / warm / growl" },
+    { keyClick, "How sharply the key contacts switch on; more is a brighter click. Range 0 % to 100 %, default 50 %.", "soft / worn / sharp" },
+    { leakage, "Faint bleed of other tonewheels into each key, like an older organ. Range 0 % to 100 %, default 30 %.", "clean / aged / dusty" },
+    { outGain, "Output level of the instrument. Range -24.0 dB to +12.0 dB, default 0.0 dB.", "quiet / unity / loud" },
+    { lowerBar1, "Level of the sub-octave in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar2, "Level of the fifth above the sub in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar3, "Level of the fundamental in the lower manual. Range 0 to 8, default 8.", "off / half / full" },
+    { lowerBar4, "Level of the octave in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar5, "Level of the twelfth in the lower manual. Range 0 to 8, default 8.", "off / half / full" },
+    { lowerBar6, "Level of the fifteenth in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar7, "Level of the seventeenth in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar8, "Level of the nineteenth in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { lowerBar9, "Level of the twenty-second in the lower manual. Range 0 to 8, default 0.", "off / half / full" },
+    { pedalBar16, "Level of the deep pedal tone. Range 0 to 8, default 6.", "off / half / full" },
+    { pedalBar8, "Level of the pedal tone an octave up. Range 0 to 8, default 3.", "off / half / full" },
+    { pedalRelease, "How long a pedal note rings after you lift it. Range 10 ms to 1.50 s, default 80 ms.", "tight / short / ringing" },
+    { splitKey, "Keys below this note on channel 1 play the lower manual. Range C2 to C7, default C2.", "off / C4 / top" },
+    { pedalSplit, "Keys below this note on channel 1 play the pedals. Range C1 to C3, default C1.", "off / C2 / C3" },
 };
 inline const char* tooltipFor (const char* id) noexcept
 {
@@ -58,7 +240,4 @@ inline const char* meaningFor (const char* id) noexcept
     for (const auto& h : help) if (std::strcmp (h.id, id) == 0) return h.meaning;
     return "";
 }
-
-// Return this from AudioProcessor::getBypassParameter() (D.5.1).
-inline constexpr const char* bypassParameterId = "bypass";
 } // namespace Params

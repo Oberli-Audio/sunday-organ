@@ -53,11 +53,11 @@
     }
   ],
   "buildPresets": [
-    { "name": "release", "configurePreset": "release", "configuration": "Release", "targets": [ "{{ProductId}}_VST3", "{{ProductId}}_Standalone", "{{ProductId}}Harness" ] },
-    { "name": "debug", "configurePreset": "debug", "targets": [ "{{ProductId}}_VST3", "{{ProductId}}Harness" ] },
-    { "name": "asan", "configurePreset": "asan", "targets": [ "{{ProductId}}_VST3", "{{ProductId}}Harness" ] },
-    { "name": "tsan", "configurePreset": "tsan", "targets": [ "{{ProductId}}_VST3", "{{ProductId}}Harness" ] },
-    { "name": "rtsan", "configurePreset": "rtsan", "targets": [ "{{ProductId}}Harness" ] }
+    { "name": "release", "configurePreset": "release", "configuration": "Release", "targets": [ "SundayOrgan_VST3", "SundayOrgan_Standalone", "SundayOrganHarness" ] },
+    { "name": "debug", "configurePreset": "debug", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },
+    { "name": "asan", "configurePreset": "asan", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },
+    { "name": "tsan", "configurePreset": "tsan", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },
+    { "name": "rtsan", "configurePreset": "rtsan", "targets": [ "SundayOrganHarness" ] }
   ],
   "testPresets": [
     { "name": "fast", "configurePreset": "release", "filter": { "include": { "label": "fast" } }, "output": { "outputOnFailure": true } },

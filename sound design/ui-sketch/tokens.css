@@ -1,0 +1,24 @@
+/* Copied from the Oberli Audio Design System artifact (project/tokens.css, version 1793406139-b237). The artifact wins. */
+:root, [data-theme="dark"] {
+  --charcoal: #1C1B19; --bone: #EDE8DF; --mango: #F09300;
+  --ground: #1C1B19; --surface-sunken: #171614; --surface-raised: #232220; --surface-panel: #2A2826;
+  --line: #3A3836; --line-strong: #4A4844; --line-control: #6B665D;
+  --ink: #EDE8DF; --ink-muted: #BDB6AA; --ink-subtle: #9C968B;
+  --accent: var(--mango); --accent-ink: var(--accent); --on-accent: #1C1B19;
+  --accent-mango: #F09300; --accent-saffron: #F6BF26; --accent-ember: #F4511E; --accent-coral: #FF7A6B;
+  --accent-rose: #F27BB0; --accent-iris: #A796F0; --accent-jade: #3FCF9E; --accent-lime: #A8D45A;
+  --mod: #8FB8FF; --meter-level: #EDE8DF; --meter-hot: #F6BF26; --clip: #FF5A4E;
+  --readout: #EDE8DF; --on-readout: #1C1B19; --shadow-pop: 0 8px 24px rgba(0,0,0,0.45);
+}
+:root { --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --radius-xs: 4px; --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-pill: 999px;
+  --knob-lg: 64px; --knob-md: 48px; --knob-sm: 32px; --header-height: 48px; --focus-width: 2px;
+  --font-sans: Rubik, "Helvetica Neue", Arial, sans-serif; }
+.plugin-name { font-family: var(--font-sans); font-size: 15px; line-height: 20px; font-weight: 700; }
+.section { font-family: var(--font-sans); font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.12em; }
+.meta { font-family: var(--font-sans); font-size: 11px; line-height: 14px; font-weight: 500; }
+@font-face { font-family: "Rubik"; src: url("fonts/rubik-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Rubik"; src: url("fonts/rubik-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Rubik"; src: url("fonts/rubik-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "Rubik"; src: url("fonts/rubik-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Rubik"; src: url("fonts/rubik-latin-800-normal.woff2") format("woff2"); font-weight: 800; }
