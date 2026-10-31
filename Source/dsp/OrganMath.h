@@ -84,7 +84,7 @@ struct LagrangeDelay
     double tap (int d, int maxDelay) const noexcept
     {
         d = d < 0 ? 0 : (d > maxDelay ? maxDelay : d);       // de.delay: min(n, max(0, d))
-        return buf[(w - d) & (Size - 1)];
+        return buf[(size_t) ((w - d) & (Size - 1))];
     }
     /** Delay in samples (fractional), clamped to maxDelay like the prototype. Read after push(). */
     double read (double d, int maxDelay) const noexcept

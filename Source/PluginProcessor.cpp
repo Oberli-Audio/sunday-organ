@@ -41,8 +41,8 @@ sundayorgan::dsp::Organ::Settings SundayOrganAudioProcessor::readSettings() noex
     s.vibratoMode = juce::jlimit (0, 6, juce::roundToInt (v (iVibMode)));
     s.vibratoLower = on (iVibLower);
     // Leslie Fast and Expression: the parameter or the player's controller, the one moved last
-    if (v (iFast) != lastFastParam) { lastFastParam = v (iFast); fastState = lastFastParam >= 0.5f; }
-    if (v (iExpr) != lastExprParam) { lastExprParam = v (iExpr); exprState = (double) lastExprParam / 100.0; }
+    if (! juce::exactlyEqual (v (iFast), lastFastParam)) { lastFastParam = v (iFast); fastState = lastFastParam >= 0.5f; }
+    if (! juce::exactlyEqual (v (iExpr), lastExprParam)) { lastExprParam = v (iExpr); exprState = (double) lastExprParam / 100.0; }
     s.fast = fastState;
     s.expression = exprState;
     s.brake = on (iBrake); s.leslieOn = on (iLeslieOn);
@@ -65,6 +65,8 @@ void SundayOrganAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     organ.apply (readSettings());
     organ.reset (prototypeStart);
     organ.setProbe (probe);
+    hornRpm.store ((float) (organ.hornHz() * 60.0));
+    drumRpm.store ((float) (organ.drumHz() * 60.0));
     juce::dsp::ProcessSpec spec { sampleRate, (juce::uint32) juce::jmax (1, samplesPerBlock), 1 };
     for (auto* f : { &rmsFilterL, &rmsFilterR })
     {
@@ -116,6 +118,17 @@ void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     auto* l = buffer.getWritePointer (0);
     auto* r = buffer.getWritePointer (1);
     organ.apply (readSettings());
+    auto modWheel = [this] (int value)                         // CC1, or the on-screen wheel
+    {
+        modNow.store ((float) value / 127.0f, std::memory_order_relaxed);
+        const bool f = value >= 64;                            // mod wheel above half = fast
+        if (f != lastCcFast) { lastCcFast = f; fastState = f; auto s = organ.current(); s.fast = f; organ.apply (s); }
+    };
+    if (const float sm = screenMod.load(); sm >= 0.0f && ! juce::exactlyEqual (sm, lastScreenMod))
+    {
+        lastScreenMod = sm;
+        modWheel (juce::jlimit (0, 127, juce::roundToInt (sm * 127.0f)));   // at the block start, no MIDI buffer touched (rule 1)
+    }
 
     // MIDI at sample offsets (rule 16): split the block at every event
     int pos = 0;
@@ -135,10 +148,7 @@ void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         else if (msg.isSustainPedalOff())  organ.sustain (ch, false);
         else if (msg.isAllNotesOff() || msg.isAllSoundOff()) organ.allNotesOff();
         else if (msg.isController() && msg.getControllerNumber() == 1)
-        {
-            const bool f = msg.getControllerValue() >= 64;       // mod wheel above half = fast
-            if (f != lastCcFast) { lastCcFast = f; fastState = f; auto s = organ.current(); s.fast = f; organ.apply (s); }
-        }
+            modWheel (msg.getControllerValue());
         else if (msg.isController() && msg.getControllerNumber() == 11)
         {
             exprState = (double) msg.getControllerValue() / 127.0;
@@ -160,6 +170,7 @@ void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     float lastL = 0.0f, lastR = 0.0f;
     for (int i = 0; i < numSamples; ++i)
     {
+        if (std::abs (l[i]) >= 1.0f || std::abs (r[i]) >= 1.0f) clipped.store (true, std::memory_order_relaxed);
         lastL = rmsFilterL.processSample (0, l[i]);
         lastR = rmsFilterR.processSample (0, r[i]);
     }

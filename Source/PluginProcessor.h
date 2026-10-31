@@ -77,6 +77,15 @@ public:
     bool leslieFastNow() const noexcept { return fastNow.load (std::memory_order_relaxed); }
     float expressionNow() const noexcept { return exprNow.load (std::memory_order_relaxed); }
 
+    /** The on-screen mod wheel (0-1): treated like CC1 at the next block. Any thread. */
+    void setScreenModWheel (float v) noexcept { screenMod.store (v); }
+    /** The mod wheel as the player last moved it (CC1 or the screen), 0-1. */
+    float modWheelNow() const noexcept { return modNow.load (std::memory_order_relaxed); }
+    /** True once after a sample reached full scale (the editor's CLIP LED reads and clears it). */
+    bool takeClip() noexcept { return clipped.exchange (false); }
+    /** The factory preset loaded last (message thread; the editor's pill and drawer). */
+    int currentPreset = 0;
+
     /** What the editor may read from the audio thread: the 20 ms RMS per channel (D.6.2). */
     float outputLevel (int channel) const noexcept { return channel == 0 ? rmsL.load (std::memory_order_relaxed) : rmsR.load (std::memory_order_relaxed); }
 
@@ -95,7 +104,9 @@ private:
     bool prototypeStart = false;
     sundayorgan::dsp::Organ::Probe probe = sundayorgan::dsp::Organ::Probe::out;
     std::atomic<float> hornRpm { 0.0f }, drumRpm { 0.0f }, hornTurn { 0.0f }, drumTurn { 0.0f }, exprNow { 1.0f };
-    std::atomic<bool> fastNow { false };
+    std::atomic<bool> fastNow { false }, clipped { false };
+    std::atomic<float> screenMod { -1.0f }, modNow { 0.0f };
+    float lastScreenMod = -1.0f;
     std::atomic<int> activeKeyCount { 0 };
     double currentSampleRate = 48000.0;
     std::atomic<float> rmsL { 0.0f }, rmsR { 0.0f };

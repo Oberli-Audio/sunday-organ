@@ -26,7 +26,7 @@ inline constexpr const char* kPresetExtension = ".oberlipreset";
     every load and save (bytewise round trip, D.5.3; failures.md F-4), 1e-6 relative, inaudible. */
 inline double sixDigits (double v)
 {
-    if (v == 0.0 || ! std::isfinite (v))
+    if (juce::exactlyEqual (v, 0.0) || ! std::isfinite (v))
         return v;
     const double scale = std::pow (10.0, 5.0 - std::floor (std::log10 (std::abs (v))));
     return std::round (v * scale) / scale;

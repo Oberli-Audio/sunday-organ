@@ -51,31 +51,45 @@ def residual(a, b):
                 worst_at_s=float(np.argmax(np.abs(r).max(1)) / 48000.0), length_diff=len(a) - len(b))
 
 
+def judge(r):
+    """Whole plugin: absolute dBFS. Probe: re its own peak. Silent on both sides (a score without
+    pedals) is identical. One sample of length is the prototype harness truncating seconds x rate."""
+    if abs(r["length_diff"]) > 1: return False
+    if r["ref_peak_dbfs"] < -300.0: return r["peak_dbfs"] < -300.0
+    return (r["peak_dbfs"] if r["part"] == "whole" else r["peak_dbfs"] - r["ref_peak_dbfs"]) < THRESHOLD
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("harness"); ap.add_argument("--md"); ap.add_argument("--json")
+    ap.add_argument("--rows", help="re-judge a saved --json instead of rendering")
     a = ap.parse_args()
     rows, ok = [], True
-    with tempfile.TemporaryDirectory() as d:
-        for sc in sorted(glob.glob(os.path.join(SD, "scores", "*.txt"))):
-            name = os.path.basename(sc)[:-4]
-            dur = open(sc).readline().split()[2]
-            r = residual(plugin(a.harness, sc, dur, os.path.join(d, "p.wav")), faust(os.path.join(SD, "harness", "render"), sc, dur, os.path.join(d, "f.wav")))
-            r.update(score=name, part="whole", passed=r["peak_dbfs"] < THRESHOLD and abs(r["length_diff"]) <= 1)
-            ok &= r["passed"]; rows.append(r); print(json.dumps(r), flush=True)
-        for probe, parts in PROBES.items():
-            exe = os.path.join(SD, "harness", "g5", probe)
-            if not os.path.exists(exe):
-                print("missing probe build", exe, "(sound design/dsp/g5_%s.dsp)" % probe, file=sys.stderr); ok = False; continue
-            for name in PROBE_SCORES:
-                sc = os.path.join(SD, "scores", name + ".txt"); dur = open(sc).readline().split()[2]
-                f = faust(exe, sc, dur, os.path.join(d, "f.wav"))
-                for ch, part in enumerate(parts):
-                    p = plugin(a.harness, sc, dur, os.path.join(d, "p.wav"), part)
-                    r = residual(p[:, :1], f[:, ch:ch + 1])
-                    # a probe runs at its module's own level (the upper bus peaks near +28 dBFS): judged re its peak
-                    r.update(score=name, part=part, passed=r["peak_dbfs"] - r["ref_peak_dbfs"] < THRESHOLD and abs(r["length_diff"]) <= 1)
-                    ok &= r["passed"]; rows.append(r); print(json.dumps(r), flush=True)
+    if a.rows:
+        rows = json.load(open(a.rows))
+        for r in rows:
+            r["passed"] = judge(r); ok &= r["passed"]
+    else:
+      with tempfile.TemporaryDirectory() as d:
+          for sc in sorted(glob.glob(os.path.join(SD, "scores", "*.txt"))):
+              name = os.path.basename(sc)[:-4]
+              dur = open(sc).readline().split()[2]
+              r = residual(plugin(a.harness, sc, dur, os.path.join(d, "p.wav")), faust(os.path.join(SD, "harness", "render"), sc, dur, os.path.join(d, "f.wav")))
+              r.update(score=name, part="whole"); r["passed"] = judge(r)
+              ok &= r["passed"]; rows.append(r); print(json.dumps(r), flush=True)
+          for probe, parts in PROBES.items():
+              exe = os.path.join(SD, "harness", "g5", probe)
+              if not os.path.exists(exe):
+                  print("missing probe build", exe, "(sound design/dsp/g5_%s.dsp)" % probe, file=sys.stderr); ok = False; continue
+              for name in PROBE_SCORES:
+                  sc = os.path.join(SD, "scores", name + ".txt"); dur = open(sc).readline().split()[2]
+                  f = faust(exe, sc, dur, os.path.join(d, "f.wav"))
+                  for ch, part in enumerate(parts):
+                      p = plugin(a.harness, sc, dur, os.path.join(d, "p.wav"), part)
+                      r = residual(p[:, :1], f[:, ch:ch + 1])
+                      # a probe runs at its module's own level (the upper bus peaks near +28 dBFS): judged re its peak
+                      r.update(score=name, part=part, passed=r["peak_dbfs"] - r["ref_peak_dbfs"] < THRESHOLD and abs(r["length_diff"]) <= 1)
+                      ok &= r["passed"]; rows.append(r); print(json.dumps(r), flush=True)
     if a.json:
         json.dump(rows, open(a.json, "w"), indent=1)
     if a.md:

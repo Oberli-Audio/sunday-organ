@@ -125,7 +125,28 @@ set(PRODUCT_SOURCES
     Source/dsp/Busses.h
     Source/dsp/Scanner.h
     Source/dsp/Leslie.h
-    Source/dsp/Organ.h)
+    Source/dsp/Organ.h
+    Source/Presets.h
+    Source/gui/OberliLookAndFeel.cpp
+    Source/gui/OberliLookAndFeel.h
+    Source/gui/Widgets.cpp
+    Source/gui/Widgets.h)
+
+# The editor's type and marks (the Oberli Audio design system): Rubik's five static weights as
+# Google Fonts serves them, unmodified (SIL OFL 1.1, LICENSES/OFL-1.1.txt), the Logo group's SVGs;
+# and the factory bank (the same files the harness reads), so the preset pill and drawer have it.
+file(GLOB PRODUCT_FACTORY_PRESETS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/presets/*.oberlipreset")
+juce_add_binary_data(SundayOrganUiData
+    HEADER_NAME UiData.h
+    NAMESPACE   UiData
+    SOURCES     assets/fonts/Rubik-Regular.ttf assets/fonts/Rubik-Medium.ttf assets/fonts/Rubik-SemiBold.ttf
+                assets/fonts/Rubik-Bold.ttf assets/fonts/Rubik-ExtraBold.ttf
+                assets/logo/oberli-bone.svg assets/logo/oberli-audio-charcoal.svg)
+juce_add_binary_data(SundayOrganPresetData
+    HEADER_NAME PresetData.h
+    NAMESPACE   PresetData
+    SOURCES     presets.csv ${PRODUCT_FACTORY_PRESETS})
+set_target_properties(SundayOrganUiData SundayOrganPresetData PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_sources(SundayOrgan PRIVATE ${PRODUCT_SOURCES})
 target_include_directories(SundayOrgan PRIVATE Source "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -140,6 +161,8 @@ target_compile_definitions(SundayOrgan
         PRODUCT_IS_INSTRUMENT=$<IF:$<BOOL:${PRODUCT_IS_SYNTH}>,1,0>)
 target_link_libraries(SundayOrgan
     PRIVATE
+        SundayOrganUiData
+        SundayOrganPresetData
         juce::juce_audio_utils
         juce::juce_dsp
     PUBLIC
@@ -208,6 +231,7 @@ target_compile_definitions(SundayOrganHarness PRIVATE
     JucePlugin_Name="$<TARGET_PROPERTY:SundayOrgan,JUCE_PLUGIN_NAME>"
     JucePlugin_VersionString="${PROJECT_VERSION}")
 target_link_libraries(SundayOrganHarness PRIVATE
+    SundayOrganUiData SundayOrganPresetData
     juce::juce_audio_utils juce::juce_dsp juce::juce_audio_formats
     juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 if (PRODUCT_ASAN)
@@ -232,6 +256,18 @@ if (PRODUCT_RTSAN)
     target_link_options(SundayOrganHarness PRIVATE -fsanitize=realtime)
     target_compile_definitions(SundayOrganHarness PRIVATE PRODUCT_RTSAN=1)
 endif()
+
+# The editor's snapshot tool (plugin-ui-bob audio-plugins.md 15): the real editor rendered
+# offscreen to PNG at any scale, preset, parameter or state. Not built by default.
+juce_add_console_app(SundayOrganGuiSnapshot PRODUCT_NAME "SundayOrganGuiSnapshot")
+set_target_properties(SundayOrganGuiSnapshot PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(SundayOrganGuiSnapshot PRIVATE tools/gui_snapshot/Main.cpp ${PRODUCT_SOURCES})
+target_include_directories(SundayOrganGuiSnapshot PRIVATE Source "${CMAKE_CURRENT_BINARY_DIR}/generated")
+target_compile_definitions(SundayOrganGuiSnapshot PRIVATE
+    JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1 PRODUCT_IS_INSTRUMENT=1
+    JucePlugin_Name="$<TARGET_PROPERTY:SundayOrgan,JUCE_PLUGIN_NAME>" JucePlugin_VersionString="${PROJECT_VERSION}")
+target_link_libraries(SundayOrganGuiSnapshot PRIVATE SundayOrganUiData SundayOrganPresetData
+    juce::juce_audio_utils juce::juce_dsp juce::juce_recommended_config_flags)
 
 # G5: the Doppler render of the plugin's own horn path (tools/g5/doppler_check.py reads it).
 add_executable(SundayOrganDopplerCheck tools/g5/DopplerCheck.cpp)
