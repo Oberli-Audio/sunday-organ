@@ -55,8 +55,8 @@ Tier P, track I, at gate G6 (what runs on the Linux cloud box is done; the Mac, 
 - EX-5 2026-10-31: rule 13's "shown failing" is done for every regression test (F-2 to F-7) but not yet for the ten presence tests of the defining features (`test_features.py` DefiningFeatures): no knockout build of each feature was made. **Unacceptable if** G7 is closed without it. Friends: none.
 
 ## Handoff
-Task: Tier P from G1 to a release-gate-ready build (Björn, 2026-10-31). Done: steps 1-8 of the task as far as this box allows (see Gates). Branch `g0-brief-and-sketch`, everything pushed.
-Next commands (on the Mac): `cmake --preset release && cmake --build --preset release && ctest --preset all`; `python3 scripts/dsp-kit/perf.py run --harness build/SundayOrganHarness_artefacts/Release/SundayOrganHarness --arch x86_64`; `python3 scripts/dsp-kit/validate_plugin.py --profile full --plugin "build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3"`; the RTSan preset; the snapshot pass on a 1x display (`SundayOrganGuiSnapshot`, target not built by default).
+Task: Tier P from G1 to a release-gate-ready build (Björn, 2026-10-31). Done on Linux: steps 1-8 as far as the box allows (see Gates). Branch `g0-brief-and-sketch`, everything pushed.
+**Next: Claude Code in VS Code on the Mac, from `docs/handover-vscode.md`** - A: pull, `tools/install_plugin.sh` (the macOS signing fix `ee45a69` is untested), Björn plays it, the Mac-only part of G6; B: the skill and template updates in ~/bob-skills.
 Open questions for the owner: the brief amendments of 2026-10-31; when to freeze the IDs (rule 19).
 
 ## Decisions
