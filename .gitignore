@@ -8,6 +8,8 @@ _deps/
 *.obj
 *.a
 *.lib
+# ... but Faust libraries are sources (failures.md F-1: scanner.lib and leslie.lib were never committed)
+!/sound design/**/*.lib
 *.so
 *.dylib
 *.dll

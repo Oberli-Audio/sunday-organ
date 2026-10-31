@@ -1,0 +1,65 @@
+// Leslie 122 rotary speaker - Sunday Organ prototype (G2).
+// Reconstructed 2026-10-31 from the compiled v0.3 prototype (harness/render.cpp, Faust 2.70.3):
+// the original file was never committed because the repo's .gitignore excluded *.lib (failures.md
+// F-1). Nulls against the old binary (see SKETCH.md, "Reconstruction").
+//
+// Crossover: horn above 800 Hz, drum 200-800 Hz, below 200 Hz mono and unmodulated (rule 15).
+// Horn: moving-source Doppler by retarded time (two fixed-point steps), a lowpass that opens
+// as the horn faces the mic, AM, a 2 kHz horn resonance; per mic a direct path plus two
+// cabinet reflections. Drum: AM only, turning the other way. Each rotor has its own spin-up
+// and spin-down lag; brake = target 0. Times in seconds (rule 12).
+declare name "leslie";
+import("stdfaust.lib");
+
+R    = 0.15;            // m, horn radius
+C    = 343.0;           // m/s
+MAXD = 2048;            // samples: 0.15/343*2 + 2.8 ms < 2048 at 192 kHz
+XHORN = 800;            // Hz, horn / drum crossover (LR4)
+XBASS = 200;            // Hz, drum / bass crossover (LR4)
+HORN  = 0.3;            // horn level into its paths (balances the +10 dB resonance)
+
+hornHz(fast, brake) = ba.if(brake, 0, ba.if(fast, 6.67, 0.83));
+drumHz(fast, brake) = ba.if(brake, 0, ba.if(fast, 5.67, 0.67));
+// spin-up / spin-down time constants (s), set by ear (listening debt)
+hornSpeed(fast, brake) = hornHz(fast, brake) : si.onePoleSwitching(0.35, 0.55);
+drumSpeed(fast, brake) = drumHz(fast, brake) : si.onePoleSwitching(2.2, 3.0);
+
+rotor(hz, p0) = os.lf_sawpos(hz) + p0 : ma.frac;     // rotor angle in turns
+
+// paths per mic: k = 0 direct, 1 and 2 cabinet reflections (angle, extra delay, gain)
+pathAngle(k) = ba.take(k + 1, (0.0, 2.2, -2.2));
+pathBase(k)  = ba.take(k + 1, (0.0005, 0.0028, 0.0016));   // s
+pathGain(k)  = ba.take(k + 1, (1.0, 0.25, 0.35));
+
+// distance delay (s) from the horn at angle p (turns) to a mic at angle m (rad)
+dist(p, m, k) = (R / C) * (1 - cos(2 * ma.PI * p + m + pathAngle(k))) + pathBase(k);
+// retarded time: the sound arriving now left the horn d seconds ago, when it was at p - hz*d
+hornDelay(ph, hz, m, k) = d2
+with {
+    d0 = dist(ph, m, k);
+    d1 = dist(ph - hz * d0, m, k);
+    d2 = dist(ph - hz * d1, m, k);
+};
+hornPath(ph, hz, m, k, am, x) = x : de.fdelay3(MAXD, ma.SR * d) : *(HORN) : fi.svf.lp(fc, 0.707) : *(g)
+with {
+    d  = hornDelay(ph, hz, m, k);
+    th = 2 * ma.PI * (ph - hz * d) + m + pathAngle(k);
+    fc = 4500 * (cos(th) + 1) + 3000;
+    g  = 1 - am * 0.225 * (1 - cos(th));
+};
+
+// fast, brake: 0/1; spread: angle between the mics (rad); x: mono in -> L, R
+leslie(fast, brake, spread, x) = out(m), out(-m)
+with {
+    m    = spread * 0.5;
+    hz   = hornSpeed(fast, brake);
+    ph   = rotor(hz, 0.0);
+    dph  = rotor(drumSpeed(fast, brake), 0.0);
+    lo   = x : fi.lowpassLR4(XHORN);
+    hi   = x : fi.highpassLR4(XHORN) : fi.svf.bell(2000, 1.5, 10);
+    bass = lo : fi.lowpassLR4(XBASS);
+    drum = lo : fi.highpassLR4(XBASS);
+    dang = 2 * ma.PI * ma.frac(0.63 - dph);              // drum turns the other way
+    out(mm) = bass + drum * (1 - 0.25 * (1 - cos(dang + mm)))
+            + sum(k, 3, pathGain(k) * hornPath(ph, hz, mm, k, 1, hi));
+};

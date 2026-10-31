@@ -255,6 +255,9 @@ if (Python3_FOUND)
                          --harness "$<TARGET_FILE:SundayOrganHarness>" --kind ${PRODUCT_KIND}
                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(parameter_table PROPERTIES LABELS "fast;lint")
+        add_test(NAME design_sources_in_git
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/check_sources.py" "${CMAKE_CURRENT_SOURCE_DIR}")
+        set_tests_properties(design_sources_in_git PROPERTIES LABELS "fast;lint")
         add_test(NAME preset_bank
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/dsp-kit/presetlint.py" bank
                          "${CMAKE_CURRENT_SOURCE_DIR}/presets.csv" --tier S --track ${PRODUCT_KIND} --harness "$<TARGET_FILE:SundayOrganHarness>"

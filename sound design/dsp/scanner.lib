@@ -1,0 +1,29 @@
+// Scanner vibrato / chorus - Sunday Organ prototype (G2).
+// Reconstructed 2026-10-31 from the compiled v0.3 prototype (harness/render.cpp, Faust 2.70.3):
+// the original file was never committed because the repo's .gitignore excluded *.lib (EX
+// failures.md F-1). Nulls against the old binary (see SKETCH.md, "Reconstruction").
+//
+// A modulated delay swept by a rounded triangle at 6.87 Hz, then the scanner line's lowpass.
+// V1-V3: wet only, depth increasing. C1-C3: the same depths, equal-power mixed with dry.
+// Every time in seconds (rule 12); depths are peak delay swings, set by ear (listening debt).
+declare name "scanner";
+import("stdfaust.lib");
+
+RATE   = 6.87;          // Hz, scanner rotation (B-3 ~ 6.9 Hz)
+BASE   = 0.0002;        // s, minimum delay
+ROUND  = 40;            // Hz, one-pole that rounds the triangle's corners
+LINELP = 7000;          // Hz, the delay line's high-frequency loss
+MAXD   = 512;           // samples of buffer: 1.4 ms at 192 kHz > BASE + V3 depth
+depthOf(v) = ba.if(v >= 2, ba.if(v >= 3, 0.0012, 0.0007), ba.if(v >= 1, 0.00035, 0.0));  // s
+
+// mode: 0 off, 1-3 V1-V3, 4-6 C1-C3
+scanner(mode, x) = x * gDry + wet * gWet
+with {
+    m     = int(mode);
+    v     = ba.if(m > 3, m - 3, m);
+    gDry  = (0.7071 * (m >= 4) + (m == 0)) : si.smooth(ba.tau2pole(0.02));
+    gWet  = (0.7071 * (m >= 4) + ((m >= 1) & (m <= 3))) : si.smooth(ba.tau2pole(0.02));
+    depth = depthOf(v) : si.smooth(ba.tau2pole(0.02));
+    tri   = 1 - abs(2 * os.hs_phasor(1, RATE, 1 - 1') - 1) : fi.lowpass(1, ROUND);
+    wet   = x : de.fdelay3(MAXD, ma.SR * (depth * tri + BASE)) : fi.lowpass(1, LINELP);
+};
