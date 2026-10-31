@@ -7,7 +7,7 @@ Tier P, track I, at gate G0 (brief drafted, waiting for Björn's confirmation). 
 | G0 | open | `docs/brief.md` drafted from the v0.2 sketch; owner confirmation pending |
 | G1 | drafted | see Decisions; closes with G0 |
 | G2 | prototype v0.3 | `sound design/dsp/*.dsp` (Faust 2.70.3), renders by `sound design/scores/make_scores.py`; evidence `sound design/evidence-v0.2.txt`; pedals added in v0.3 (`08_pedals_with_chords`: peak -8.5 dBFS, 0 non-finite, side/mid < 150 Hz -34.0 dB) |
-| G3 | - | harness on the dsp-kit contract: the template harness builds on Linux after the JucePlugin_* fix (CMakeLists.txt) |
+| G3 | - | template harness builds on Linux (Ubuntu 24.04, GCC, JUCE pinned) after the JucePlugin_* fix; `dspkit.py smoke` fails on `sample_rate=48000.0` vs `48000` (kit or harness echo type, to fix in ~/bob-skills) |
 | G4 | - | C++ port; only open or ramping contacts run (the prototype's 549 always-on contacts are the CPU problem) |
 | G5-G7 | - | |
 

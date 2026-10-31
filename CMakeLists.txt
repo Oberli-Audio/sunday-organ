@@ -195,10 +195,11 @@ target_compile_definitions(SundayOrganHarness PRIVATE
 # The harness compiles the plugin sources itself with its own copy of the modules (simple and
 # portable; Horizon Pad links the SharedCode library instead, which saves a compile).
 target_sources(SundayOrganHarness PRIVATE ${PRODUCT_SOURCES})
-# JUCE 8 puts JucePlugin_* on the plugin target as compile definitions (no JucePluginDefines.h),
-# so the harness, which compiles the plugin sources itself, takes them from there.
+# JUCE 8 puts JucePlugin_* on the plugin target only (no JucePluginDefines.h); the harness
+# compiles the plugin sources itself, so it gets the two the shared sources use.
 target_compile_definitions(SundayOrganHarness PRIVATE
-    "$<FILTER:$<TARGET_PROPERTY:SundayOrgan,COMPILE_DEFINITIONS>,INCLUDE,^JucePlugin_>")
+    JucePlugin_Name="$<TARGET_PROPERTY:SundayOrgan,JUCE_PLUGIN_NAME>"
+    JucePlugin_VersionString="${PROJECT_VERSION}")
 target_link_libraries(SundayOrganHarness PRIVATE
     juce::juce_audio_utils juce::juce_dsp juce::juce_audio_formats
     juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
