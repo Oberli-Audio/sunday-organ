@@ -38,6 +38,34 @@ for i in range(4): chord(ev, 0.2 + i * 1.0, 1.0 + i * 1.0, [41, 45, 48, 52] if i
 for i, n in enumerate([72, 74, 76, 79, 76, 74, 72, 71]): note(ev, 0.2 + 0.5 * i, 0.55 + 0.5 * i, n)
 S["07_split_lower_comp_upper_lead"] = (ev, 5)
 
+# register battery per manual (brief keyboard_span_lu): every 3rd key C2..C7 at 888000000, dry
+ev = [(0, "Leslie on", 0)]
+for i, n in enumerate(range(36, 97, 3)): note(ev, 0.2 + 0.7 * i, 0.7 + 0.7 * i, n)
+S["09_register_upper"] = (ev, 15.2)
+ev = [(0, "Leslie on", 0)] + bars("888000000", LO)
+for i, n in enumerate(range(36, 97, 3)): ev += [(0.2 + 0.7 * i, f"lkey {n}", 1), (0.7 + 0.7 * i, f"lkey {n}", 0)]
+S["10_register_lower"] = (ev, 15.2)
+
+# expression (CC11) before the preamp: a held chord, swell down and up, Drive 0.6
+ev = [(0, "Drive", 0.6)]
+chord(ev, 0.3, 7.7, REF)
+for i in range(41):
+    ev.append((1.0 + 0.1 * i, "Expression", round(1 - 0.9 * i / 40, 4)))
+    ev.append((5.0 + 0.05 * i, "Expression", round(0.1 + 0.9 * i / 40, 4)))
+S["11_expression_swell"] = (ev, 8)
+
+# three channels: ch2 lower chord, ch3 pedal, ch1 lead; then one keyboard with split C4 and pedal split C3
+ev = [(0, "Mode", 6), (0, "On", 1), (0, "Third", 1)]
+for i, (lo, ped) in enumerate([([53, 57, 60], 29), ([55, 59, 62], 31)]):
+    for n in lo: ev += [(0.3 + 1.6 * i, f"lkey {n}", 1), (1.8 + 1.6 * i, f"lkey {n}", 0)]
+    ev += [(0.3 + 1.6 * i, f"pedal {ped}", 1), (1.7 + 1.6 * i, f"pedal {ped}", 0)]
+for i, n in enumerate([72, 74, 76, 77, 79, 77, 76, 74]): note(ev, 0.3 + 0.4 * i, 0.6 + 0.4 * i, n)
+ev += [(3.6, "Split key", 60), (3.6, "Pedal split", 48)]
+for i, (ch, ped) in enumerate([([53, 57, 60], 41), ([55, 59, 62], 43)]):
+    chord(ev, 3.8 + 1.6 * i, 5.3 + 1.6 * i, ch + [ped])
+for i, n in enumerate([72, 74, 76, 77, 79, 77, 76, 74]): note(ev, 3.8 + 0.4 * i, 4.1 + 0.4 * i, n)
+S["12_three_channels_and_split"] = (ev, 7.6)
+
 # evidence-only scores (not for listening)
 ev = bars("008000000") + [(0, "Leslie on", 0), (0, "Drive", 1), (0, "Leakage", 0), (0, "Key click", 0)]
 note(ev, 0.05, 2.95, 96); S["x_alias_C7_8ft_drive1"] = (ev, 3)

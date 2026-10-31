@@ -1,4 +1,12 @@
-# Oberli Tonewheel (working title) - Tier S sketch v0.2
+# Sunday Organ prototype - Tier S sketch v0.2, Tier P G2 v0.4 (2026-10-31)
+
+**v0.4 (Tier P G2):** wheels as exact quadrature oscillators (the 64k truncated table of `os.oscp` set the old -99.9 dB alias floor), per-wheel level taper (1.0 dB/oct above C4 wheel), expression CC11 before the preamp (gain e^2), lower manual on channel 2 (`lkey n`), pedals on channel 3 (`pedal n`), channel-1 split key and pedal split (decided at key-down), sustain per channel. Evidence `evidence-v0.4.txt`. **Reconstruction:** `dsp/scanner.lib` and `dsp/leslie.lib` were never committed (`*.lib` in .gitignore, failures.md F-1) and were rebuilt from the compiled v0.3; the rebuilt v0.3 nulled against the old binary at -140 to -172 dB re signal.
+
+Run all: `python3 scores/make_scores.py && python3 scores/render_all.py && python3 harness/evidence.py ../scripts/dsp-kit` (faust needs `-t 0`, about 3.5 min, g++ 1.5 min).
+
+---
+
+## Sketch v0.2 (history)
 
 Tier S, track I (instrument) with a second stage E (Leslie). Gates run: G0 as this paragraph, G2.
 Promotable: the three decisions below carry over; promotion to P starts by confirming the brief with Björn.

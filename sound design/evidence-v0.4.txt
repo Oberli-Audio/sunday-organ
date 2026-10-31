@@ -1,0 +1,60 @@
+== safety and loudness (48 kHz unless named)
+01_init_chord_slow.wav                       peak  -10.3 dBFS  TP  -10.3  nonfinite 0  DC  -176.4   -18.0 LUFS
+02_leslie_fast_slow_brake.wav                peak  -10.0 dBFS  TP  -10.0  nonfinite 0  DC  -184.6   -17.7 LUFS
+03_percussion_riff.wav                       peak   -8.5 dBFS  TP   -8.5  nonfinite 0  DC  -170.2   -20.1 LUFS
+04_register_dry.wav                          peak  -16.9 dBFS  TP  -16.9  nonfinite 0  DC  -179.7   -24.2 LUFS
+05_full_drawbars_driven_fast.wav             peak   -7.5 dBFS  TP   -7.5  nonfinite 0  DC  -161.2   -18.4 LUFS
+06_scanner_off_V1_V2_V3_C1_C2_C3_dry.wav     peak   -9.7 dBFS  TP   -9.7  nonfinite 0  DC  -161.2   -16.0 LUFS
+07_split_lower_comp_upper_lead.wav           peak  -10.2 dBFS  TP  -10.2  nonfinite 0  DC  -173.6   -20.7 LUFS
+08_pedals_with_chords.wav                    peak   -8.6 dBFS  TP   -8.6  nonfinite 0  DC  -176.3   -17.1 LUFS
+09_register_upper.wav                        peak  -17.0 dBFS  TP  -17.0  nonfinite 0  DC  -185.1   -24.1 LUFS
+10_register_lower.wav                        peak  -17.1 dBFS  TP  -17.1  nonfinite 0  DC  -186.0   -24.1 LUFS
+11_expression_swell.wav                      peak  -10.3 dBFS  TP  -10.3  nonfinite 0  DC  -172.0   -19.1 LUFS
+12_three_channels_and_split.wav              peak  -10.7 dBFS  TP  -10.7  nonfinite 0  DC  -178.4   -21.3 LUFS
+evidence/x_alias_192k.wav                    peak  -22.4 dBFS  TP  -22.4  nonfinite 0  DC  -152.4   -20.1 LUFS
+evidence/x_alias_C7_8ft_drive1.wav           peak  -22.4 dBFS  TP  -22.4  nonfinite 0  DC  -141.1   -20.1 LUFS
+evidence/x_cpu.wav                           peak   -6.3 dBFS  TP   -6.3  nonfinite 0  DC  -171.0   -16.2 LUFS
+evidence/x_cpu_worst_case.wav                peak   -6.3 dBFS  TP   -6.3  nonfinite 0  DC  -171.0   -16.2 LUFS
+evidence/x_init_96k.wav                      peak  -11.0 dBFS  TP  -11.0  nonfinite 0  DC  -187.0   -18.8 LUFS
+presets/p_ballad.wav                         peak   -9.0 dBFS  TP   -9.0  nonfinite 0  DC  -236.6   -18.1 LUFS
+presets/p_bright_comp.wav                    peak   -9.3 dBFS  TP   -9.3  nonfinite 0  DC  -174.8   -18.3 LUFS
+presets/p_gospel_full.wav                    peak   -8.6 dBFS  TP   -8.6  nonfinite 0  DC  -168.6   -18.1 LUFS
+presets/p_init.wav                           peak  -10.3 dBFS  TP  -10.3  nonfinite 0  DC  -176.4   -18.0 LUFS
+presets/p_jazz_perc.wav                      peak  -10.0 dBFS  TP  -10.0  nonfinite 0  DC  -179.1   -18.1 LUFS
+presets/p_rock_drive.wav                     peak  -10.8 dBFS  TP  -10.8  nonfinite 0  DC  -168.6   -18.1 LUFS
+presets/p_sanctuary.wav                      peak   -9.2 dBFS  TP   -9.2  nonfinite 0  DC  -184.3   -18.2 LUFS
+presets/p_split_comping.wav                  peak   -9.0 dBFS  TP   -9.0  nonfinite 0  DC  -175.8   -18.2 LUFS
+
+== keyboard span per manual (09/10_register_*, every 3rd key C2..C7, 888000000, dry)
+  09_register_upper: 36:-25.7  39:-24.8  42:-24.2  45:-23.6  48:-23.2  51:-22.7  54:-22.4  57:-22.3  60:-22.4  63:-22.1  66:-22.3  69:-22.3  72:-22.3  75:-22.5  78:-22.5  81:-22.5  84:-22.4  87:-22.2  90:-22.0  93:-21.8  96:-21.7
+  09_register_upper: span 4.0 LU (target < 6)
+  10_register_lower: 36:-25.7  39:-24.8  42:-24.2  45:-23.6  48:-23.2  51:-22.7  54:-22.4  57:-22.3  60:-22.3  63:-22.1  66:-22.3  69:-22.3  72:-22.4  75:-22.5  78:-22.5  81:-22.5  84:-22.4  87:-22.2  90:-22.0  93:-21.8  96:-21.7
+  10_register_lower: span 4.0 LU (target < 6)
+
+== expression before the preamp (11_expression_swell, Drive 0.6): level and crest factor (lower crest = more drive)
+  e=1.0         -18.7 dBFS RMS  crest  6.6 dB
+  e~0.33        -28.6 dBFS RMS  crest  7.9 dB
+  e=0.1         -48.2 dBFS RMS  crest 10.2 dB
+  e=1.0 again   -17.9 dBFS RMS  crest  6.7 dB
+
+== channels (12_three_channels_and_split): pedals present, per section
+  ch3 pedal F2 (87 Hz)     below 100 Hz  -37.1 dBFS RMS
+  ch1 pedal split F2       below 100 Hz  -36.2 dBFS RMS
+
+== mono bass: side vs mid below 150 Hz
+  01_init_chord_slow                   side/mid  -33.9 dB
+  05_full_drawbars_driven_fast         side/mid  -32.7 dB
+  07_split_lower_comp_upper_lead       side/mid  -33.6 dB
+  08_pedals_with_chords                side/mid  -34.0 dB
+  12_three_channels_and_split          side/mid  -30.8 dB
+
+== alias floor: C7 8' only, drive 1, Leslie off (largest non-harmonic peak re fundamental, < 20 kHz)
+  x_alias_C7_8ft_drive1    fs  48000  worst non-harmonic -120.5 dB at    2111 Hz
+  x_alias_192k             fs 192000  worst non-harmonic -120.5 dB at    2111 Hz
+
+== presets on the reference chord (integrated over the hold, after the bank volume offsets)
+  ballad -17.8  bright_comp -18.1  gospel_full -17.8  init -17.7  jazz_perc -17.8  rock_drive -17.8  sanctuary -17.9  split_comping -17.9
+  median -17.8 LUFS, spread 0.3 LU, worst offset 0.2 LU
+
+== CPU, worst case (10 notes, all 18 drawbars at 8, C3, Leslie fast, drive 0.7), 48 kHz / 64, one run
+   {'deadline_ms': 1.3333333333333333, 'p50_pct': 49.0768875, 'p99_pct': 87.6740970000001, 'p999_pct': 221.61700012500228, 'max_pct': 362.15182500000003, 'worst_block_at_s': 5.858666666666666, 'over_deadline': 48, 'blocks': 7450, 'first_block_pct': 64.884225, 'warmup_blocks': 50}
