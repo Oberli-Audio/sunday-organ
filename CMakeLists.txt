@@ -315,7 +315,8 @@ if (Python3_FOUND)
         set_tests_properties(design_sources_in_git PROPERTIES LABELS "fast;lint")
         add_test(NAME preset_bank
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/dsp-kit/presetlint.py" bank
-                         "${CMAKE_CURRENT_SOURCE_DIR}/presets.csv" --tier S --track ${PRODUCT_KIND} --harness "$<TARGET_FILE:SundayOrganHarness>"
+                         "${CMAKE_CURRENT_SOURCE_DIR}/presets.csv" --tier P --track ${PRODUCT_KIND}
+                         --categories Jazz,Gospel,Worship,Rock,Ballad,Split --harness "$<TARGET_FILE:SundayOrganHarness>"
                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(preset_bank PROPERTIES ENVIRONMENT "${HARNESS_ENV}" LABELS "fast;lint")
     else()

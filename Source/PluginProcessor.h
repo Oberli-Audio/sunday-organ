@@ -48,7 +48,9 @@ public:
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram (int) override {}
-    const juce::String getProgramName (int) override { return {}; }
+    // the VST3 wrapper publishes the one program as a list; an empty name fails the Steinberg
+    // validator's "Scan Programs" (failures.md F-8)
+    const juce::String getProgramName (int) override { return "Default"; }
     void changeProgramName (int, const juce::String&) override {}
 
     void getStateInformation (juce::MemoryBlock& destData) override;

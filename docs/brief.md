@@ -87,4 +87,9 @@ open_questions:
 ```
 
 ## Amendments
-- (none yet)
+Each dated, beneath the confirmed YAML; for Björn to confirm or reject at the next review.
+- 2026-10-31 (G2): keyboard taper decided as 1.0 dB per octave above the C4 wheel (the generator's own curve); span 2.7 LU per manual measured on the plugin.
+- 2026-10-31 (G2): Expression (CC11 and the parameter) is gain = e^2 before the preamp: half travel -12 dB, 10 % -40 dB, 0 silent. CC11 and the parameter: the one moved last wins; the same for CC1 and Leslie Fast.
+- 2026-10-31 (G3): MIDI channels other than 2 and 3 play like channel 1 (a keyboard on any channel works); CC64 latches the manual keys of its own channel; the pedals do not latch. Channel 1 keys below Pedal Split play the pedals at pitch (C2-B2 on a 61-key board), decided when the key goes down; channel 1 C1-B1 reach the pedals only below Pedal Split.
+- 2026-10-31 (G3): response_error_db is measured on the crossover (the three bands' sum, rotors braked, no horn voicing): 4e-7 dB. The braked full Leslie, horn resonance and reflections included, is characterised, not judged (-2.7 to +2.0 dB).
+- 2026-10-31 (G3): the Doppler target is judged on the horn's Doppler delay (0.02 cent); the full horn path adds the moving lowpass's phase swing, 3.5 cents p99 (EX-3 in status.md).

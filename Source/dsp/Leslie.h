@@ -48,6 +48,7 @@ public:
         mBell = kBell * (A * A - 1.0);
         piOverFs = 3.141592653589793 / fs;
         invFs = 1.0 / fs;
+        quietLimit = (long) (0.25 * fs);
     }
 
     void reset (bool fromZero) noexcept
@@ -56,6 +57,7 @@ public:
         for (auto& p : paths) p.lp.reset();
         delay.reset();
         hornPhase = drumPhase = 0.0;
+        quiet = 0; idle = false;
         hornSpeed.y = fromZero ? 0.0 : hornTarget();
         drumSpeed.y = fromZero ? 0.0 : drumTarget();
         spread.reset (fromZero ? 0.0 : spreadTarget);
@@ -80,6 +82,20 @@ public:
         const double hz = hornSpeed.tick (hornTarget());
         hornPhase = frac (hornPhase + invFs * hz);
         const double m = 0.5 * spread.tick (spreadTarget);
+
+        // Idle (brief: idle_pct 2): after the input has been below -180 dBFS for longer than the
+        // delay line and the filters take to settle (0.25 s), only the rotors turn; the output is
+        // silence, as the filters' would be. The first sound back starts from cleared states.
+        quiet = std::abs (x) < 1.0e-9 ? quiet + 1 : 0;
+        if (quiet > quietLimit)
+        {
+            if (! idle) { for (auto* f : { &lo1, &lo2, &hi1, &hi2, &hiAp, &bass1, &bass2, &drum1, &drum2, &bell }) f->reset(); for (auto& p : paths) p.lp.reset(); delay.reset(); idle = true; }
+            drumPhase = frac (drumPhase + invFs * drumSpeed.tick (drumTarget()));
+            mixOn.tick (onTarget);
+            outL = outR = 0.0;
+            return;
+        }
+        idle = false;
 
         const double lo = lo2.lp (lo1.lp (x, g800, sqrtHalfK), g800, sqrtHalfK);
         double hi = allpass (hiAp, hi2.hp (hi1.hp (x, g800, sqrtHalfK), g800, sqrtHalfK), g200, sqrtHalfK);
@@ -162,6 +178,7 @@ private:
     OnePole spread, mixOn;
     double fs = 48000.0, invFs = 1.0 / 48000.0, piOverFs = 0.0, g800 = 0.0, g200 = 0.0, gBell = 0.0, kBell = 0.0, mBell = 0.0;
     double hornPhase = 0.0, drumPhase = 0.0, spreadTarget = 120.0 * 0.017453292519943295, onTarget = 1.0;
-    bool fast = false, brake = false, probeStarted = false;
+    bool fast = false, brake = false, probeStarted = false, idle = false;
+    long quiet = 0, quietLimit = 12000;
 };
 } // namespace sundayorgan::dsp

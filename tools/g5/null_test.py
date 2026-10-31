@@ -87,8 +87,7 @@ def main():
                   for ch, part in enumerate(parts):
                       p = plugin(a.harness, sc, dur, os.path.join(d, "p.wav"), part)
                       r = residual(p[:, :1], f[:, ch:ch + 1])
-                      # a probe runs at its module's own level (the upper bus peaks near +28 dBFS): judged re its peak
-                      r.update(score=name, part=part, passed=r["peak_dbfs"] - r["ref_peak_dbfs"] < THRESHOLD and abs(r["length_diff"]) <= 1)
+                      r.update(score=name, part=part); r["passed"] = judge(r)   # a probe at its module's level: re its peak
                       ok &= r["passed"]; rows.append(r); print(json.dumps(r), flush=True)
     if a.json:
         json.dump(rows, open(a.json, "w"), indent=1)

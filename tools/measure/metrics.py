@@ -87,6 +87,23 @@ def am_rate(x, fs, band):
     env = s.decimate(s.decimate(env, 10), 10); efs = fs / 100
     env = env - env.mean(); env *= np.hanning(len(env))
     F = np.abs(np.fft.rfft(env, 16 * len(env))); f = np.fft.rfftfreq(16 * len(env), 1 / efs)
+    # the horn's envelope has two maxima per turn (direct path and reflections), so the strongest
+    # peak can be the 2nd harmonic: step down an octave when there is a real peak there
+    sel = (f > 0.3) & (f < 12)
+    fp = float(f[sel][F[sel].argmax()]); Fp = F[sel].max()
+    near = (f > fp / 2 * 0.97) & (f < fp / 2 * 1.03)
+    if fp / 2 > 0.3 and F[near].max() > 0.25 * Fp:
+        fp = float(f[near][F[near].argmax()])
+    return fp
+
+
+def fm_rate(x, fs, f0):
+    """Rotation rate from the horn's Doppler: the instantaneous frequency of partial f0 swings once per turn."""
+    sos = s.butter(4, (f0 / 1.2, f0 * 1.2), "bp", fs=fs, output="sos")
+    inst = np.gradient(np.unwrap(np.angle(s.hilbert(s.sosfilt(sos, x[:, 0]))))) * fs / (2 * np.pi)
+    inst = s.decimate(s.decimate(inst, 10), 10); efs = fs / 100
+    inst = (inst - inst.mean()) * np.hanning(len(inst))
+    F = np.abs(np.fft.rfft(inst, 16 * len(inst))); f = np.fft.rfftfreq(16 * len(inst), 1 / efs)
     sel = (f > 0.3) & (f < 12)
     return float(f[sel][F[sel].argmax()])
 
@@ -95,43 +112,53 @@ def rotor_rates():
     res = {}
     for fast in (0, 1):
         # horn: C6 8' (1 kHz, horn band); drum: C4 8' (262 Hz, drum band); settled (speeds start at target)
-        x, fs, _ = O.render(dict(O.DRY, leslieOn=1, leslieFast=fast, micSpread=0, **O.bars("008000000")), notes="84", seconds=12.0)
-        res[("horn", fast)] = am_rate(x[int(2 * fs):], fs, (900, 4000))
-        x, fs, _ = O.render(dict(O.DRY, leslieOn=1, leslieFast=fast, micSpread=0, **O.bars("008000000")), notes="60", seconds=12.0)
-        res[("drum", fast)] = am_rate(x[int(2 * fs):], fs, (220, 300))
+        # the rotors start at the default (slow) speed: 8 s settle the drum's 2.2 s inertia to 0.03 %
+        x, fs, _ = O.render(dict(O.DRY, leslieOn=1, leslieFast=fast, micSpread=0, **O.bars("008000000")), notes="84", seconds=20.0)
+        res[("horn", fast)] = fm_rate(x[int(8 * fs):], fs, 1046.15)   # C6 8': wheel 60
+        x, fs, _ = O.render(dict(O.DRY, leslieOn=1, leslieFast=fast, micSpread=0, **O.bars("008000000")), notes="60", seconds=20.0)
+        res[("drum", fast)] = am_rate(x[int(8 * fs):], fs, (220, 300))
     design = {("horn", 0): 0.83, ("horn", 1): 6.67, ("drum", 0): 0.67, ("drum", 1): 5.67}
     errs = {k: abs(res[k] / design[k] - 1) * 100 for k in design}
     v = max(errs.values())
-    return v, v < 2.0, "AM rate (envelope FFT, 10 s, 0.03 Hz bins) per band after settling: horn %.2f / %.2f Hz, drum %.2f / %.2f Hz (slow / fast); worst error %%" % (res[("horn", 0)], res[("horn", 1)], res[("drum", 0)], res[("drum", 1)])
+    return v, v < 2.0, "rate per rotor, 12 s after 8 s settling: horn by its Doppler FM on C6 (its AM has two maxima per turn from the cabinet reflections), drum by the AM of C4 (envelope FFT) after settling: horn %.2f / %.2f Hz, drum %.2f / %.2f Hz (slow / fast); worst error %%" % (res[("horn", 0)], res[("horn", 1)], res[("drum", 0)], res[("drum", 1)])
 
 
 def zipper():
-    rows = []
-    base = dict(O.DRY, **O.bars("888000000"))
-    x0, fs, r0 = O.render(base, notes="48,55,60,64", seconds=2.0, block=64)
-    ref = r0["health"]["max_click_db"]
+    """Rule 2 at maximum rate: the largest sample-to-sample step (absolute) of the automated render
+    against the brightest static state the automation passes through - a zipper or a click shows as
+    steps larger than the sound itself makes."""
+    step = lambda x: float(K.db(np.max(np.abs(np.diff(x, axis=0)))))
+    chord = dict(notes="48,55,60,64", seconds=2.0, block=64)
     auto = ["upperBar%d:0=0,0.25=1,0.5=0,0.75=1,1=0,1.25=1,1.5=0,1.75=1,2=0" % i for i in (1, 3, 4, 6, 9)]
-    x1, fs, r1 = O.render(base, notes="48,55,60,64", seconds=2.0, block=64, automate=auto)
-    x2, fs, r2 = O.render(base, notes="48,55,60,64", seconds=2.0, block=64, automate=["splitKey:0=0,0.5=1,1=0,1.5=1,2=0"])
-    worst = max(r1["health"]["max_click_db"], r2["health"]["max_click_db"])
-    return worst - ref, worst - ref < 3.0, "max_click_db at maximum-rate automation (5 drawbars full swings every 0.25 s; split key end to end every 0.5 s; block 64) minus the static render (%.1f dB): drawbars %.1f, split %.1f dB" % (ref, r1["health"]["max_click_db"], r2["health"]["max_click_db"])
+    xa, _, _ = O.render(dict(O.DRY, **O.bars("888000000")), automate=auto, check_params=False, **chord)
+    xs, _, _ = O.render(dict(O.DRY, **O.bars("888808008")), **chord)                 # those five bars all at 8
+    d_bars = step(xa) - step(xs)
+    xa, _, _ = O.render(dict(O.DRY, **O.bars("888000000")), automate=["splitKey:0=0,0.5=1,1=0,1.5=1,2=0"], check_params=False, **chord)
+    ref = max(step(O.render(dict(O.DRY, splitKey=k, **O.bars("888000000")), **chord)[0]) for k in (36, 96))
+    d_split = step(xa) - ref
+    v = max(d_bars, d_split)
+    return v, v < 1.0, "largest sample step at maximum-rate automation (5 upper drawbars full swings every 0.25 s; split key end to end every 0.5 s; block 64) re the brightest static state: drawbars %+.2f dB, split %+.2f dB" % (d_bars, d_split)
 
 
 def loudness():
-    p = subprocess.run([sys.executable, str(ROOT / "scripts/dsp-kit/presetlint.py"), "render", str(ROOT / "presets.csv"), "--tier", "P",
-                        "--harness", O.HARNESS, "--json"], capture_output=True, text=True)
-    try:
-        r = json.loads(p.stdout)
-        spread = r.get("spread_lu"); med = r.get("median_lufs")
-        return med, bool(r.get("pass")), "presetlint.py render presets.csv --tier P (reference chord, integrated over the hold): median %.1f LUFS, spread %.2f LU" % (med, spread)
-    except Exception:
-        return None, False, "presetlint.py render: " + (p.stdout + p.stderr).strip().splitlines()[-1] if (p.stdout + p.stderr).strip() else "no output"
+    """presetlint.py render (the bank's own check, +/-1 LU around the median) and the brief's absolute
+    target: every preset within -18 +/- 1 LUFS on the reference chord, integrated over the hold."""
+    with tempfile.TemporaryDirectory() as d:
+        rep = os.path.join(d, "presets.json")
+        subprocess.run([sys.executable, str(ROOT / "scripts/dsp-kit/presetlint.py"), "render", str(ROOT / "presets.csv"), str(ROOT / "parameters.csv"),
+                        "--tier", "P", "--harness", O.HARNESS, "--notes", "48,52,55,60", "--seconds", "6", "--gate", "4",
+                        "--categories", "Jazz,Gospel,Worship,Rock,Ballad,Split", "--json", rep], capture_output=True, text=True)
+        r = json.load(open(rep))
+    lufs = {k: v["lufs"] if isinstance(v, dict) else v for k, v in (r.get("loudness", {}).get("presets") or r.get("presets", {})).items()} if isinstance(r, dict) else {}
+    vals = [v for v in lufs.values() if isinstance(v, (int, float))]
+    worst = max(abs(v + 18.0) for v in vals) if vals else 99.0
+    return worst, worst <= 1.0, "presetlint.py render presets.csv --tier P on C3-E3-G3-C4, 4 s hold: %d presets, %.2f to %.2f LUFS; value = worst distance from -18 LU" % (len(vals), min(vals) if vals else 0, max(vals) if vals else 0)
 
 
 ROWS = [("alias_floor_db", "< -80 dB re fundamental", alias_floor), ("thd_n_db", "< -60 dB at Drive 0", thd_n),
         ("response_error_db", "+/-0.5 dB", response_error), ("keyboard_span_lu", "< 6 LU per manual", keyboard_span),
         ("low_register", "side/mid < 150 Hz < -30 dB", low_register), ("doppler_cents", "< 1 cent vs moving source", doppler),
-        ("rotor_rate_error_pct", "within 2 %", rotor_rates), ("zipper_db", "no zipper: < 3 dB over static", zipper),
+        ("rotor_rate_error_pct", "within 2 %", rotor_rates), ("zipper_db", "no zipper: < +1 dB over static", zipper),
         ("loudness_lufs", "presets -18 LUFS +/-1 LU", loudness)]
 
 

@@ -37,14 +37,14 @@ def bars(reg, manual="upper"):
     return {i: int(c) for i, c in zip(ids, reg)}
 
 
-def render(plain=None, seconds=2.0, rate=48000, block=512, seed=1, **flags):
+def render(plain=None, seconds=2.0, rate=48000, block=512, seed=1, check_params=True, **flags):
     """plain: {id: value in the table's units}. flags: harness flags (notes, lower, pedals, gate,
     solo, events, automate, expr, sustain, mod ...). Returns (x [n, 2], fs, json)."""
     params = {pid: norm(pid, v) for pid, v in (plain or {}).items()}
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, "o.wav")
         res = K.render(HARNESS, params, seed=seed, sample_rate=rate, block=block, seconds=seconds, out=out, **flags)
-        K.assert_echo(res, params, seed=seed, sample_rate=rate, block=block)
+        K.assert_echo(res, params if check_params else None, seed=seed, sample_rate=rate, block=block)   # automated ones end elsewhere
         x, fs = K.read_wav(out)
     return K.as_2d(x), fs, res
 

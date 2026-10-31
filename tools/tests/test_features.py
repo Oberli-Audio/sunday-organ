@@ -58,6 +58,11 @@ class Regressions(Timed):
             self.assertEqual(open(a, "rb").read(), open(b, "rb").read(), "state changed on the first load and save")
             self.assertEqual(open(b, "rb").read(), open(c, "rb").read(), "state drifts on every load and save")
 
+    def test_idle_costs_little(self):                                      # brief cpu_budget idle_pct 2 (reported at 48 k/64)
+        _, _, r = O.render(None, seconds=10.0, block=64, profile=1, warmup=200)
+        # judged at the median here (this box is not the budget machine; perf.py reports the rest)
+        self.assertLess(r["profile"]["p50_pct"], 2.0, "idle p50 %.1f %% of the deadline" % r["profile"]["p50_pct"])
+
 
 def steady(plain, seconds=1.2, **flags):
     x, fs, res = O.render(plain, seconds=seconds, **flags)
