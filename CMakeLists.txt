@@ -181,10 +181,16 @@ if (PRODUCT_RELEASE_SYMBOLS)
         target_compile_options(SundayOrgan PUBLIC $<$<CONFIG:Release>:-g>)
         foreach(format VST3 Standalone)
             if (TARGET SundayOrgan_${format})
+                # with LTO the linker deletes its object (/tmp/lto.o) before dsymutil reads it: keep it
+                target_link_options(SundayOrgan_${format} PRIVATE
+                    "$<$<CONFIG:Release>:LINKER:-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/lto-${format}.o>")
+                # strip runs after JUCE's ad-hoc signature and breaks it; macOS will not load a
+                # broken signature (on Apple Silicon and under Rosetta), so sign ad hoc again last
                 add_custom_command(TARGET SundayOrgan_${format} POST_BUILD
                     COMMAND dsymutil "$<TARGET_FILE:SundayOrgan_${format}>" -o "$<TARGET_BUNDLE_DIR:SundayOrgan_${format}>.dSYM"
                     COMMAND strip -x "$<TARGET_FILE:SundayOrgan_${format}>"
-                    COMMENT "dSYM and strip: ${format}"
+                    COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:SundayOrgan_${format}>"
+                    COMMENT "dSYM, strip and ad-hoc signature: ${format}"
                     VERBATIM)
             endif()
         endforeach()
