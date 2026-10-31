@@ -22,11 +22,11 @@ Tier P, track I, at gate G1. Recipe D.8.1.
 ## Handoff
 Task: Tier P from the v0.2 sketch. Plan: 1. [x] repo from template, init (code Suor, coral) 2. [x] brief draft, parameters.csv (37 rows, `paramgen.py check --kind instrument` OK) 3. [x] editor frame (Tier S, `sound design/ui-sketch/`) 4. [x] Björn confirms the brief 5. [ ] G1 decisions line (next) 5b. [ ] wheel taper + expression (CC11) in the prototype 6. [ ] harness + G3 battery 7. [ ] port.
 Working tree: see git. Build: Linux harness rebuilding after the CMake fix. Tests: not run yet.
-Open questions for the owner: the editor's two-row layout (a brand-sheet line, below).
+Open questions for the owner: none.
 Next command: `cmake --preset release && cmake --build --preset release && ctest --preset fast`
 
 ## Decisions
 - 2026-10-31: G1 family (draft) additive tonewheel generator, 91 shared free-running wheels on gear ratios, 9 contacts per key with staggered closing; scanner as modulated Lagrange delay; Leslie per S row "rotary speaker" with moving-source Doppler by retarded time (measured 0.22 cent vs the model). Departures from S: none open; the unconfirmed constants are listed in the brief's open questions.
 - 2026-10-31: registry entry sunday-organ (code Suor, accent coral, bundle com.oberliaudio.sundayorgan) written to a local copy; must be committed to `~/bob-skills/ship-bob/registry/plugins.toml` before the first shared build.
 - 2026-10-31: template defect: the harness compiled the plugin sources without JUCE 8's JucePlugin_* definitions; fixed here in CMakeLists.txt; the fix belongs in the template source in `~/bob-skills` too.
-- 2026-10-31: editor layout proposal: two rows (drawbars; performance) plus the output column. The brand's PluginWindow says one row; needs a line in the brand sheet if accepted.
+- 2026-10-31: editor layout: two rows (what the instrument is made of; what the player changes) plus the output column spanning both; accepted by Björn as brand round 13 (Design System artifact: PluginWindow and README, 2026-10-31). The mirror `plugin-ui-bob/references/oberli-audio-brand.md` in ~/bob-skills still says one row until the next skills release. The editor sketch predates round 12 values: build the editor from `tokens.json` (label 11 px, line-control #716B62).
