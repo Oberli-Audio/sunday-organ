@@ -73,3 +73,6 @@ __pycache__/
 *.aiff
 *.mp3
 *.m4a
+
+# G5 probe builds: generated from sound design/dsp/g5_*.dsp (tools/g5/null_test.py says how)
+/sound design/harness/g5/
