@@ -53,7 +53,7 @@
     }
   ],
   "buildPresets": [
-    { "name": "release", "configurePreset": "release", "configuration": "Release", "targets": [ "SundayOrgan_VST3", "SundayOrgan_Standalone", "SundayOrganHarness" ] },
+    { "name": "release", "configurePreset": "release", "configuration": "Release", "targets": [ "SundayOrgan_VST3", "SundayOrgan_Standalone", "SundayOrganHarness", "SundayOrganDopplerCheck" ] },
     { "name": "debug", "configurePreset": "debug", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },
     { "name": "asan", "configurePreset": "asan", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },
     { "name": "tsan", "configurePreset": "tsan", "targets": [ "SundayOrgan_VST3", "SundayOrganHarness" ] },

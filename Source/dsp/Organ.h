@@ -1,5 +1,7 @@
 #pragma once
 
+#include <initializer_list>
+
 #include "Busses.h"
 #include "Contacts.h"
 #include "Leslie.h"

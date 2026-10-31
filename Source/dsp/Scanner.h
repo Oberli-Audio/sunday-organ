@@ -2,6 +2,8 @@
 
 #include "OrganMath.h"
 
+#include <initializer_list>
+
 namespace sundayorgan::dsp
 {
 /*  Scanner - vibrato V1-V3 and chorus C1-C3 (defining feature).

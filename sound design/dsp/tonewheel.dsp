@@ -12,7 +12,7 @@
 // hash of its index, so two runs from reset are bit-identical (rule 8).
 
 declare name "Sunday Organ (prototype)";
-declare version "0.0.5";
+declare version "0.0.6";
 declare author "Oberli Audio";
 import("stdfaust.lib");
 sc = library("scanner.lib");

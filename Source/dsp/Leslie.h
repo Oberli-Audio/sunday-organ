@@ -2,11 +2,14 @@
 
 #include "OrganMath.h"
 
+#include <initializer_list>
+
 namespace sundayorgan::dsp
 {
 /*  Leslie 122 - rotary speaker (S.2 "rotary speaker", E.6.5; defining features).
     Prototype: `sound design/dsp/leslie.lib`, constants hand-matched below.
-    - Crossover: LR4 (two TPT SVF Butterworth stages) at 800 Hz; the low band again at 200 Hz.
+    - Crossover: LR4 (two TPT SVF Butterworth stages) at 800 Hz; the low band again at 200 Hz, and
+      the horn band through the matching 200 Hz allpass, so the bands sum flat (F-3).
       Below 200 Hz mono and unmodulated (rule 15).
     - Horn (> 800 Hz): +10 dB TPT bell at 2 kHz (Q 1.5), level 0.3; per mic three paths - direct,
       and two cabinet reflections (angle +2.2 / -2.2 rad, 2.8 / 1.6 ms, gain 0.25 / 0.35). Each path:
@@ -49,7 +52,7 @@ public:
 
     void reset (bool fromZero) noexcept
     {
-        for (auto* f : { &lo1, &lo2, &hi1, &hi2, &bass1, &bass2, &drum1, &drum2, &bell }) f->reset();
+        for (auto* f : { &lo1, &lo2, &hi1, &hi2, &hiAp, &bass1, &bass2, &drum1, &drum2, &bell }) f->reset();
         for (auto& p : paths) p.lp.reset();
         delay.reset();
         hornPhase = drumPhase = 0.0;
@@ -79,7 +82,7 @@ public:
         const double m = 0.5 * spread.tick (spreadTarget);
 
         const double lo = lo2.lp (lo1.lp (x, g800, sqrtHalfK), g800, sqrtHalfK);
-        double hi = hi2.hp (hi1.hp (x, g800, sqrtHalfK), g800, sqrtHalfK);
+        double hi = allpass (hiAp, hi2.hp (hi1.hp (x, g800, sqrtHalfK), g800, sqrtHalfK), g200, sqrtHalfK);
         { double v1, v2; bell.tick (hi, gBell, kBell, v1, v2); hi = hi + mBell * v1; }
         const double bass = bass2.lp (bass1.lp (lo, g200, sqrtHalfK), g200, sqrtHalfK);
         const double drum = drum2.hp (drum1.hp (lo, g200, sqrtHalfK), g200, sqrtHalfK);
@@ -95,17 +98,7 @@ public:
             const double mm = c == 0 ? m : -m;
             double horn = 0.0;
             for (int k = 0; k < 3; ++k)
-            {
-                auto dist = [&] (double p) { return kRc * (1.0 - std::cos (twoPi * p + mm + kPathAngle[k])) + kPathBase[k]; };
-                const double d0 = dist (hornPhase);
-                const double d1 = dist (hornPhase - hz * d0);       // retarded time, fixed-point steps
-                const double d2 = dist (hornPhase - hz * d1);
-                const double th = twoPi * (hornPhase - hz * d2) + mm + kPathAngle[k];
-                const double cth = std::cos (th);
-                const double fc = 4500.0 * (cth + 1.0) + 3000.0;
-                const double y = paths[c * 3 + k].lp.lp (delay.read (fs * d2, kMaxDelay) * kHornLevel, std::tan (piOverFs * fc), 1.0 / 0.707);
-                horn += kPathGain[k] * y * (1.0 - 0.225 * (1.0 - cth));
-            }
+                horn += kPathGain[k] * hornPath (c * 3 + k, k, mm, hz, nullptr);
             side[c] = bass + drum * (1.0 - 0.25 * (1.0 - std::cos (dang + mm))) + horn;
         }
         const double on = mixOn.tick (onTarget);
@@ -119,24 +112,56 @@ public:
     {
         constexpr double sqrtHalfK = 1.4142135623730951;
         const double lo = lo2.lp (lo1.lp (x, g800, sqrtHalfK), g800, sqrtHalfK);
-        const double hi = hi2.hp (hi1.hp (x, g800, sqrtHalfK), g800, sqrtHalfK);
+        const double hi = allpass (hiAp, hi2.hp (hi1.hp (x, g800, sqrtHalfK), g800, sqrtHalfK), g200, sqrtHalfK);
         const double bass = bass2.lp (bass1.lp (lo, g200, sqrtHalfK), g200, sqrtHalfK);
         const double drum = drum2.hp (drum1.hp (lo, g200, sqrtHalfK), g200, sqrtHalfK);
         return bass + drum + hi;
+    }
+
+    /** G5 Doppler probe (sound design/tests/doppler_test.dsp): x straight into the direct path
+        of mic 1 at a constant rotor speed hz, mics at 0; delayOnly = the Doppler delay read,
+        full = delay, moving lowpass and AM. The same code as tick(). */
+    inline void dopplerProbe (double x, double hz, double& delayOnly, double& full) noexcept
+    {
+        hornPhase = probeStarted ? frac (hornPhase + invFs * hz) : 0.0;   // os.lf_sawpos with a constant rate: 0 first
+        probeStarted = true;
+        delay.push (x);
+        full = hornPath (0, 0, 0.0, hz, &delayOnly);
     }
 
 private:
     double hornTarget() const noexcept { return brake ? 0.0 : (fast ? 6.67 : 0.83); }
     double drumTarget() const noexcept { return brake ? 0.0 : (fast ? 5.67 : 0.67); }
 
+    // one horn path: retarded-time Doppler delay, horn level, moving TPT lowpass, AM
+    inline double hornPath (int slot, int k, double mm, double hz, double* delayOnly) noexcept
+    {
+        constexpr double twoPi = 6.283185307179586;
+        auto dist = [&] (double p) { return kRc * (1.0 - std::cos (twoPi * p + mm + kPathAngle[k])) + kPathBase[k]; };
+        const double d0 = dist (hornPhase);
+        const double d1 = dist (hornPhase - hz * d0);       // retarded time, fixed-point steps
+        const double d2 = dist (hornPhase - hz * d1);
+        const double th = twoPi * (hornPhase - hz * d2) + mm + kPathAngle[k];
+        const double cth = std::cos (th);
+        const double fc = 4500.0 * (cth + 1.0) + 3000.0;
+        const double read = delay.read (fs * d2, kMaxDelay);
+        if (delayOnly != nullptr) *delayOnly = read;
+        const double y = paths[slot].lp.lp (read * kHornLevel, std::tan (piOverFs * fc), 1.0 / 0.707);
+        return y * (1.0 - 0.225 * (1.0 - cth));
+    }
+
+    // svf.ap(f, q): v0 - 2k v1, the 2nd-order allpass an LR4 split leaves on its own band; on the
+    // horn band it matches the 200 Hz split of the low band, so the three bands sum flat (F-3)
+    static double allpass (Svf& f, double x, double g, double k) noexcept { double v1, v2; f.tick (x, g, k, v1, v2); return x - 2.0 * k * v1; }
+
     struct Path { Svf lp; };
-    Svf lo1, lo2, hi1, hi2, bass1, bass2, drum1, drum2, bell;
+    Svf lo1, lo2, hi1, hi2, hiAp, bass1, bass2, drum1, drum2, bell;
     Path paths[6];
     LagrangeDelay<4096> delay;
     OnePoleSwitching hornSpeed, drumSpeed;
     OnePole spread, mixOn;
     double fs = 48000.0, invFs = 1.0 / 48000.0, piOverFs = 0.0, g800 = 0.0, g200 = 0.0, gBell = 0.0, kBell = 0.0, mBell = 0.0;
     double hornPhase = 0.0, drumPhase = 0.0, spreadTarget = 120.0 * 0.017453292519943295, onTarget = 1.0;
-    bool fast = false, brake = false;
+    bool fast = false, brake = false, probeStarted = false;
 };
 } // namespace sundayorgan::dsp

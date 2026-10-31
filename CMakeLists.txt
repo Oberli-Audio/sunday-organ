@@ -233,6 +233,10 @@ if (PRODUCT_RTSAN)
     target_compile_definitions(SundayOrganHarness PRIVATE PRODUCT_RTSAN=1)
 endif()
 
+# G5: the Doppler render of the plugin's own horn path (tools/g5/doppler_check.py reads it).
+add_executable(SundayOrganDopplerCheck tools/g5/DopplerCheck.cpp)
+target_compile_features(SundayOrganDopplerCheck PRIVATE cxx_std_17)
+
 # ---------------------------------------------------------------------------
 # Tests (G3 and G6): the suite drives the real DSP through the harness (tools/tests/test_plugin.py,
 # from the kit's test_template.py), plus the table and bank lints. Labels: fast (every build,
@@ -262,6 +266,14 @@ if (Python3_FOUND)
                          --harness "$<TARGET_FILE:SundayOrganHarness>" --kind ${PRODUCT_KIND}
                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(parameter_table PROPERTIES LABELS "fast;lint")
+        add_test(NAME suite_features
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/test_features.py"
+                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+        set_tests_properties(suite_features PROPERTIES ENVIRONMENT "${HARNESS_ENV};LESLIE_PROBE=$<TARGET_FILE:SundayOrganDopplerCheck>" LABELS render TIMEOUT 600)
+        add_test(NAME doppler_moving_source
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/g5/doppler_check.py" "$<TARGET_FILE:SundayOrganDopplerCheck>"
+                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+        set_tests_properties(doppler_moving_source PROPERTIES ENVIRONMENT "${HARNESS_ENV}" LABELS "fast;render")
         add_test(NAME design_sources_in_git
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/check_sources.py" "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(design_sources_in_git PROPERTIES LABELS "fast;lint")

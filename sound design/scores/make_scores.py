@@ -50,8 +50,9 @@ S["10_register_lower"] = (ev, 15.2)
 ev = [(0, "Drive", 0.6)]
 chord(ev, 0.3, 7.7, REF)
 for i in range(41):
-    ev.append((1.0 + 0.1 * i, "Expression", round(1 - 0.9 * i / 40, 4)))
-    ev.append((5.0 + 0.05 * i, "Expression", round(0.1 + 0.9 * i / 40, 4)))
+    # CC11 has 7 bits: the score's values are n/127 so the plugin (MIDI) and the prototype see the same
+    ev.append((1.0 + 0.1 * i, "Expression", round(127 * (1 - 0.9 * i / 40)) / 127))
+    ev.append((5.0 + 0.05 * i, "Expression", round(127 * (0.1 + 0.9 * i / 40)) / 127))
 S["11_expression_swell"] = (ev, 8)
 
 # three channels: ch2 lower chord, ch3 pedal, ch1 lead; then one keyboard with split C4 and pedal split C3

@@ -56,10 +56,20 @@ with {
     ph   = rotor(hz, 0.0);
     dph  = rotor(drumSpeed(fast, brake), 0.0);
     lo   = x : fi.lowpassLR4(XHORN);
-    hi   = x : fi.highpassLR4(XHORN) : fi.svf.bell(2000, 1.5, 10);
+    // the 200 Hz split's allpass on the horn band too, so the three bands sum flat (failures.md F-3)
+    hi   = x : fi.highpassLR4(XHORN) : fi.svf.ap(XBASS, 1.0 / sqrt(2.0)) : fi.svf.bell(2000, 1.5, 10);
     bass = lo : fi.lowpassLR4(XBASS);
     drum = lo : fi.highpassLR4(XBASS);
     dang = 2 * ma.PI * ma.frac(0.63 - dph);              // drum turns the other way
     out(mm) = bass + drum * (1 - 0.25 * (1 - cos(dang + mm)))
             + sum(k, 3, pathGain(k) * hornPath(ph, hz, mm, k, 1, hi));
+};
+
+// G5 probe: the crossover's sum with no rotor, horn voicing or AM (brief response_error_db)
+crossover(x) = bass + drum + hi
+with {
+    lo   = x : fi.lowpassLR4(XHORN);
+    hi   = x : fi.highpassLR4(XHORN) : fi.svf.ap(XBASS, 1.0 / sqrt(2.0));
+    bass = lo : fi.lowpassLR4(XBASS);
+    drum = lo : fi.highpassLR4(XBASS);
 };
