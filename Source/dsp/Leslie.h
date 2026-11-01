@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include "OrganMath.h"
 
 #include <initializer_list>
@@ -39,11 +41,14 @@ public:
         drumSpeed.setTimes (2.2, 3.0, fs);
         spread.setTau (0.05, fs);
         mixOn.setTau (0.015, fs);
-        g800 = std::tan (3.141592653589793 * 800.0 / fs);
-        g200 = std::tan (3.141592653589793 * 200.0 / fs);
+        // every cutoff below Nyquist (leslie.lib cap): the horn's lowpass opens to 12 kHz, above Nyquist
+        // below 24 kHz, where tan() turned negative and the filter ran away (failures.md F-15)
+        capHz = 0.45 * fs;
+        g800 = std::tan (3.141592653589793 * std::min (800.0, capHz) / fs);
+        g200 = std::tan (3.141592653589793 * std::min (200.0, capHz) / fs);
         // svf.bell(2000, 1.5, 10): A = 10^(10/40), k = 1/(Q A), v1 gain k (A^2 - 1)
         const double A = std::pow (10.0, 10.0 / 40.0);
-        gBell = std::tan (3.141592653589793 * 2000.0 / fs);
+        gBell = std::tan (3.141592653589793 * std::min (2000.0, capHz) / fs);
         kBell = 1.0 / (1.5 * A);
         mBell = kBell * (A * A - 1.0);
         piOverFs = 3.141592653589793 / fs;
@@ -162,7 +167,7 @@ private:
         const double fc = 4500.0 * (cth + 1.0) + 3000.0;
         const double read = delay.read (fs * d2, kMaxDelay);
         if (delayOnly != nullptr) *delayOnly = read;
-        const double y = paths[slot].lp.lp (read * kHornLevel, std::tan (piOverFs * fc), 1.0 / 0.707);
+        const double y = paths[slot].lp.lp (read * kHornLevel, std::tan (piOverFs * std::min (fc, capHz)), 1.0 / 0.707);
         return y * (1.0 - 0.225 * (1.0 - cth));
     }
 
@@ -176,7 +181,7 @@ private:
     LagrangeDelay<4096> delay;
     OnePoleSwitching hornSpeed, drumSpeed;
     OnePole spread, mixOn;
-    double fs = 48000.0, invFs = 1.0 / 48000.0, piOverFs = 0.0, g800 = 0.0, g200 = 0.0, gBell = 0.0, kBell = 0.0, mBell = 0.0;
+    double fs = 48000.0, invFs = 1.0 / 48000.0, piOverFs = 0.0, capHz = 21600.0, g800 = 0.0, g200 = 0.0, gBell = 0.0, kBell = 0.0, mBell = 0.0;
     double hornPhase = 0.0, drumPhase = 0.0, spreadTarget = 120.0 * 0.017453292519943295, onTarget = 1.0;
     bool fast = false, brake = false, probeStarted = false, idle = false;
     long quiet = 0, quietLimit = 12000;

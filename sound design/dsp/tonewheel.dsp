@@ -8,11 +8,14 @@
 // v0.4 (2026-10-31): wheels as exact quadrature oscillators (was a 64k truncated table),
 // per-wheel level taper, expression before the preamp, lower manual and pedals on their
 // own channels, ch1 pedal split.
+// v0.7 (2026-11-01, brief amendment, failures.md F-12): the preamp's input at Drive 0 scaled
+// for the fullest chord (Drive 0 clean), its makeup holding the reference chord; the safety
+// limiter after the Leslie (-1 dBTP, 1.5 ms look-ahead).
 // Every time constant is in seconds (rule 12). Every "random" value is a compile-time
 // hash of its index, so two runs from reset are bit-identical (rule 8).
 
 declare name "Sunday Organ (prototype)";
-declare version "0.0.6";
+declare version "0.0.7";
 declare author "Oberli Audio";
 import("stdfaust.lib");
 sc = library("scanner.lib");
@@ -158,17 +161,54 @@ voices = (upperSig + vibLower * lowerSig) : sc.scanner(vibMode) : +((1 - vibLowe
 // Asymmetric soft clip, first-order ADAA (rule 3), DC blocker after it (rule 4) at 5 Hz in
 // seconds (v0.4: fi.dcblocker was a fixed pole 0.995, 38 Hz at 48 kHz and 153 Hz at 192 kHz,
 // failures.md F-2),
-// rough level compensation (rule 5; measured at P, not here).
-preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblockerat(DCHZ) : /(comp)
+// then the makeup (rule 5). v0.7: the gain s (12 / s)^drive with s = 0.035, so Drive 0 keeps the
+// fullest chord clean (-63 dB) and Drive 100 % is the old gain 12; the makeup in dB is a quartic
+// in drive that holds the reference chord (C3-E3-G3-C4, 888000000) over 0-100 % and puts Init at
+// -23 LUFS (tools/measure/preamp_prestudy.py; the port's Preamp, Scanner.h, has the same numbers).
+preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblockerat(DCHZ) : *(mk)
     with {
-        g    = 1 + 11 * drive;
+        S    = 0.035;
+        g    = S * pow(12 / S, drive);
         bias = 0.15 * drive;
-        comp = 1 + 1.2 * drive;
+        mk   = pow(10, ((((27.5789 * drive - 27.9510) * drive + 9.4812) * drive - 51.6762) * drive + 29.8631) / 20);
         DCHZ = 5;
+    };
+
+// ---------------------------------------------------------------- safety limiter
+// v0.7 (brief amendment 2026-11-01): the output never above -1 dBTP. S.2 "peak / true-peak
+// limiter": the sample and three 4x points of each interval (12-tap Kaiser sinc) against
+// -1.7 dBFS (0.7 dB margin for the 4x under-read), channels linked, in the "1 - gain" domain so
+// the empty delays start transparent: sliding maximum over LW -> instant attack, 150 ms release
+// -> moving average over LW; the audio delayed by the 1.5 ms look-ahead (6 + LW - 1 samples);
+// a clamp at -1 dBFS last. The port's Limiter (Limiter.h) has the same numbers and order.
+LA    = max(6, int(0.0015 * ma.SR + 0.5));       // the bounds only matter below 4 kHz (Faust's interval check)
+LW    = max(1, LA - 6 + 1);
+LMAX  = 512;
+LCEIL = ba.db2linear(-1.7);
+LCLMP = ba.db2linear(-1.0);
+LREL  = 1 - exp(-1 / (0.15 * ma.SR));
+h25 = (-0.0032106803241792226, 0.011168525649608463, -0.02924934558578925, 0.06713438411781004,
+       -0.15966649564914037, 0.8965575014528838, 0.28757505015099777, -0.10135271132555973,
+       0.04468577126295041, -0.01852237924615813, 0.006288334920380892, -0.0014079554238045431);
+h50 = (-0.003081207136115268, 0.011973239254107928, -0.03308989616403061, 0.07754320866066451,
+       -0.17833143278877375, 0.6249860881741472, 0.6249860881741472, -0.17833143278877375,
+       0.07754320866066451, -0.03308989616403061, 0.011973239254107928, -0.003081207136115268);
+h75 = (-0.001407955423804543, 0.006288334920380891, -0.018522379246158127, 0.04468577126295041,
+       -0.10135271132555972, 0.2875750501509977, 0.8965575014528837, -0.15966649564914034,
+       0.06713438411781003, -0.029249345585789246, 0.011168525649608461, -0.003210680324179222);
+ip(h, x) = sum(j, 12, ba.take(j + 1, h) * x@(11 - j));      // y(m + f), m = n - 6
+qpk(x)   = max(abs(x@6), max(abs(ip(h25, x)), max(abs(ip(h50, x)), abs(ip(h75, x)))));
+pk2(x)   = qpk(x) <: max(_, _');
+need(p)  = select2(p > LCEIL, 1.0, LCEIL / p);
+release  = (\(dp, h).(select2(h > dp, dp + (h - dp) * LREL, h))) ~ _;
+limiter(l, r) = (l@LA * g), (r@LA * g) : par(c, 2, max(0 - LCLMP) : min(LCLMP))
+    with {
+        g = max(pk2(l), pk2(r)) : need : \(v).(1 - v) : ba.slidingMax(LW, LMAX) : release
+            : ba.slidingSump(LW, LMAX) : /(LW) : \(v).(1 - v);
     };
 
 // ---------------------------------------------------------------- output
 // Leslie on/off crossfaded (rule 2); the rotors keep turning while it is off.
 mix(x) = ls.leslie(fast, brake, spread, x) : par(c, 2, xfade(leslieOn, x, _));
 
-process = voices * 0.06 * expr : preamp : *(0.35 * volume) : mix;     // 0.06 / 0.35: gain staging
+process = voices * 0.06 * expr : preamp : *(0.35 * volume) : mix : limiter;     // 0.06 / 0.35: gain staging

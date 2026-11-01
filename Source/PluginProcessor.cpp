@@ -61,6 +61,7 @@ void SundayOrganAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     currentSampleRate = sampleRate;
     organ.prepare (sampleRate, seed);
+    setLatencySamples (organ.latencySamples());   // the safety limiter's look-ahead (rule 7)
     lastFastParam = lastExprParam = -1.0f;
     organ.apply (readSettings());
     organ.reset (prototypeStart);

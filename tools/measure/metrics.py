@@ -140,9 +140,47 @@ def zipper():
     return v, v < 1.0, "largest sample step at maximum-rate automation (5 upper drawbars full swings every 0.25 s; split key end to end every 0.5 s; block 64) re the brightest static state: drawbars %+.2f dB, split %+.2f dB" % (d_bars, d_split)
 
 
+FULL = (dict(O.DRY, **O.bars("888888888"), **O.bars("888888888", "lower"), pedalBar16=8, pedalBar8=8),
+        dict(notes="48,52,55,60,64,67,72,76,79,84", lower="48,52,55,59", pedals="24,31"))
+
+
+def chord_thd():
+    """Brief amendment 2026-11-01: the preamp at Drive 0 on the fullest chord (10 upper keys, 4 lower,
+    2 pedals, every drawbar out, full expression), what a 4x quieter input does not explain."""
+    p, fl = FULL
+    a, fs, _ = O.render(dict(p, drive=0), seconds=1.5, solo="preamp", expr="0:1", **fl)
+    b, fs, _ = O.render(dict(p, drive=0), seconds=1.5, solo="preamp", expr="0:0.5", **fl)
+    a, b = a[int(0.4 * fs):int(1.4 * fs), 0], b[int(0.4 * fs):int(1.4 * fs), 0]
+    e = a - np.dot(a, b) / np.dot(b, b) * b
+    v = float(10 * np.log10(np.sum(e ** 2) / np.sum(a ** 2)))
+    return v, v < -60.0, "preamp probe, Drive 0, expression 1 vs 0.5, 0.4-1.4 s: residual re signal"
+
+
+def drive_level():
+    """Brief amendment 2026-11-01: Drive holds the reference chord's loudness over 0-100 %."""
+    lu = []
+    for d in (0, 25, 50, 75, 100):
+        x, fs, _ = O.render(dict(O.DRY, **O.bars("888000000"), drive=d), notes="48,52,55,60", seconds=2.0)
+        lu.append(K.integrated_lufs(x[int(0.5 * fs):], fs))
+    v = max(lu) - min(lu)
+    return v, v < 1.0, "C3-E3-G3-C4, 888000000, Leslie off, Drive 0/25/50/75/100 %%: %s LUFS" % " ".join("%.2f" % x for x in lu)
+
+
+def true_peak():
+    """Brief amendment 2026-11-01: the output at or below -1 dBTP (the safety limiter)."""
+    p, fl = FULL
+    tps = []
+    for d in (0, 100):
+        x, fs, _ = O.render(dict(p, drive=d, leslieOn=1, leslieFast=1, outGain=12), seconds=2.0, **fl)
+        tps.append(K.true_peak_dbtp(x, fs))
+    v = max(tps)
+    return v, v <= -1.0, "fullest chord, Leslie fast, Output +12 dB, Drive 0 / 100 %%: %.2f / %.2f dBTP (dspkit 4x)" % tuple(tps)
+
+
 def loudness():
     """presetlint.py render (the bank's own check, +/-1 LU around the median) and the brief's absolute
-    target: every preset within -18 +/- 1 LUFS on the reference chord, integrated over the hold."""
+    target: every preset within -23 +/- 1 LUFS on the reference chord, integrated over the hold
+    (brief amendment 2026-11-01; -18 before the clean preamp)."""
     with tempfile.TemporaryDirectory() as d:
         rep = os.path.join(d, "presets.json")
         subprocess.run([sys.executable, str(ROOT / "scripts/dsp-kit/presetlint.py"), "render", str(ROOT / "presets.csv"), str(ROOT / "parameters.csv"),
@@ -151,15 +189,16 @@ def loudness():
         r = json.load(open(rep))
     lufs = {k: v["lufs"] if isinstance(v, dict) else v for k, v in (r.get("loudness", {}).get("presets") or r.get("presets", {})).items()} if isinstance(r, dict) else {}
     vals = [v for v in lufs.values() if isinstance(v, (int, float))]
-    worst = max(abs(v + 18.0) for v in vals) if vals else 99.0
-    return worst, worst <= 1.0, "presetlint.py render presets.csv --tier P on C3-E3-G3-C4, 4 s hold: %d presets, %.2f to %.2f LUFS; value = worst distance from -18 LU" % (len(vals), min(vals) if vals else 0, max(vals) if vals else 0)
+    worst = max(abs(v + 23.0) for v in vals) if vals else 99.0
+    return worst, worst <= 1.0, "presetlint.py render presets.csv --tier P on C3-E3-G3-C4, 4 s hold: %d presets, %.2f to %.2f LUFS; value = worst distance from -23 LU" % (len(vals), min(vals) if vals else 0, max(vals) if vals else 0)
 
 
 ROWS = [("alias_floor_db", "< -80 dB re fundamental", alias_floor), ("thd_n_db", "< -60 dB at Drive 0", thd_n),
         ("response_error_db", "+/-0.5 dB", response_error), ("keyboard_span_lu", "< 6 LU per manual", keyboard_span),
         ("low_register", "side/mid < 150 Hz < -30 dB", low_register), ("doppler_cents", "< 1 cent vs moving source", doppler),
         ("rotor_rate_error_pct", "within 2 %", rotor_rates), ("zipper_db", "no zipper: < +1 dB over static", zipper),
-        ("loudness_lufs", "presets -18 LUFS +/-1 LU", loudness)]
+        ("chord_thd_db", "< -60 dB at Drive 0, fullest chord", chord_thd), ("drive_level_lu", "reference chord < 1 LU over Drive", drive_level),
+        ("true_peak_dbtp", "<= -1 dBTP at the output", true_peak), ("loudness_lufs", "presets -23 LUFS +/-1 LU", loudness)]
 
 
 def main():

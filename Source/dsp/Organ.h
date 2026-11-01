@@ -5,6 +5,7 @@
 #include "Busses.h"
 #include "Contacts.h"
 #include "Leslie.h"
+#include "Limiter.h"
 #include "Scanner.h"
 #include "Tonewheels.h"
 
@@ -14,7 +15,7 @@ namespace sundayorgan::dsp
     `process`):
         wheels -> contacts (ch1 keys, ch2 keys) -> busses + percussion -> scanner (upper, and
         lower when Vibrato Lower) -> + lower dry + pedals -> x 0.06 x expression^2 -> preamp
-        -> x 0.35 x volume -> Leslie -> L/R
+        -> x 0.35 x volume -> Leslie -> safety limiter (1.5 ms look-ahead, -1 dBTP) -> L/R
     MIDI routing (brief must_do; rule 14, rule 16):
         channel 2 = lower manual, channel 3 = pedals, every other channel = channel 1 (upper):
         keys below Split Key play the lower manual (crossfaded per key over 10 ms when the split
@@ -40,7 +41,7 @@ public:
         int splitKey = 36, pedalSplit = 24;
     };
 
-    void prepare (double sampleRate, int seed) noexcept
+    void prepare (double sampleRate, int seed)                     // allocates (the limiter's delay)
     {
         fs = sampleRate;
         wheels.prepare (fs, seed);
@@ -52,6 +53,7 @@ public:
         scanner.prepare (fs);
         preamp.prepare (fs);
         leslie.prepare (fs);
+        limiter.prepare (fs);
         for (auto& u : isUpper) u.setTau (0.01, fs);
         for (auto* s : { &leak, &expr, &vol, &vibLower }) s->setTau (0.02, fs);
         ped16.setTau (0.015, fs);
@@ -74,6 +76,7 @@ public:
         scanner.reset (fromZero);
         preamp.reset (fromZero);
         leslie.reset (fromZero);
+        limiter.reset();
         for (int k = 0; k < ContactKeys::kKeys; ++k) isUpper[k].reset (fromZero ? 0.0 : upperTarget (k));
         leak.reset (fromZero ? 0.0 : settings.leakage);
         expr.reset (fromZero ? 0.0 : exprTarget());
@@ -222,7 +225,7 @@ public:
                 case Probe::preamp:    l = r = y; break;
                 case Probe::crossover: l = r = leslie.crossoverOnly (y); break;
                 case Probe::out:
-                default:               leslie.tick (y, l, r); break;
+                default:               leslie.tick (y, l, r); limiter.tick (l, r); break;
             }
             outL[i] = (float) l;
             outR[i] = (float) r;
@@ -233,6 +236,7 @@ public:
     double drumHz() const noexcept { return leslie.drumHz(); }
     double hornAngle() const noexcept { return leslie.hornAngle(); }
     double drumAngle() const noexcept { return leslie.drumAngle(); }
+    int latencySamples() const noexcept { return limiter.latencySamples(); }
     int activeKeys() const noexcept { return upperKeys.activeKeys() + lowerKeys.activeKeys(); }
 
 private:
@@ -257,6 +261,7 @@ private:
     Scanner scanner;
     Preamp preamp;
     Leslie leslie;
+    Limiter limiter;
     OnePole isUpper[ContactKeys::kKeys], leak, expr, vol, vibLower, ped16, ped8;
     double upperShare[ContactKeys::kKeys] {};
     bool key1[ContactKeys::kKeys] {}, held1[ContactKeys::kKeys] {}, isPed1[ContactKeys::kKeys] {};

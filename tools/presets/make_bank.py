@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """The factory bank, from one table: writes presets.csv and presets/<slug>.oberlipreset, with each
 preset's Output calibrated so the brief's reference chord (C3-E3-G3-C4, 4 s hold, no velocity)
-integrates to -18 LUFS over the hold (brief presets, quality target loudness). Registrations are
+integrates to -23 LUFS over the hold (brief amendment 2026-11-01; -18 before the clean preamp). Registrations are
 the presets' notes (brief: the digits in the notes, not the name). Run after a sound change:
     python3 tools/presets/make_bank.py            (HARNESS from the environment or build/)"""
 import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tests"))
 import organ as O  # noqa: E402
 
-TARGET = -18.0
+TARGET = -23.0
 REF = dict(notes="48,52,55,60", gate=4.0, seconds=6.0)
 # slug, name, category, edge, upper, lower, settings (plain units), notes
 BANK = [

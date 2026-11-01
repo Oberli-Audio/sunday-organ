@@ -16,6 +16,9 @@ C    = 343.0;           // m/s
 MAXD = 2048;            // samples: 0.15/343*2 + 2.8 ms < 2048 at 192 kHz
 XHORN = 800;            // Hz, horn / drum crossover (LR4)
 XBASS = 200;            // Hz, drum / bass crossover (LR4)
+// every cutoff below Nyquist: the horn's lowpass opens to 12 kHz, above Nyquist below 24 kHz, where
+// tan() turned negative and the filter ran away (failures.md F-15); no effect at 44.1 kHz and above
+cap(f) = min(f, 0.45 * ma.SR);
 HORN  = 0.3;            // horn level into its paths (balances the +10 dB resonance)
 
 hornHz(fast, brake) = ba.if(brake, 0, ba.if(fast, 6.67, 0.83));
@@ -40,7 +43,7 @@ with {
     d1 = dist(ph - hz * d0, m, k);
     d2 = dist(ph - hz * d1, m, k);
 };
-hornPath(ph, hz, m, k, am, x) = x : de.fdelay3(MAXD, ma.SR * d) : *(HORN) : fi.svf.lp(fc, 0.707) : *(g)
+hornPath(ph, hz, m, k, am, x) = x : de.fdelay3(MAXD, ma.SR * d) : *(HORN) : fi.svf.lp(cap(fc), 0.707) : *(g)
 with {
     d  = hornDelay(ph, hz, m, k);
     th = 2 * ma.PI * (ph - hz * d) + m + pathAngle(k);
@@ -55,11 +58,11 @@ with {
     hz   = hornSpeed(fast, brake);
     ph   = rotor(hz, 0.0);
     dph  = rotor(drumSpeed(fast, brake), 0.0);
-    lo   = x : fi.lowpassLR4(XHORN);
+    lo   = x : fi.lowpassLR4(cap(XHORN));
     // the 200 Hz split's allpass on the horn band too, so the three bands sum flat (failures.md F-3)
-    hi   = x : fi.highpassLR4(XHORN) : fi.svf.ap(XBASS, 1.0 / sqrt(2.0)) : fi.svf.bell(2000, 1.5, 10);
-    bass = lo : fi.lowpassLR4(XBASS);
-    drum = lo : fi.highpassLR4(XBASS);
+    hi   = x : fi.highpassLR4(cap(XHORN)) : fi.svf.ap(cap(XBASS), 1.0 / sqrt(2.0)) : fi.svf.bell(cap(2000), 1.5, 10);
+    bass = lo : fi.lowpassLR4(cap(XBASS));
+    drum = lo : fi.highpassLR4(cap(XBASS));
     dang = 2 * ma.PI * ma.frac(0.63 - dph);              // drum turns the other way
     out(mm) = bass + drum * (1 - 0.25 * (1 - cos(dang + mm)))
             + sum(k, 3, pathGain(k) * hornPath(ph, hz, mm, k, 1, hi));
@@ -68,8 +71,8 @@ with {
 // G5 probe: the crossover's sum with no rotor, horn voicing or AM (brief response_error_db)
 crossover(x) = bass + drum + hi
 with {
-    lo   = x : fi.lowpassLR4(XHORN);
-    hi   = x : fi.highpassLR4(XHORN) : fi.svf.ap(XBASS, 1.0 / sqrt(2.0));
-    bass = lo : fi.lowpassLR4(XBASS);
-    drum = lo : fi.highpassLR4(XBASS);
+    lo   = x : fi.lowpassLR4(cap(XHORN));
+    hi   = x : fi.highpassLR4(cap(XHORN)) : fi.svf.ap(cap(XBASS), 1.0 / sqrt(2.0));
+    bass = lo : fi.lowpassLR4(cap(XBASS));
+    drum = lo : fi.highpassLR4(cap(XBASS));
 };

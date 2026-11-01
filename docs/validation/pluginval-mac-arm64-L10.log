@@ -1,4 +1,4 @@
-$ /Applications/pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --random-seed 0x48505631 --timeout-ms 60000 --output-dir build-validation/mac-full --sample-rates 44100,48000,88200,96000,176400,192000 --block-sizes 1,32,64,128,256,512,1024,2048 --validate "/Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3"
+$ /Applications/pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --random-seed 0x48505631 --timeout-ms 60000 --output-dir build-validation/mac-full3 --sample-rates 44100,48000,88200,96000,176400,192000 --block-sizes 1,32,64,128,256,512,1024,2048 --validate "/Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3"
 
 Started validating: /Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3
 Random seed: 0x48505631

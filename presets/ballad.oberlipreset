@@ -17,7 +17,7 @@
       <PARAM id="upperBar7" value="0"/>
       <PARAM id="upperBar8" value="0"/>
       <PARAM id="upperBar9" value="0"/>
-      <PARAM id="outGain" value="9.8"/>
+      <PARAM id="outGain" value="4"/>
     </PARAMETERS>
     <Extra/>
   </SundayOrganState>

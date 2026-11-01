@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include "OrganMath.h"
 
 #include <initializer_list>
@@ -66,7 +68,8 @@ private:
     // fi.lowpass(1, fc) as Faust generates it: c = 1 / tan(pi fc / fs), b = 1 - c, a = 1 / (c + 1)
     void bilinear (double fc, double& b, double& a) const noexcept
     {
-        const double c = 1.0 / std::tan (3.141592653589793 * fc / fs);
+        // below Nyquist (scanner.lib cap): 7 kHz crossed it below 14 kHz and the filter ran away (F-15)
+        const double c = 1.0 / std::tan (3.141592653589793 * std::min (fc, 0.45 * fs) / fs);
         b = 1.0 - c;
         a = 1.0 / (c + 1.0);
     }
@@ -80,15 +83,21 @@ private:
 
 /*  Preamp - the drive stage before the Leslie: one asymmetric soft clip, tanh with first-order
     ADAA (rule 3; the ill-conditioned fallback at |x - x'| <= 1/fs), the bias removed, a DC blocker
-    at 5 Hz in seconds (rule 4, rule 12), level-compensated by 1/(1 + 1.2 drive) (rule 5).
-    Operating point: gain 1 + 11 drive, bias 0.15 drive; the input is the organ at 0.06 x
-    expression^2. Departure from S.2 (no bias shift or sag): G1, measured at G3.
-    ADAA's half-sample delay is not compensated: there is no parallel dry path around the stage.
-    Prototype: `preamp` in tonewheel.dsp v0.5. */
+    at 5 Hz in seconds (rule 4, rule 12), then the makeup gain (rule 5).
+    Operating point (brief amendment 2026-11-01, failures.md F-12): the input is the organ at
+    0.06 x expression^2, the gain s (12 / s)^drive with s = 0.035, so Drive 0 keeps the fullest
+    chord at -63 dB of distortion and Drive 100 % is the old gain 12; bias 0.15 drive. The makeup
+    in dB is a quartic in drive fitted to the reference chord (C3-E3-G3-C4, 888000000, measured on
+    the static stage by tools/measure/preamp_prestudy.py): it holds that chord's loudness over
+    0-100 %; one key and bigger chords move with the saturation. Departure from S.2 (no bias
+    shift or sag): G1. ADAA's half-sample delay is not compensated: there is no parallel dry path.
+    Prototype: `preamp` in tonewheel.dsp v0.7. */
 class Preamp
 {
 public:
     static constexpr double kDcHz = 5.0;
+    static constexpr double kInputAtDrive0 = 0.035, kGainAtDrive1 = 12.0;
+    static constexpr double kMakeupDb[5] = { 27.5789, -27.9510, 9.4812, -51.6762, 29.8631 };   // d^4 .. d^0
     void prepare (double sampleRate) noexcept
     {
         fs = sampleRate;
@@ -100,8 +109,11 @@ public:
     }
     void reset (bool fromZero) noexcept
     {
-        xPrev = 0.0; wPrev = 0.0; y = 0.0;
-        drive.reset (fromZero ? 0.0 : driveTarget);
+        // at rest the stage's input is the bias: start the ADAA there, or the first sample is a
+        // step that the 5 Hz blocker drains for 30 ms (a thump at every reset, failures.md F-13)
+        const double d = fromZero ? 0.0 : driveTarget;
+        drive.reset (d);
+        xPrev = 0.15 * d; wPrev = 0.0; y = 0.0;
     }
     void setDrive (double d01) noexcept { driveTarget = d01; }
 
@@ -110,14 +122,15 @@ public:
     inline double tick (double x) noexcept
     {
         const double d = drive.tick (driveTarget);
-        const double u = (1.0 + 11.0 * d) * x + 0.15 * d;
+        const double u = kInputAtDrive0 * std::pow (kGainAtDrive1 / kInputAtDrive0, d) * x + 0.15 * d;
         const double diff = u - xPrev;
         const double t = std::abs (diff) <= eps ? std::tanh (0.5 * (u + xPrev)) : (logcosh (u) - logcosh (xPrev)) / diff;
         xPrev = u;
         const double w = b0 * (t - std::tanh (0.15 * d));
         y = w - wPrev + pole * y;
         wPrev = w;
-        return y / (1.0 + 1.2 * d);
+        const double makeupDb = (((kMakeupDb[0] * d + kMakeupDb[1]) * d + kMakeupDb[2]) * d + kMakeupDb[3]) * d + kMakeupDb[4];
+        return y * std::pow (10.0, makeupDb / 20.0);
     }
 
 private:

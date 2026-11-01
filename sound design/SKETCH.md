@@ -1,8 +1,10 @@
-# Sunday Organ prototype - Tier S sketch v0.2, Tier P G2 v0.4 (2026-10-31)
+# Sunday Organ prototype - Tier S sketch v0.2, Tier P G2 v0.4 (2026-10-31), v0.7 (2026-11-01)
 
 **v0.4 (Tier P G2):** wheels as exact quadrature oscillators (the 64k truncated table of `os.oscp` set the old -99.9 dB alias floor), per-wheel level taper (1.0 dB/oct above C4 wheel), expression CC11 before the preamp (gain e^2), lower manual on channel 2 (`lkey n`), pedals on channel 3 (`pedal n`), channel-1 split key and pedal split (decided at key-down), sustain per channel. Evidence `evidence-v0.4.txt`. **Reconstruction:** `dsp/scanner.lib` and `dsp/leslie.lib` were never committed (`*.lib` in .gitignore, failures.md F-1) and were rebuilt from the compiled v0.3; the rebuilt v0.3 nulled against the old binary at -140 to -172 dB re signal.
 
-Run all: `python3 scores/make_scores.py && python3 scores/render_all.py && python3 harness/evidence.py ../scripts/dsp-kit` (faust needs `-t 0`, about 3.5 min, g++ 1.5 min).
+**v0.7 (G2 reopened, 2026-11-01, failures.md F-12):** after Björn's first play (chords distorted): the preamp's input at Drive 0 scaled by s = 0.035 so the fullest chord stays clean (gain s (12/s)^drive, Drive 100 % unchanged), its makeup a quartic in drive holding the reference chord (Init -23 LUFS); the safety limiter after the Leslie (4x true peak, -1 dBTP, 1.5 ms look-ahead). Brief amendments 2026-11-01; design numbers from `tools/measure/preamp_prestudy.py`.
+
+Run all: `python3 scores/make_scores.py && python3 scores/render_all.py && python3 harness/evidence.py ../scripts/dsp-kit` (faust needs `-t 0`: about 3.5 min on the Linux box, 10 s on the M3 Pro; g++ 20 s to 1.5 min).
 
 ---
 
@@ -82,7 +84,8 @@ speed-change curves against a recording, translation. **Not listened to by anyon
 
 ```
 cd dsp && faust -t 0 -lang cpp -double -cn Tonewheel -a ../harness/arch.cpp -o ../harness/render.cpp tonewheel.dsp
-cd ../harness && g++ -O2 -std=c++17 -o render render.cpp      # Faust step takes ~2 min
+cd ../harness && g++ -O2 -std=c++17 -I"$(faust --includedir)" -o render render.cpp   # the include dir: macOS (Homebrew)
+cd ../dsp && for p in busses voices preamp; do faust -t 0 -lang cpp -double -cn Tonewheel -a ../harness/arch.cpp -o ../harness/g5/$p.cpp g5_$p.dsp && g++ -O2 -std=c++17 -I"$(faust --includedir)" -o ../harness/g5/$p ../harness/g5/$p.cpp; done   # G5 probes
 cd .. && python3 scores/make_scores.py
 cd scores && ../harness/render 02_leslie_fast_slow_brake.txt ../renders/02.wav 15.5 48000
 ```

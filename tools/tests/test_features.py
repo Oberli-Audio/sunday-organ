@@ -77,6 +77,66 @@ def inst_cents(y, fs, f0):
     return 1200 * np.log2(f / np.median(f))
 
 
+class DriveAndHeadroom(Timed):
+    """Brief amendment 2026-11-01 (F-12): Drive 0 is clean on the fullest chord, Drive holds the
+    reference chord's loudness, and the safety limiter keeps the output at or below -1 dBTP with its
+    look-ahead reported, exact and transparent below the ceiling."""
+    FULL = (dict(O.DRY, **O.bars("888888888"), **O.bars("888888888", "lower"), pedalBar16=8, pedalBar8=8),
+            dict(notes="48,52,55,60,64,67,72,76,79,84", lower="48,52,55,59", pedals="24,31"))
+
+    def test_full_organ_clean_at_drive_0(self):                            # F-12, rule 3: the fullest chord
+        p, fl = self.FULL
+        a, fs, _ = O.render(dict(p, drive=0), seconds=1.5, solo="preamp", expr="0:1", **fl)
+        b, fs, _ = O.render(dict(p, drive=0), seconds=1.5, solo="preamp", expr="0:0.5", **fl)
+        a, b = a[int(0.4 * fs):int(1.4 * fs), 0], b[int(0.4 * fs):int(1.4 * fs), 0]
+        e = a - np.dot(a, b) / np.dot(b, b) * b                              # what a 4x quieter input does not explain
+        dist = 10 * np.log10(np.sum(e ** 2) / np.sum(a ** 2))
+        self.assertLess(dist, -60.0, "the preamp distorts the full organ at Drive 0: %.1f dB re signal" % dist)
+
+    def test_drive_holds_reference_loudness(self):                         # F-12, rule 5: the reference chord
+        lu = {}
+        for d in (0, 25, 50, 75, 100):
+            x, fs, _ = O.render(dict(O.DRY, **O.bars("888000000"), drive=d), notes="48,52,55,60", seconds=2.0)
+            lu[d] = K.integrated_lufs(x[int(0.5 * fs):], fs)
+        self.assertLess(max(lu.values()) - min(lu.values()), 1.0, "Drive moves the reference chord: %r" % lu)
+
+    def test_output_at_or_below_minus_1_dbtp(self):                        # the safety limiter, brief amendment
+        p, fl = self.FULL
+        for d in (0, 100):
+            x, fs, _ = O.render(dict(p, drive=d, leslieOn=1, leslieFast=1, outGain=12), seconds=2.0, **fl)
+            tp = K.true_peak_dbtp(x, fs)
+            self.assertLessEqual(tp, -1.0, "full organ, Drive %d %%, Output +12 dB: %.2f dBTP" % (d, tp))
+
+    def test_no_step_after_reset(self):                                    # F-13: the preamp's ADAA state at the bias
+        for drive in (20, 100):                                            # no key; prepared again at 0.2 s, as a host does
+            x, fs, _ = O.render(dict(O.DRY, leslieOn=1, drive=drive), seconds=0.4, reprepare_at="0.2:48000/512")
+            pk = K.peak_dbfs(x[int(0.2 * fs):])
+            self.assertLess(pk, -120.0, "a step after reset at Drive %d %%: %.1f dBFS" % (drive, pk))
+
+    def test_any_sample_rate_finite_and_sane(self):                        # F-14 (limiter), F-15 (cutoffs above Nyquist)
+        # the Steinberg validator plays 1234.5678 Hz to 1.23 MHz; filters set above Nyquist ran away below
+        # 24 kHz, and the limiter's window went negative below 4 kHz
+        for rate in (1000, 2000, 8000, 11025, 16000, 22050, 384000):
+            x, fs, res = O.render(dict(O.DRY, leslieOn=1, **O.bars("888000000")), notes="60", seconds=0.5, rate=rate)
+            self.assertTrue(np.isfinite(x).all(), "non-finite output at %d Hz" % rate)
+            self.assertLess(K.peak_dbfs(x), -12.0, "one key at %d Hz reaches %.1f dBFS (a filter running away into the clamp)" % (rate, K.peak_dbfs(x)))
+            self.assertEqual(res["applied"]["latency_samples"], max(6, int(0.0015 * rate + 0.5)), "latency at %d Hz" % rate)
+
+    def test_lookahead_reported_exact_and_transparent(self):               # rule 7: latency measured
+        for rate in (44100, 48000, 96000):
+            p = dict(O.DRY, **O.bars("888000000"))
+            y, fs, res = O.render(p, notes="48,52,55,60", seconds=0.5, rate=rate)
+            x, fs, _ = O.render(p, notes="48,52,55,60", seconds=0.5, rate=rate, solo="preamp")
+            lat = res["applied"]["latency_samples"]
+            self.assertEqual(lat, round(0.0015 * rate), "latency at %d Hz" % rate)
+            # Leslie off and below the ceiling, the output is the preamp's delayed by exactly the
+            # look-ahead with gain 1: after 0.2 s only the Leslie crossfade's exponential tail is left
+            # (a float LSB); one sample of offset or a gain off by 1e-6 would show far above -120 dBFS
+            a = int(0.2 * fs)
+            res_db = K.db(np.max(np.abs(y[a + lat:, 0] - x[a:len(x) - lat, 0])))
+            self.assertLess(res_db, -120.0, "not a pure delay at %d Hz: residual %.1f dBFS" % (rate, res_db))
+
+
 class DefiningFeatures(Timed):
     def test_shared_wheels_sum_phase_coherently(self):                     # +6 dB, not +3
         reg = dict(O.DRY, **O.bars("008000000"), **O.bars("008000000", "lower"))
