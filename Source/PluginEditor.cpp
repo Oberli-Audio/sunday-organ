@@ -32,7 +32,11 @@ void saveScale (float s)
 juce::String tip (const char* id) { return Params::tooltipFor (id); }
 
 /** A section: caps title, an optional note on the right, its area. */
-struct Section { juce::String title; juce::Rectangle<int> area; juce::String note; bool noteAccent = false; };
+struct Section
+{
+    juce::String title; juce::Rectangle<int> area; juce::String note; bool noteAccent = false;
+    juce::Rectangle<int> titleRow() const { return area.withHeight (14); }   // the title left, the note right-aligned to its end
+};
 } // namespace
 
 //==============================================================================
@@ -245,7 +249,7 @@ public:
         // section titles, notes and the hairlines between groups
         for (const auto& s : sections())
         {
-            const auto t = s.area.toFloat().withHeight (14.0f);
+            const auto t = s.titleRow().toFloat();
             type::draw (g, s.title.toUpperCase(), t, type::section(), Tokens::inkMuted);
             if (s.note.isNotEmpty())
                 type::draw (g, s.note, t, type::meta(), s.noteAccent ? Tokens::accentInk : Tokens::inkSubtle, juce::Justification::centredRight);
@@ -270,8 +274,10 @@ public:
         const auto& bank = sundayorgan::Presets::factory();
         const bool m = juce::isPositiveAndBelow (processor.currentPreset, (int) bank.size())
                        && sundayorgan::Presets::differs (*bank[(size_t) processor.currentPreset].doc, processor.parameters());
-        const auto st = sections()[7].note;
-        if (m != modified || st != lastStatus) { modified = m; lastStatus = st; repaint (0, 0, kWidth, 48); repaint (540, 292, 330, 16); }
+        // the Leslie status: repaint the title row it is drawn in, to its right edge where the note
+        // ends (a hand-typed region 6 px short left the last letter's stale end: "Fasn", F-16)
+        const auto leslie = sections()[7];
+        if (m != modified || leslie.note != lastStatus) { modified = m; lastStatus = leslie.note; repaint (0, 0, kWidth, 48); repaint (leslie.titleRow().expanded (2)); }
     }
 
     void step (int d)

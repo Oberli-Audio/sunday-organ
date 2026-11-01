@@ -1,5 +1,5 @@
-# Status - Sunday Organ 0.1.0 (2026-11-01, evening)
-Tier P, track I, at gate G6 again: Björn's first play reopened G2 (chords distorted, F-12); the drive stage is redesigned, a safety limiter added (G1), prototype v0.7, port, G5 and the Mac's unattended G6 re-run green. Björn's replay in Live is next. Recipe D.8.1.
+# Status - Sunday Organ 0.1.0 (2026-11-01, late evening)
+Tier P, track I, at gate G6 again: Björn's first play reopened G2 (chords distorted, F-12); the drive stage is redesigned, a safety limiter added (G1), prototype v0.7, port, G5 and the Mac's unattended G6 re-run green. Björn's replay in Live: "sounds nice"; Drive 100 % heard as digital clipping (measured: the stage's own hard clip, accepted for now); the editor's status "Fasn" fixed (F-16). Recipe D.8.1.
 
 ## Gates
 | Gate | State | Evidence (command -> number, test name, log) |
@@ -10,7 +10,7 @@ Tier P, track I, at gate G6 again: Björn's first play reopened G2 (chords disto
 | G3 | closed 2026-11-01 | Harness contract v3; `dspkit.py smoke` OK; `paramgen.py check --list-params`: 38 parameters, 0 warnings. Metric table: `python3 tools/measure/metrics.py --md docs/metrics.md` -> 12 of 12 pass (table below) |
 | G4 | closed 2026-11-01 | `cmake --preset release && cmake --build --preset release`: VST3, Standalone, harness, universal, no warnings from the product's code; one class per prototype module in `Source/dsp/`, the limiter in `Limiter.h` (allocates in prepare only), constants beside the code |
 | G5 | closed 2026-11-01 | `python3 tools/g5/null_test.py build/SundayOrganHarness_artefacts/Release/SundayOrganHarness --md docs/g5-null-test.md` (48 kHz, no alignment, F.8 row 1 < -120): plugin vs prototype v0.7 on 23 scores, worst -136.5 dBFS; 37 probe rows with signal, worst -126.5 dB re their peak (preamp, full drawbars driven). Bank: `make_bank.py` -> 16 presets -23.04 to -22.95 LUFS, Init -23.00 at the defaults |
-| G6 | unattended part green (Linux 2026-10-31, Mac re-run 2026-11-01) | "G6 on the Mac" below. Open: Björn plays the new build in Live 10.1, the second host (a friend on Windows), listening, the editor on a real 1x display |
+| G6 | unattended part green (Linux 2026-10-31, Mac re-run 2026-11-01) | "G6 on the Mac" below. Björn played the new build in Live 10.1 (2026-11-01, late evening): listening debt. Open: the second host (a friend on Windows), the editor on a real 1x display |
 | G7 | - | IDs not frozen (rule 19: at the first release, Björn's call); EX-4 and EX-5 must close first; the bank's Drive values were set for the old stage (Rock Drive, Power Chords now cleaner): to be re-voiced by ear |
 
 ### Metric table (G3; `docs/metrics.md` has the methods)
@@ -53,7 +53,8 @@ Tier P, track I, at gate G6 again: Björn's first play reopened G2 (chords disto
 | Code checklist (editor) | read in the code | as listed 2026-10-31; open: the drag readout bubble, the diagnostics fields on About |
 
 ## Listening debt
-- 2026-11-01, Björn, first play in Live 10.1 (Init): one key good; more keys sounded like digital clipping; "more than 6 keys does not work". Cause measured and fixed (F-12): the drive stage clipped chords (-14 dB at 10 keys at Drive 0). **Replay needed** on the new build: chords at Drive 0 and 20 %, the growl from 30-40 %, the full organ against the limiter; the bank is 5 dB quieter (raise the track in Live by about 5 dB). The 6-key limit is not in the plugin (every key sounds in the harness); six is the computer keyboard's rollover - to confirm with Björn.
+- 2026-11-01, Björn, first play in Live 10.1 (Init): one key good; more keys sounded like digital clipping; "more than 6 keys does not work". Cause measured and fixed (F-12): the drive stage clipped chords (-14 dB at 10 keys at Drive 0). The 6-key limit is not in the plugin (every key sounds in the harness); six is the computer keyboard's rollover - to confirm with Björn.
+- 2026-11-01 late evening, Björn, replay on the F-12 build: "sounds nice". "Drive at 100 % sounds also like digital clips, but ok." Measured (`tools/measure/drive_character.py`): not aliasing (48 k against 192 k: -136.7 dB re signal on 10 keys, -59.8 dB on the full organ), not the limiter (the full chain peaks at -10.0 to -19.8 dBFS at Drive 100 %); the stage itself clips hard there: the tanh at gain 12, distortion re signal at 50/75/100 % on the reference chord -36.6/-18.3/-8.1 dB, 10 keys -29.0/-12.9/-6.5 dB, one key -50.9/-34.4/-17.8 dB, and on chords most of it is intermodulation (sum and difference tones, not harmonics). Accepted by Björn for now. If it is to change: a softer top of the range (100 % = today's 75 %), or a lowpass after the stage that follows Drive, as the 122's amplifier and speakers roll off the fizz; either is a G2 change with a null test re-run.
 - 2026-11-01: the bank's Drive values were chosen for the old stage, where 50 % was already heavy; now Rock Drive (85 %) and Power Chords (70 %) growl, the 15-40 % presets are near clean. Re-voice by ear.
 - 2026-10-31: constants set by ear without a reference: rotor spin-up/down (horn 0.35/0.55 s, drum 2.2/3.0 s), percussion decay (0.5/1.5 s), scanner depths (0.35/0.7/1.2 ms), horn resonance +10 dB at 2 kHz, horn level 0.3, reflections; since 2026-11-01 also the limiter's 150 ms release.
 - 2026-10-31: Key Click at its default 50 % may be too soft to hear (`test_key_click_scales_with_key_click` holds the order 0 < 50 < 100 % and 12 dB between the ends); judge on the replay.
@@ -66,7 +67,8 @@ Tier P, track I, at gate G6 again: Björn's first play reopened G2 (chords disto
 
 ## Handoff
 Task: Tier P from G1 to a release-gate-ready build (Björn, 2026-10-31). Done: Linux (cloud session, 2026-10-31); the Mac's G6 (2026-11-01); the drive stage and the limiter after Björn's first play (2026-11-01 evening). Branch `g0-brief-and-sketch`.
-**Next:** Björn replays in Live 10.1 (the VST3 is replaced; restart Live or rescan): chords at Drive 0, 20 and 50 %, the full organ, Gospel Full, Rock Drive, Ballad, Bass Split; what he hears goes into the listening debt. Questions for him: the 1 LU reference for Drive (proposed); which keyboard played the 7+ keys. Then the bank's Drive values by ear, EX-4, EX-5, the second host, the editor on a 1x display, ASan on the Mac (pluginval from source), G7; for the release gate, `shipcheck.py docs .` still fails on the five Rubik fonts `notices.toml` does not list.
+Björn's replay done ("sounds nice"; Drive 100 % accepted); F-16 fixed, the VST3 replaced again (restart Live or rescan).
+**Next:** questions for Björn: the 1 LU reference for Drive (proposed); which keyboard played the 7+ keys; re-voice the bank's Drive values; whether Drive 100 % should become softer (listening debt). Then the bank's Drive values by ear, EX-4, EX-5, the second host, the editor on a 1x display, ASan on the Mac (pluginval from source), G7; for the release gate, `shipcheck.py docs .` still fails on the five Rubik fonts `notices.toml` does not list.
 Open questions for the owner: the brief amendments of 2026-10-31; when to freeze the IDs (rule 19).
 
 ## Decisions
