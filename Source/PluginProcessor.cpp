@@ -168,10 +168,10 @@ void SundayOrganAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     fastNow.store (fastState, std::memory_order_relaxed);
     exprNow.store ((float) exprState, std::memory_order_relaxed);
     activeKeyCount.store (organ.activeKeys(), std::memory_order_relaxed);
+    if (organ.takeLimiting()) limiting.store (true, std::memory_order_relaxed);
     float lastL = 0.0f, lastR = 0.0f;
     for (int i = 0; i < numSamples; ++i)
     {
-        if (std::abs (l[i]) >= 1.0f || std::abs (r[i]) >= 1.0f) clipped.store (true, std::memory_order_relaxed);
         lastL = rmsFilterL.processSample (0, l[i]);
         lastR = rmsFilterR.processSample (0, r[i]);
     }

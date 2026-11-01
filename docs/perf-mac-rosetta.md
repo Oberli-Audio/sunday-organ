@@ -2,12 +2,12 @@
 
 | arch | preset | fs/block | p50 | p99 | p99.9 | max | reading | first block | over (reported) |
 |---|---|---|---|---|---|---|---|---|---|
-| x86_64 | gospel-full | 48000/64 | 5.2 | 6.6 | 8.5 | 392.1 at 15.69 s | scheduling | 8 | 1 |
-| x86_64 | gospel-full | 44100/32 | 4.8 | 6.1 | 12.8 | 206.7 at 6.04 s | scheduling | 10 | 3 |
-| x86_64 | rock-drive | 48000/64 | 5.2 | 6.4 | 8.5 | 32.1 at 12.09 s | scheduling | 8 | 0 |
-| x86_64 | rock-drive | 44100/32 | 4.8 | 5.6 | 11.9 | 297.2 at 13.88 s | scheduling | 9 | 1 |
-| x86_64 | bass-split | 48000/64 | 4.9 | 5.3 | 5.7 | 19.8 at 13.78 s | scheduling | 8 | 0 |
-| x86_64 | bass-split | 44100/32 | 4.6 | 5.9 | 11.7 | 1108.0 at 0.34 s | scheduling | 9 | 1 |
-| x86_64 | split-comping | 48000/64 | 5.2 | 6.3 | 11.7 | 48.2 at 16.39 s | scheduling | 8 | 0 |
-| x86_64 | split-comping | 44100/32 | 4.8 | 6.2 | 9.1 | 421.7 at 13.19 s | scheduling | 9 | 3 |
-| x86_64 | idle | 48000/64 | 1.0 | 5.2 | - | - | idle | - | - |
+| x86_64 | gospel-full | 48000/64 | 5.1 | 5.5 | 6.0 | 13.2 at 2.07 s | scheduling | 7 | 0 |
+| x86_64 | gospel-full | 44100/32 | 4.7 | 5.2 | 5.9 | 14.6 at 18.67 s | scheduling | 9 | 0 |
+| x86_64 | rock-drive | 48000/64 | 5.1 | 5.7 | 6.3 | 18.6 at 12.75 s | scheduling | 7 | 0 |
+| x86_64 | rock-drive | 44100/32 | 4.7 | 5.3 | 6.1 | 19.0 at 18.80 s | scheduling | 9 | 0 |
+| x86_64 | bass-split | 48000/64 | 4.8 | 5.3 | 5.9 | 14.6 at 17.23 s | scheduling | 7 | 0 |
+| x86_64 | bass-split | 44100/32 | 4.4 | 5.0 | 5.7 | 10.2 at 16.81 s | scheduling | 9 | 0 |
+| x86_64 | split-comping | 48000/64 | 5.1 | 5.5 | 6.2 | 6.6 at 7.68 s | scheduling | 7 | 0 |
+| x86_64 | split-comping | 44100/32 | 4.7 | 5.3 | 5.9 | 31.6 at 11.52 s | scheduling | 9 | 0 |
+| x86_64 | idle | 48000/64 | 1.0 | 5.0 | - | - | idle | - | - |

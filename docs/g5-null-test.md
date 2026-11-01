@@ -1,4 +1,4 @@
-# G5 null test - plugin vs prototype v0.7
+# G5 null test - plugin vs prototype v0.8
 
 `python3 tools/g5/null_test.py build/SundayOrganHarness_artefacts/Release/SundayOrganHarness --md docs/g5-null-test.md` (48 kHz, no alignment, whole render; threshold F.8 row 1: peak < -120 dBFS). Doppler: `python3 tools/g5/doppler_check.py build/SundayOrganDopplerCheck`.
 
@@ -7,12 +7,12 @@
 | 01_init_chord_slow | whole | -14.2 | -156.5 | -142.3 | -168.5 | yes |
 | 02_leslie_fast_slow_brake | whole | -13.9 | -150.5 | -136.6 | -167.0 | yes |
 | 03_percussion_riff | whole | -12.6 | -150.5 | -137.9 | -171.4 | yes |
-| 04_register_dry | whole | -23.1 | -159.0 | -135.9 | -173.3 | yes |
-| 05_full_drawbars_driven_fast | whole | -10.1 | -139.6 | -129.6 | -157.5 | yes |
+| 04_register_dry | whole | -23.1 | -159.0 | -135.9 | -173.4 | yes |
+| 05_full_drawbars_driven_fast | whole | -10.0 | -139.6 | -129.6 | -157.4 | yes |
 | 06_scanner_off_V1_V2_V3_C1_C2_C3_dry | whole | -10.3 | -150.5 | -140.3 | -164.6 | yes |
 | 07_split_lower_comp_upper_lead | whole | -15.9 | -156.5 | -140.7 | -171.4 | yes |
 | 08_pedals_with_chords | whole | -10.0 | -150.5 | -140.6 | -166.1 | yes |
-| 09_register_upper | whole | -23.4 | -159.0 | -135.6 | -173.1 | yes |
+| 09_register_upper | whole | -23.4 | -159.0 | -135.6 | -173.2 | yes |
 | 10_register_lower | whole | -23.5 | -159.0 | -135.6 | -173.2 | yes |
 | 11_expression_swell | whole | -15.4 | -150.5 | -135.1 | -171.1 | yes |
 | 12_three_channels_and_split | whole | -16.1 | -156.5 | -140.5 | -171.6 | yes |
@@ -23,9 +23,9 @@
 | p_jazz_perc | whole | -12.2 | -156.5 | -144.4 | -171.9 | yes |
 | p_rock_drive | whole | -16.8 | -156.5 | -139.7 | -166.9 | yes |
 | p_sanctuary | whole | -10.5 | -144.5 | -134.0 | -158.5 | yes |
-| p_split_comping | whole | -14.3 | -156.5 | -142.2 | -174.9 | yes |
-| x_alias_C7_8ft_drive1 | whole | -28.3 | -168.6 | -140.3 | -172.5 | yes |
-| x_cpu_worst_case | whole | -7.8 | -136.5 | -128.7 | -150.4 | yes |
+| p_split_comping | whole | -14.4 | -156.5 | -142.2 | -174.8 | yes |
+| x_alias_C7_8ft_drive1 | whole | -28.4 | -168.6 | -140.2 | -172.2 | yes |
+| x_cpu_worst_case | whole | -7.8 | -136.5 | -128.7 | -150.3 | yes |
 | x_pedal_c1 | whole | -32.8 | -174.6 | -141.8 | -177.7 | yes |
 | 01_init_chord_slow | upper | 19.7 | -120.4 | -140.1 | -149.1 | yes |
 | 01_init_chord_slow | lower | -254.3 | -397.4 | -143.1 | -423.0 | yes |
@@ -60,18 +60,18 @@
 | 12_three_channels_and_split | pedals | -3.4 | -144.5 | -141.1 | -162.8 | yes |
 | 12_three_channels_and_split | voices | 18.3 | -120.4 | -138.7 | -147.6 | yes |
 | 01_init_chord_slow | preamp | -13.0 | -150.5 | -137.5 | -167.2 | yes |
-| 01_init_chord_slow | crossover | -13.8 | -150.5 | -136.8 | -167.1 | yes |
+| 01_init_chord_slow | crossover | -13.8 | -150.5 | -136.8 | -167.2 | yes |
 | 03_percussion_riff | preamp | -11.6 | -150.5 | -138.9 | -169.5 | yes |
 | 03_percussion_riff | crossover | -11.8 | -150.5 | -138.7 | -169.4 | yes |
-| 05_full_drawbars_driven_fast | preamp | -13.1 | -139.6 | -126.5 | -155.1 | yes |
-| 05_full_drawbars_driven_fast | crossover | -7.8 | -138.5 | -130.6 | -155.1 | yes |
+| 05_full_drawbars_driven_fast | preamp | -13.1 | -139.6 | -126.5 | -155.0 | yes |
+| 05_full_drawbars_driven_fast | crossover | -7.8 | -138.5 | -130.6 | -155.0 | yes |
 | 06_scanner_off_V1_V2_V3_C1_C2_C3_dry | preamp | -10.3 | -150.5 | -140.3 | -164.6 | yes |
-| 06_scanner_off_V1_V2_V3_C1_C2_C3_dry | crossover | -11.0 | -150.5 | -139.5 | -164.5 | yes |
-| 07_split_lower_comp_upper_lead | preamp | -14.6 | -150.5 | -135.9 | -168.6 | yes |
-| 07_split_lower_comp_upper_lead | crossover | -14.7 | -150.5 | -135.9 | -168.6 | yes |
-| 08_pedals_with_chords | preamp | -9.4 | -150.5 | -141.1 | -165.1 | yes |
+| 06_scanner_off_V1_V2_V3_C1_C2_C3_dry | crossover | -11.0 | -147.0 | -136.0 | -164.5 | yes |
+| 07_split_lower_comp_upper_lead | preamp | -14.6 | -150.5 | -135.9 | -168.7 | yes |
+| 07_split_lower_comp_upper_lead | crossover | -14.7 | -150.5 | -135.9 | -168.7 | yes |
+| 08_pedals_with_chords | preamp | -9.4 | -144.5 | -135.1 | -165.1 | yes |
 | 08_pedals_with_chords | crossover | -9.6 | -147.0 | -137.4 | -165.0 | yes |
 | 11_expression_swell | preamp | -15.3 | -150.5 | -135.2 | -170.1 | yes |
 | 11_expression_swell | crossover | -14.7 | -150.5 | -135.8 | -170.1 | yes |
 | 12_three_channels_and_split | preamp | -14.5 | -150.5 | -136.0 | -168.2 | yes |
-| 12_three_channels_and_split | crossover | -15.2 | -150.5 | -135.3 | -168.1 | yes |
+| 12_three_channels_and_split | crossover | -15.2 | -150.5 | -135.3 | -168.2 | yes |

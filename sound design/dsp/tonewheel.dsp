@@ -11,11 +11,14 @@
 // v0.7 (2026-11-01, brief amendment, failures.md F-12): the preamp's input at Drive 0 scaled
 // for the fullest chord (Drive 0 clean), its makeup holding the reference chord; the safety
 // limiter after the Leslie (-1 dBTP, 1.5 ms look-ahead).
+// v0.8 (2026-11-01, Björn: "a lowpass after the drive that follows the Drive setting"): the
+// speaker's roll-off after the preamp, closing from a wire at Drive 0 to 6 kHz at Drive 100 %,
+// as the 122's amplifier and speakers take the fizz off a driven organ.
 // Every time constant is in seconds (rule 12). Every "random" value is a compile-time
 // hash of its index, so two runs from reset are bit-identical (rule 8).
 
 declare name "Sunday Organ (prototype)";
-declare version "0.0.7";
+declare version "0.0.8";
 declare author "Oberli Audio";
 import("stdfaust.lib");
 sc = library("scanner.lib");
@@ -165,13 +168,22 @@ voices = (upperSig + vibLower * lowerSig) : sc.scanner(vibMode) : +((1 - vibLowe
 // fullest chord clean (-63 dB) and Drive 100 % is the old gain 12; the makeup in dB is a quartic
 // in drive that holds the reference chord (C3-E3-G3-C4, 888000000) over 0-100 % and puts Init at
 // -23 LUFS (tools/measure/preamp_prestudy.py; the port's Preamp, Scanner.h, has the same numbers).
-preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblockerat(DCHZ) : *(mk)
+// v0.8: then the speaker, an LR4 lowpass (two Butterworth TPT stages, 24 dB/oct) whose cutoff
+// follows Drive: set in the analog domain, 200 kHz at Drive 0 to 6 kHz at Drive 100 %,
+// exponential in drive, and mapped without prewarping (g = pi fa / SR), so it is a wire at
+// Drive 0 at every rate and never reaches Nyquist (failures.md F-15). Up to 75 % it stays above
+// the highest wheel (14 kHz there); the fizz of a driven chord sits above 5 kHz.
+preamp(x) = (g * x + bias) : aa.tanh1 : -(ma.tanh(bias)) : fi.dcblockerat(DCHZ) : *(mk) : speaker
     with {
         S    = 0.035;
         g    = S * pow(12 / S, drive);
         bias = 0.15 * drive;
         mk   = pow(10, ((((27.5789 * drive - 27.9510) * drive + 9.4812) * drive - 51.6762) * drive + 29.8631) / 20);
         DCHZ = 5;
+        FA   = 6000 * pow(200000 / 6000, 1 - drive);
+        FD   = ma.SR / ma.PI * atan(ma.PI * FA / ma.SR);     // fi.svf's tan(pi FD / SR) = pi FA / SR
+        QBW  = 1 / sqrt(2);
+        speaker = fi.svf.lp(FD, QBW) : fi.svf.lp(FD, QBW);
     };
 
 // ---------------------------------------------------------------- safety limiter

@@ -1,5 +1,4 @@
-$ /Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build-validators/vst3sdk-build/bin/Release/validator "/Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3"
-
+$ build-validators/vst3sdk-build/bin/Release/validator "/Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3"
 * Loading module...
 
 	/Users/bjoernoberli/Developer/oberli-audio/sunday-organ/build/SundayOrgan_artefacts/Release/VST3/Sunday Organ.vst3
@@ -2414,5 +2413,3 @@ Info:  64bit Audio Processing not supported.
 -------------------------------------------------------------
 Result: 47 tests passed, 0 tests failed
 -------------------------------------------------------------
-
-[validate.py] exit 0 after 0 s

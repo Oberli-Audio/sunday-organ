@@ -6,7 +6,7 @@ Guidance for Claude Code in this repository.
 
 Sunday Organ (Oberli Audio), an instrument plugin (VST3; the formats ship.toml lists), built with
 JUCE pinned by commit (CMakeLists.txt) and started from the family template
-(Oberli-Audio/plugin-template). Theme charcoal, accent coral (#FF7A6B), plugin code
+(Oberli-Audio/plugin-template). Theme charcoal, accent tangerine (#F4511E; category accent for instruments, design system round 14, decided 2026-11-01, registry update pending in bob-skills; coral before), plugin code
 `Suor`, bundle id `com.oberliaudio.sundayorgan`: all from the family registry (ship-bob
 `registry/plugins.toml`), never changed after the first release.
 

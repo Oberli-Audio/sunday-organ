@@ -136,6 +136,21 @@ class DriveAndHeadroom(Timed):
             res_db = K.db(np.max(np.abs(y[a + lat:, 0] - x[a:len(x) - lat, 0])))
             self.assertLess(res_db, -120.0, "not a pure delay at %d Hz: residual %.1f dBFS" % (rate, res_db))
 
+    def test_speaker_lowpass_follows_drive(self):                          # v0.8 (Björn 2026-11-01), rule 13
+        # F#6 at 8' and 2' (1.48 kHz and the highest wheel, 5.92 kHz), small signal (expression 0.1:
+        # the stage is linear): the top line against the low one, Drive d against Drive 0. The
+        # lowpass after the drive is a wire at the default 20 % and LR4 at 6 kHz at 100 % (-6.7 dB)
+        def tilt(d):
+            x, fs, _ = O.render(dict(O.DRY, **O.bars("008008000"), drive=d), notes="90", seconds=1.0, solo="preamp", expr="0:0.1")
+            y = x[int(0.3 * fs):, 0]
+            F = np.abs(np.fft.rfft(y * s.windows.blackmanharris(len(y))))
+            f = np.fft.rfftfreq(len(y), 1 / fs)
+            return K.db(F[np.abs(f - 5920.0) < 30].max() / F[np.abs(f - 1480.0) < 30].max())
+        t0 = tilt(0)
+        t20, t100 = tilt(20) - t0, tilt(100) - t0
+        self.assertLess(abs(t20), 0.05, "Drive 20 %% changes the top wheel by %.3f dB" % t20)
+        self.assertLess(t100, -4.0, "Drive 100 %% takes only %.2f dB off the top wheel: no speaker roll-off" % t100)
+
 
 class DefiningFeatures(Timed):
     def test_shared_wheels_sum_phase_coherently(self):                     # +6 dB, not +3

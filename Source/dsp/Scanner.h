@@ -91,17 +91,25 @@ private:
     the static stage by tools/measure/preamp_prestudy.py): it holds that chord's loudness over
     0-100 %; one key and bigger chords move with the saturation. Departure from S.2 (no bias
     shift or sag): G1. ADAA's half-sample delay is not compensated: there is no parallel dry path.
-    Prototype: `preamp` in tonewheel.dsp v0.7. */
+    Then the speaker (v0.8, Björn 2026-11-01): an LR4 lowpass (two Butterworth TPT stages, rule 6)
+    whose cutoff follows Drive, set in the analog domain from 200 kHz at Drive 0 to 6 kHz at
+    100 %, exponential in drive, mapped without prewarping (g = pi fa / fs): a wire at Drive 0 at
+    every rate, never at Nyquist (F-15); above the highest wheel up to 75 %. It takes the fizz
+    a driven chord puts above 5 kHz, as the 122's amplifier and speakers do. Gain, makeup and
+    cutoff are computed only while Drive moves.
+    Prototype: `preamp` in tonewheel.dsp v0.8. */
 class Preamp
 {
 public:
     static constexpr double kDcHz = 5.0;
     static constexpr double kInputAtDrive0 = 0.035, kGainAtDrive1 = 12.0;
     static constexpr double kMakeupDb[5] = { 27.5789, -27.9510, 9.4812, -51.6762, 29.8631 };   // d^4 .. d^0
+    static constexpr double kSpeakerHzAtDrive0 = 200000.0, kSpeakerHzAtDrive1 = 6000.0;
     void prepare (double sampleRate) noexcept
     {
         fs = sampleRate;
         eps = 1.0 / fs;
+        dNow = -1.0;                                                 // the speaker's g depends on fs
         drive.setTau (0.02, fs);
         const double wn = 3.141592653589793 * kDcHz / fs;          // fi.dcblockerat
         b0 = 1.0 / (1.0 + wn);
@@ -114,6 +122,8 @@ public:
         const double d = fromZero ? 0.0 : driveTarget;
         drive.reset (d);
         xPrev = 0.15 * d; wPrev = 0.0; y = 0.0;
+        speaker1.reset(); speaker2.reset();
+        dNow = -1.0;
     }
     void setDrive (double d01) noexcept { driveTarget = d01; }
 
@@ -122,19 +132,29 @@ public:
     inline double tick (double x) noexcept
     {
         const double d = drive.tick (driveTarget);
-        const double u = kInputAtDrive0 * std::pow (kGainAtDrive1 / kInputAtDrive0, d) * x + 0.15 * d;
+        if (std::abs (d - dNow) > 0.0)                                 // Drive moved
+        {
+            dNow = d;
+            gain = kInputAtDrive0 * std::pow (kGainAtDrive1 / kInputAtDrive0, d);
+            const double makeupDb = (((kMakeupDb[0] * d + kMakeupDb[1]) * d + kMakeupDb[2]) * d + kMakeupDb[3]) * d + kMakeupDb[4];
+            makeup = std::pow (10.0, makeupDb / 20.0);
+            gSpeaker = 3.141592653589793 * (kSpeakerHzAtDrive1 * std::pow (kSpeakerHzAtDrive0 / kSpeakerHzAtDrive1, 1.0 - d)) / fs;
+        }
+        const double u = gain * x + 0.15 * d;
         const double diff = u - xPrev;
         const double t = std::abs (diff) <= eps ? std::tanh (0.5 * (u + xPrev)) : (logcosh (u) - logcosh (xPrev)) / diff;
         xPrev = u;
         const double w = b0 * (t - std::tanh (0.15 * d));
         y = w - wPrev + pole * y;
         wPrev = w;
-        const double makeupDb = (((kMakeupDb[0] * d + kMakeupDb[1]) * d + kMakeupDb[2]) * d + kMakeupDb[3]) * d + kMakeupDb[4];
-        return y * std::pow (10.0, makeupDb / 20.0);
+        static constexpr double kSqrt2 = 1.4142135623730951;           // k = 1/Q, Q = 1/sqrt(2)
+        return speaker2.lp (speaker1.lp (y * makeup, gSpeaker, kSqrt2), gSpeaker, kSqrt2);
     }
 
 private:
     OnePole drive;
+    Svf speaker1, speaker2;
     double fs = 48000.0, eps = 1.0 / 48000.0, b0 = 1.0, pole = 0.0, xPrev = 0.0, wPrev = 0.0, y = 0.0, driveTarget = 0.2;
+    double dNow = -1.0, gain = 0.0, makeup = 0.0, gSpeaker = 0.0;
 };
 } // namespace sundayorgan::dsp

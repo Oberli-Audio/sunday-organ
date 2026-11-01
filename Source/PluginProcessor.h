@@ -83,8 +83,9 @@ public:
     void setScreenModWheel (float v) noexcept { screenMod.store (v); }
     /** The mod wheel as the player last moved it (CC1 or the screen), 0-1. */
     float modWheelNow() const noexcept { return modNow.load (std::memory_order_relaxed); }
-    /** True once after a sample reached full scale (the editor's CLIP LED reads and clears it). */
-    bool takeClip() noexcept { return clipped.exchange (false); }
+    /** True once after the safety limiter took 0.1 dB or more (the editor's LIMIT LED reads and
+        clears it; the limiter holds -1 dBTP, so the output cannot clip and there is no CLIP LED). */
+    bool takeLimiting() noexcept { return limiting.exchange (false); }
     /** The factory preset loaded last (message thread; the editor's pill and drawer). */
     int currentPreset = 0;
 
@@ -106,7 +107,7 @@ private:
     bool prototypeStart = false;
     sundayorgan::dsp::Organ::Probe probe = sundayorgan::dsp::Organ::Probe::out;
     std::atomic<float> hornRpm { 0.0f }, drumRpm { 0.0f }, hornTurn { 0.0f }, drumTurn { 0.0f }, exprNow { 1.0f };
-    std::atomic<bool> fastNow { false }, clipped { false };
+    std::atomic<bool> fastNow { false }, limiting { false };
     std::atomic<float> screenMod { -1.0f }, modNow { 0.0f };
     float lastScreenMod = -1.0f;
     std::atomic<int> activeKeyCount { 0 };

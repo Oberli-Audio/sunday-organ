@@ -6,10 +6,11 @@ namespace sundayorgan::ui
 {
 
 /** The Oberli Audio design system's tokens (project/tokens.json in the
-    "Oberli Audio" design system, v1, read 2026-10-31), Charcoal theme: Sunday
-    Organ is an instrument, and its accent is coral (the family registry).
+    "Oberli Audio" design system, v1, read 2026-11-01), Charcoal theme: Sunday
+    Organ is an instrument, and since round 14 (2026-11-01, one accent per
+    category) every instrument wears tangerine; coral is retired.
     Every colour the editor draws comes from here. Taken over from Horizon
-    Pad's editor F (the family LookAndFeel), only the accent differs. */
+    Pad's editor F (the family LookAndFeel). */
 namespace Tokens
 {
     const juce::Colour ground         { 0xff1c1b19 };   // charcoal
@@ -23,8 +24,8 @@ namespace Tokens
     const juce::Colour ink            { 0xffede8df };   // bone: text, values, focus ring
     const juce::Colour inkMuted       { 0xffbdb6aa };   // labels, section titles
     const juce::Colour inkSubtle      { 0xff9c968b };   // version, captions
-    const juce::Colour accent         { 0xffff7a6b };   // coral (accent 4, 6.8:1 on charcoal): pointer, value arc, selected segment, lit state
-    const juce::Colour clip           { 0xffff5a4e };   // clip LED, always with the word CLIP
+    const juce::Colour accent         { 0xfff4511e };   // tangerine, the instruments' category accent (5.0:1 on charcoal): pointer, value arc, selected segment, lit state
+    const juce::Colour clip           { 0xffff5a4e };   // clip LED, always with the word CLIP (unused: the limiter's LIMIT LED instead)
     const juce::Colour accentInk      = accent;         // the accent as text (the edited-preset mark)
     const juce::Colour onAccent       { 0xff1c1b19 };
     const juce::Colour meterLevel     { 0xffede8df };   // meter below -6 dBFS

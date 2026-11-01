@@ -237,6 +237,7 @@ public:
     double hornAngle() const noexcept { return leslie.hornAngle(); }
     double drumAngle() const noexcept { return leslie.drumAngle(); }
     int latencySamples() const noexcept { return limiter.latencySamples(); }
+    bool takeLimiting() noexcept { return limiter.takeWorked(); }
     int activeKeys() const noexcept { return upperKeys.activeKeys() + lowerKeys.activeKeys(); }
 
 private:

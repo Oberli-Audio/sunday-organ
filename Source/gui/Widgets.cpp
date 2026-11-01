@@ -323,13 +323,13 @@ void RotorView::paint (juce::Graphics& g)
 }
 
 //==============================================================================
-void OutputMeter::set (float l, float r, bool clipNow)
+void OutputMeter::set (float l, float r, bool limitingNow)
 {
     auto toProp = [] (float rms) { const float db = juce::Decibels::gainToDecibels (rms, -100.0f); return juce::jlimit (0.0f, 1.0f, (db + 60.0f) / 60.0f); };
     const float nl = toProp (l), nr = toProp (r);
-    const int newClip = clipNow ? 30 : juce::jmax (0, clipFrames - 1);   // 1 s at 30 frames
-    if (std::abs (nl - level[0]) < 0.004f && std::abs (nr - level[1]) < 0.004f && (newClip > 0) == (clipFrames > 0)) { clipFrames = newClip; return; }
-    level[0] = nl; level[1] = nr; clipFrames = newClip;
+    const int newLimit = limitingNow ? 30 : juce::jmax (0, limitFrames - 1);   // 1 s at 30 frames
+    if (std::abs (nl - level[0]) < 0.004f && std::abs (nr - level[1]) < 0.004f && (newLimit > 0) == (limitFrames > 0)) { limitFrames = newLimit; return; }
+    level[0] = nl; level[1] = nr; limitFrames = newLimit;
     repaint();
 }
 
@@ -359,11 +359,17 @@ void OutputMeter::paint (juce::Graphics& g)
             g.fillRect (juce::Rectangle<float> (inner.getX(), inner.getBottom() - lv, inner.getWidth(), lv - hotY));
         }
     }
-    const auto pill = juce::Rectangle<float> (40.0f, 16.0f).withCentre (led.getCentre());
-    g.setColour (clipFrames > 0 ? Tokens::clip : Tokens::surfaceSunken);
-    g.fillRoundedRectangle (pill, Tokens::radiusXs);
-    g.setColour (clipFrames > 0 ? Tokens::clip : Tokens::lineControl);
-    g.drawRoundedRectangle (pill, Tokens::radiusXs, 1.0f);
-    type::draw (g, "CLIP", pill, type::label(), clipFrames > 0 ? Tokens::ground : Tokens::inkMuted, juce::Justification::centred);
+    const auto pill = juce::Rectangle<float> (std::ceil (type::width (type::label(), "LIMIT")) + 10.0f, 16.0f).withCentre (led.getCentre());
+    if (limitFrames > 0)
+    {
+        g.setColour (Tokens::meterHot);
+        g.fillRoundedRectangle (pill, Tokens::radiusXs);
+    }
+    else
+    {
+        g.setColour (Tokens::lineControl);
+        g.drawRoundedRectangle (pill.reduced (0.5f), Tokens::radiusXs - 0.5f, 1.0f);
+    }
+    type::draw (g, "LIMIT", pill, type::label(), limitFrames > 0 ? Tokens::ground : Tokens::inkSubtle, juce::Justification::centred);
 }
 } // namespace sundayorgan::ui

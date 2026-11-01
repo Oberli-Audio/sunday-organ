@@ -7,7 +7,7 @@
     <PARAMETERS>
       <PARAM id="vibratoMode" value="6"/>
       <PARAM id="leslieFast" value="1"/>
-      <PARAM id="drive" value="50"/>
+      <PARAM id="drive" value="48"/>
       <PARAM id="upperBar1" value="8"/>
       <PARAM id="upperBar2" value="8"/>
       <PARAM id="upperBar3" value="8"/>
@@ -17,7 +17,7 @@
       <PARAM id="upperBar7" value="8"/>
       <PARAM id="upperBar8" value="8"/>
       <PARAM id="upperBar9" value="8"/>
-      <PARAM id="outGain" value="-3.7"/>
+      <PARAM id="outGain" value="-3.8"/>
     </PARAMETERS>
     <Extra/>
   </SundayOrganState>

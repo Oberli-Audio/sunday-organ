@@ -2,8 +2,9 @@
 """What Drive does at the top of its range (listening debt 2026-11-01: "Drive 100 % sounds like digital
 clipping"). Three numbers per signal, so the cause is named before the stage is touched:
 
-  - distortion over Drive: the preamp probe against the same render at Drive 0 (best gain fit),
-    residual re signal, full expression
+  - distortion over Drive: the preamp probe at full expression against the same Drive at
+    expression 0.05, where the stage is linear (best gain fit), residual re signal. Not against
+    Drive 0: since v0.8 the speaker lowpass follows Drive, and its phase would count as distortion
   - aliasing: the preamp probe at 48 kHz against the same render at 192 kHz, where the stage's
     aliases fold far above 20 kHz: power the 192 k spectrum lacks (> 6 dB above it), 20 Hz-20 kHz
   - the safety limiter: the full chain's highest sample at Drive 100 %, Leslie fast (it acts from
@@ -37,10 +38,11 @@ def cut(x, fs):
     return y - y.mean()
 
 
-def distortion_db(params, flags, d, ref):
+def distortion_db(params, flags, d):
     y, fs, _ = O.render(dict(params, drive=d), seconds=1.5, solo="preamp", expr="0:1", **flags)
-    y = cut(y, fs)
-    e = y - np.dot(y, ref) / np.dot(ref, ref) * ref
+    r, fs, _ = O.render(dict(params, drive=d), seconds=1.5, solo="preamp", expr="0:0.05", **flags)
+    y, r = cut(y, fs), cut(r, fs)
+    e = y - np.dot(y, r) / np.dot(r, r) * r
     return 10 * np.log10(np.sum(e ** 2) / np.sum(y ** 2))
 
 
@@ -61,9 +63,7 @@ def alias_db(params, flags, d):
 def main():
     print("distortion re signal at Drive " + "/".join(map(str, DRIVES)) + " %, aliasing at 100 %, highest output sample at 100 %")
     for name, (params, flags) in CASES.items():
-        r, fs, _ = O.render(dict(params, drive=0), seconds=1.5, solo="preamp", expr="0:1", **flags)
-        ref = cut(r, fs)
-        dist = " ".join(f"{distortion_db(params, flags, d, ref):6.1f}" for d in DRIVES)
+        dist = " ".join(f"{distortion_db(params, flags, d):6.1f}" for d in DRIVES)
         out, fs, _ = O.render(dict(params, drive=100, leslieOn=1, leslieFast=1), seconds=2.0, expr="0:1", **flags)
         print(f"  {name:13s} {dist} dB | alias {alias_db(params, flags, 100):6.1f} dB | out {20 * np.log10(np.abs(out).max()):6.1f} dBFS")
 

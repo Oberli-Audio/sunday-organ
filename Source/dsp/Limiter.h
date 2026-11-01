@@ -25,6 +25,7 @@ class Limiter
 public:
     static constexpr double kLookaheadSeconds = 0.0015, kReleaseSeconds = 0.15;
     static constexpr double kDetectCeilingDb = -1.7, kClampDb = -1.0;
+    static constexpr double kWorkingDb = -0.1;                     // the editor's LIMIT LED: 0.1 dB of gain reduction
     static constexpr int kTaps = 12, kInterpDelay = 6;
 
     void prepare (double sampleRate)
@@ -36,6 +37,7 @@ public:
         release = 1.0 - std::exp (-1.0 / (kReleaseSeconds * sampleRate));
         ceiling = std::pow (10.0, kDetectCeilingDb / 20.0);
         clamp = std::pow (10.0, kClampDb / 20.0);
+        workingGain = std::pow (10.0, kWorkingDb / 20.0);
         delayL.assign ((size_t) latency + 1, 0.0);
         delayR.assign ((size_t) latency + 1, 0.0);
         dHistory.assign ((size_t) window, 0.0);
@@ -53,9 +55,13 @@ public:
         std::fill (dHistory.begin(), dHistory.end(), 0.0);
         qPrevL = qPrevR = dPrev = sumD = 0.0;
         n = 0; head = tail = 0; delayPos = dPos = 0; resync = 0;
+        worked = false;
     }
 
     int latencySamples() const noexcept { return latency; }
+    /** True if the gain went below -0.1 dB since the last call (audio thread; the processor
+        publishes it to the editor's LIMIT LED). */
+    bool takeWorked() noexcept { const bool w = worked; worked = false; return w; }
 
     inline void tick (double& l, double& r) noexcept
     {
@@ -81,6 +87,7 @@ public:
             for (double v : dHistory) sumD += v;
         }
         const double gain = 1.0 - sumD / (double) window;
+        worked = worked || gain < workingGain;
         // the audio, delayed by the look-ahead
         delayL[(size_t) delayPos] = l;
         delayR[(size_t) delayPos] = r;
@@ -133,7 +140,8 @@ private:
     std::vector<double> delayL, delayR, dHistory, maxValue;
     std::vector<long long> maxIndex;
     double qPrevL = 0.0, qPrevR = 0.0, dPrev = 0.0, sumD = 0.0;
-    double release = 0.0, ceiling = 1.0, clamp = 1.0;
+    double release = 0.0, ceiling = 1.0, clamp = 1.0, workingGain = 1.0;
+    bool worked = false;
     long long n = 0;
     int latency = 0, window = 1, head = 0, tail = 0, delayPos = 0, dPos = 0, resync = 0;
 };

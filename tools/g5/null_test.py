@@ -93,7 +93,7 @@ def main():
         json.dump(rows, open(a.json, "w"), indent=1)
     if a.md:
         with open(a.md, "w") as f:
-            f.write("# G5 null test - plugin vs prototype v0.7\n\n`python3 tools/g5/null_test.py build/SundayOrganHarness_artefacts/Release/SundayOrganHarness --md docs/g5-null-test.md` "
+            f.write("# G5 null test - plugin vs prototype v0.8\n\n`python3 tools/g5/null_test.py build/SundayOrganHarness_artefacts/Release/SundayOrganHarness --md docs/g5-null-test.md` "
                     "(48 kHz, no alignment, whole render; threshold F.8 row 1: peak < %d dBFS). Doppler: `python3 tools/g5/doppler_check.py build/SundayOrganDopplerCheck`.\n\n" % THRESHOLD)
             f.write("| Score | Part | Ref peak dBFS | Residual peak dBFS | Residual re ref peak dB | Residual RMS dBFS | Pass |\n|---|---|---|---|---|---|---|\n")
             for r in rows:

@@ -10,19 +10,20 @@ import organ as O  # noqa: E402
 
 TARGET = -23.0
 REF = dict(notes="48,52,55,60", gate=4.0, seconds=6.0)
-# slug, name, category, edge, upper, lower, settings (plain units), notes
+# slug, name, category, edge, upper, lower, settings (plain units), notes. Drive: voiced by
+# tools/presets/voice_drive.py (2026-11-01: each preset's character as a distortion level)
 BANK = [
     ("init", "Init", "Worship", "N", None, None, {}, "the parameter table's defaults"),
-    ("jazz-trio", "Jazz Trio", "Jazz", "N", "888000000", None, dict(percOn=1, percThird=1, vibratoMode=6, drive=15), "third percussion, C3, light drive"),
-    ("smoky-club", "Smoky Club", "Jazz", "N", "838000000", None, dict(percOn=1, percSoft=1, vibratoMode=6, drive=28, leakage=45), "second percussion soft, C3, worn"),
+    ("jazz-trio", "Jazz Trio", "Jazz", "N", "888000000", None, dict(percOn=1, percThird=1, vibratoMode=6, drive=30), "third percussion, C3, light drive"),
+    ("smoky-club", "Smoky Club", "Jazz", "N", "838000000", None, dict(percOn=1, percSoft=1, vibratoMode=6, drive=37, leakage=45), "second percussion soft, C3, worn"),
     ("bebop-lines", "Bebop Lines", "Jazz", "N", "888000000", None, dict(percOn=1, percThird=1, vibratoMode=0, keyClick=70), "dry, fast third percussion, sharp click"),
-    ("gospel-full", "Gospel Full", "Gospel", "Y", "888888888", None, dict(vibratoMode=6, leslieFast=1, drive=50), "every drawbar out, C3, Leslie fast (loudest)"),
-    ("shout-chorus", "Shout Chorus", "Gospel", "N", "888800000", None, dict(vibratoMode=6, leslieFast=1, drive=40, keyClick=60), "888800000, C3, fast"),
-    ("sunday-morning", "Sunday Morning", "Gospel", "N", "888000000", "008080000", dict(percOn=1, percThird=1, vibratoMode=6, drive=30), "third percussion, C3, warm drive"),
+    ("gospel-full", "Gospel Full", "Gospel", "Y", "888888888", None, dict(vibratoMode=6, leslieFast=1, drive=48), "every drawbar out, C3, Leslie fast (loudest)"),
+    ("shout-chorus", "Shout Chorus", "Gospel", "N", "888800000", None, dict(vibratoMode=6, leslieFast=1, drive=52, keyClick=60), "888800000, C3, fast"),
+    ("sunday-morning", "Sunday Morning", "Gospel", "N", "888000000", "008080000", dict(percOn=1, percThird=1, vibratoMode=6, drive=42), "third percussion, C3, warm drive"),
     ("sanctuary", "Sanctuary", "Worship", "Y", "886000000", None, dict(vibratoMode=5, micSpread=180, drive=5, keyClick=15), "C2, mics opposite (widest)"),
     ("swell-pad", "Swell Pad", "Worship", "N", "008400000", None, dict(vibratoMode=6, drive=0, keyClick=10), "soft flutes, C3, for swells on CC11"),
     ("quiet-prayer", "Quiet Prayer", "Worship", "N", "008500000", "006000000", dict(vibratoMode=4, drive=0, keyClick=5, micSpread=150), "very soft flutes, C1"),
-    ("rock-drive", "Rock Drive", "Rock", "Y", "888000000", None, dict(vibratoMode=3, leslieFast=1, drive=85), "V3, fast, heavy drive (most drive)"),
+    ("rock-drive", "Rock Drive", "Rock", "Y", "888000000", None, dict(vibratoMode=3, leslieFast=1, drive=87), "V3, fast, heavy drive (most drive)"),
     ("power-chords", "Power Chords", "Rock", "N", "888800000", None, dict(vibratoMode=0, drive=70, keyClick=80), "dry, slow, driven"),
     ("ballad", "Ballad", "Ballad", "Y", "008000000", None, dict(vibratoMode=6, drive=0, keyClick=20), "8' alone, C3, clean (darkest)"),
     ("warm-ballad", "Warm Ballad", "Ballad", "N", "808000000", None, dict(vibratoMode=5, drive=8, keyClick=25), "16' and 8', C2"),

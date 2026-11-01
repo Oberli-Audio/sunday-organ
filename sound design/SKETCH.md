@@ -1,8 +1,10 @@
-# Sunday Organ prototype - Tier S sketch v0.2, Tier P G2 v0.4 (2026-10-31), v0.7 (2026-11-01)
+# Sunday Organ prototype - Tier S sketch v0.2, Tier P G2 v0.4 (2026-10-31), v0.7 and v0.8 (2026-11-01)
 
 **v0.4 (Tier P G2):** wheels as exact quadrature oscillators (the 64k truncated table of `os.oscp` set the old -99.9 dB alias floor), per-wheel level taper (1.0 dB/oct above C4 wheel), expression CC11 before the preamp (gain e^2), lower manual on channel 2 (`lkey n`), pedals on channel 3 (`pedal n`), channel-1 split key and pedal split (decided at key-down), sustain per channel. Evidence `evidence-v0.4.txt`. **Reconstruction:** `dsp/scanner.lib` and `dsp/leslie.lib` were never committed (`*.lib` in .gitignore, failures.md F-1) and were rebuilt from the compiled v0.3; the rebuilt v0.3 nulled against the old binary at -140 to -172 dB re signal.
 
 **v0.7 (G2 reopened, 2026-11-01, failures.md F-12):** after Björn's first play (chords distorted): the preamp's input at Drive 0 scaled by s = 0.035 so the fullest chord stays clean (gain s (12/s)^drive, Drive 100 % unchanged), its makeup a quartic in drive holding the reference chord (Init -23 LUFS); the safety limiter after the Leslie (4x true peak, -1 dBTP, 1.5 ms look-ahead). Brief amendments 2026-11-01; design numbers from `tools/measure/preamp_prestudy.py`.
+
+**v0.8 (2026-11-01, late evening):** Björn heard Drive 100 % as digital clipping and asked for "a lowpass after the drive that follows the Drive setting": the preamp ends in a speaker roll-off, LR4 whose cutoff goes from a wire at Drive 0 (200 kHz, analog domain, no prewarping, so never at Nyquist) to 6 kHz at Drive 100 %, exponential in Drive. Measured on the port (`tools/measure/drive_character.py`): the growl below 3 kHz unchanged, the fizz above 5 kHz 6-36 dB lower on big chords. Evidence: `evidence-v0.8.txt` (unchanged from v0.7 where Drive is below 75 %).
 
 Run all: `python3 scores/make_scores.py && python3 scores/render_all.py && python3 harness/evidence.py ../scripts/dsp-kit` (faust needs `-t 0`: about 3.5 min on the Linux box, 10 s on the M3 Pro; g++ 20 s to 1.5 min).
 

@@ -269,7 +269,7 @@ public:
     {
         horn.set (processor.hornAngleTurns(), processor.hornSpeedRpm(), processor.parameters().getRawParameterValue (Params::leslieBrake)->load() >= 0.5f ? 0.0f : (processor.leslieFastNow() ? 400.0f : 50.0f));
         drum.set (processor.drumAngleTurns(), processor.drumSpeedRpm(), processor.parameters().getRawParameterValue (Params::leslieBrake)->load() >= 0.5f ? 0.0f : (processor.leslieFastNow() ? 340.0f : 40.0f));
-        meter.set (processor.outputLevel (0), processor.outputLevel (1), processor.takeClip());
+        meter.set (processor.outputLevel (0), processor.outputLevel (1), processor.takeLimiting());
         modWheel.follow (processor.modWheelNow());
         const auto& bank = sundayorgan::Presets::factory();
         const bool m = juce::isPositiveAndBelow (processor.currentPreset, (int) bank.size())

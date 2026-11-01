@@ -8,7 +8,7 @@
       <PARAM id="percOn" value="1"/>
       <PARAM id="percThird" value="1"/>
       <PARAM id="vibratoMode" value="6"/>
-      <PARAM id="drive" value="15"/>
+      <PARAM id="drive" value="30"/>
       <PARAM id="upperBar1" value="8"/>
       <PARAM id="upperBar2" value="8"/>
       <PARAM id="upperBar3" value="8"/>

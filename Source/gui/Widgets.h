@@ -112,15 +112,16 @@ private:
 };
 
 /** The output meter: 20 ms RMS per channel in its own well (meter-level, meter-hot above -6 dBFS)
-    and a CLIP LED with the word, lit 1 s after a sample reached full scale. */
+    and a LIMIT LED with the word (design system, Meter): the safety limiter holds -1 dBTP, so
+    nothing can clip; lit in meter-hot while the limiter works and 1 s after, nothing to click. */
 class OutputMeter final : public juce::Component
 {
 public:
-    void set (float rmsL, float rmsR, bool clipNow);
+    void set (float rmsL, float rmsR, bool limitingNow);
     void paint (juce::Graphics&) override;
 
 private:
     float level[2] {};
-    int clipFrames = 0;
+    int limitFrames = 0;
 };
 } // namespace sundayorgan::ui

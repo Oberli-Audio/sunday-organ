@@ -8,7 +8,7 @@
 #include "gui/Widgets.h"
 
 /*  Sunday Organ - the editor (plugin-ui-bob, Tier P), from the Oberli Audio design system
-    (tokens.json read 2026-10-31: Charcoal, coral, Rubik, label 11 px, line-control #716B62) and
+    (tokens.json read 2026-11-01: Charcoal, tangerine since round 14, Rubik, label 11 px, line-control #716B62) and
     brand round 13: two rows - what the instrument is made of (WHEELS with MOD and SWELL, UPPER,
     LOWER, PEDALS, KEYBOARD) and what the player changes (PERCUSSION, VIBRATO, LESLIE, VOICE) -
     and the OUTPUT column spanning both on the right. Drawbars are upright sliders with nine
