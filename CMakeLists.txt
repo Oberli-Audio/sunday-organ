@@ -191,11 +191,24 @@ if (PRODUCT_RELEASE_SYMBOLS)
                     target_link_options(SundayOrgan_${format} PRIVATE
                         "$<$<CONFIG:Release>:SHELL:-Xarch_${arch} -Wl,-object_path_lto,${CMAKE_CURRENT_BINARY_DIR}/lto-${format}-${arch}.o>")
                 endforeach()
+                # what CMake copies into the bundle (MACOSX_PACKAGE_LOCATION, the Standalone's nib) can
+                # land after POST_BUILD in a fresh build and break the seal: copy it here first (F-11)
+                set(bundle_copies "")
+                get_target_property(bundle_sources SundayOrgan_${format} SOURCES)
+                foreach(src IN LISTS bundle_sources)
+                    get_source_file_property(loc "${src}" MACOSX_PACKAGE_LOCATION)
+                    if (loc)
+                        list(APPEND bundle_copies
+                            COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:SundayOrgan_${format}>/${loc}"
+                            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${src}" "$<TARGET_BUNDLE_CONTENT_DIR:SundayOrgan_${format}>/${loc}/")
+                    endif()
+                endforeach()
                 # strip runs after JUCE's ad-hoc signature and breaks it; macOS will not load a
                 # broken signature (on Apple Silicon and under Rosetta), so sign ad hoc again last
                 add_custom_command(TARGET SundayOrgan_${format} POST_BUILD
                     COMMAND dsymutil "$<TARGET_FILE:SundayOrgan_${format}>" -o "$<TARGET_BUNDLE_DIR:SundayOrgan_${format}>.dSYM"
                     COMMAND strip -x "$<TARGET_FILE:SundayOrgan_${format}>"
+                    ${bundle_copies}
                     COMMAND codesign --force --sign - "$<TARGET_BUNDLE_DIR:SundayOrgan_${format}>"
                     COMMENT "dSYM, strip and ad-hoc signature: ${format}"
                     VERBATIM)

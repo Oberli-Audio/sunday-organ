@@ -140,7 +140,7 @@ class Health(Timed):
             out = Path(d) / "tail.wav"
             res = run(seconds=6.0, gate=1.0, out=out)
             x, fs = K.read_wav(out)
-            after = x[int((1.0 + res["applied"]["tail_seconds"]) * fs):]
+            after = x[round((1.0 + res["applied"]["tail_seconds"]) * fs):]   # round: the echo has 15 digits, int() can land one sample early
             self.assertLess(K.peak_dbfs(after) if after.size else -400.0, -90.0)
 
 

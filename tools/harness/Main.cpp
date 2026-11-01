@@ -324,7 +324,7 @@ struct Signal
         {
             const juce::int64 at = startSample + i;
             float v = 0.0f;
-            if (kind == "impulse")       v = at == 0 ? 1.0f : 0.0f;
+            if (kind == "impulse")       v = at == 0 ? 0.5f : 0.0f;   // -6 dBFS, as the contract: a unity effect stays below full scale
             else if (kind == "sine")     { v = gain * (float) std::sin (phase); phase += juce::MathConstants<double>::twoPi * hz / rate; if (phase > juce::MathConstants<double>::twoPi) phase -= juce::MathConstants<double>::twoPi; }
             else if (kind == "logsweep")
             {
