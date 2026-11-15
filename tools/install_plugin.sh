@@ -2,7 +2,8 @@
 # Build the Release VST3 and install it for this user on macOS (no admin password, safe unattended):
 #   tools/install_plugin.sh            build with the release preset, verify the signature, install
 #   tools/install_plugin.sh --no-build install what build/ holds
-# Then rescan in the host (Ableton Live: Preferences, Plug-Ins, Rescan). The release preset builds
+# Then quit and reopen the host: a host keeps a plugin it has loaded until it quits, and a rescan
+# does not reload it (Ableton Live included). The release preset builds
 # the universal binary, so Live 10.1 under Rosetta (x86_64) loads the same bundle.
 set -eu
 cd "$(dirname "$0")/.."
@@ -21,4 +22,4 @@ mkdir -p "$dest"
 rm -rf "$dest/$(basename "$bundle")"
 cp -R "$bundle" "$dest/"
 echo "installed: $dest/$(basename "$bundle")"
-echo "now rescan in the host (Ableton Live: Preferences, Plug-Ins, Rescan)"
+echo "now quit and reopen the host (Ableton Live keeps a loaded plugin until it quits; a rescan does not reload it)"

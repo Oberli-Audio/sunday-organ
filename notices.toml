@@ -26,3 +26,14 @@ url = "https://github.com/steinbergmedia/vst3sdk"
 license_file = "LICENSES/MIT.txt"
 note = "The copy bundled inside JUCE 8.0.16. VST is a registered trademark of Steinberg Media Technologies GmbH."
 cmake = "vst3sdk"
+
+[[component]]
+name = "Rubik"
+kind = "font"
+version = "2.300"
+spdx = "OFL-1.1"
+copyright = "The Rubik Project Authors (designed by Hubert and Fischer)"
+url = "https://github.com/googlefonts/rubik"
+license_file = "LICENSES/OFL-1.1.txt"
+files = ["Rubik-Regular.ttf", "Rubik-Medium.ttf", "Rubik-SemiBold.ttf", "Rubik-Bold.ttf", "Rubik-ExtraBold.ttf"]
+note = "The editor's typeface, the static instances Google Fonts serves, unmodified and compiled into the plugin (no Reserved Font Name is declared)."

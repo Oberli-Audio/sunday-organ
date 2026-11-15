@@ -33,7 +33,7 @@ import dspkit as K  # noqa: E402
 PARAMS = {"gain": {"default": 0.75, "steps": 0, "automatable": True},
           "tone": {"default": 0.5, "steps": 0, "automatable": True},
           "mode": {"default": 0.0, "steps": 3, "automatable": True}}
-PRESETS = [{"slug": "init", "name": "Init", "category": "Bed", "params": {"gain": 0.75, "tone": 0.5, "mode": 0.0}},
+PRESETS = [{"slug": "init", "name": "Clean Slate", "category": "Bed", "params": {"gain": 0.75, "tone": 0.5, "mode": 0.0}},
            {"slug": "warm", "name": "Warm Bed", "category": "Bed", "params": {"gain": 0.5, "tone": 0.3, "mode": 0.0}},
            {"slug": "edge", "name": "Edge of Light", "category": "Bright", "params": {"gain": 0.875, "tone": 0.9, "mode": 2.0}}]
 if os.environ.get("FAKE_INIT_OFF"):

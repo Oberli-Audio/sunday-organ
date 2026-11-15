@@ -129,6 +129,10 @@ def check(repo, manifest=None, quiet=False):
                 text_l = p.read_text(encoding="utf-8", errors="replace").lower()
                 if markers and not any(m.lower() in text_l for m in markers):
                     errs.append("%s: %s does not look like the %s text (expected one of %r in it)" % (n, lf, spdx, markers))
+                # a font's licence text carries that font's copyright line (OFL: the statement travels with it)
+                header = text_l.split("this font software is licensed", 1)[0]   # the copyright lines above the OFL text
+                if c.get("kind") == "font" and not re.search(r"\b%s\b" % re.escape(n.lower()), header):
+                    errs.append("%s: %s does not name %s; its copyright line must be the bundled font's (the font's name table, id 0)" % (n, lf, n))
         elif spdx.startswith("LicenseRef-"):
             if not c.get("note"):
                 errs.append("%s: a LicenseRef licence needs a note saying under what terms it is used" % n)
@@ -253,6 +257,7 @@ def selftest():
         toml = lambda r: (r / "notices.toml")
         planted("FetchContent without entry", lambda r: (r / "CMakeLists.txt").write_text((r / "CMakeLists.txt").read_text() + "\nFetchContent_Declare(chowdsp_wdf GIT_REPOSITORY x GIT_TAG y)\n"), "chowdsp_wdf")
         planted("font without entry", lambda r: (r / "CMakeLists.txt").write_text((r / "CMakeLists.txt").read_text().replace("Inter-Regular.ttf", "Inter-Regular.ttf fonts/Inter-Bold.ttf")), "Inter-Bold.ttf")
+        planted("font licence names another font", lambda r: (r / "LICENSES/OFL-1.1.txt").write_text(re.sub(r"(?i)inter", "Rubik", (r / "LICENSES/OFL-1.1.txt").read_text())), "does not name Inter")
         planted("GPL rejected", lambda r: toml(r).write_text(toml(r).read_text() + '\n[[component]]\nname = "zita"\nkind = "faust"\nspdx = "GPL-2.0-or-later"\ncopyright = "x"\nnote = "x"\n'), "copyleft")
         # an OR expression with a permissive alternative passes (JUCE's ASIO: LicenseRef-Steinberg-ASIO OR GPL-3.0)
         with tempfile.TemporaryDirectory() as d4:

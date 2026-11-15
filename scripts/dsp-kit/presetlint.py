@@ -18,7 +18,8 @@ render  per preset through the harness: Init equals the parameter table's defaul
         preset list for docs/presets.md and a JSON report.
 
 presets.csv columns: slug,name,category,tags,edge,author,notes
-  slug      ^[a-z0-9-]+$, unique, the file name (rule 10); exactly one row 'init'
+  slug      ^[a-z0-9-]+$, unique, the file name (rule 10); exactly one row 'init', first: the defaults' preset,
+            named for its use ("Clean Slate"), never "Init"
   name      display name, 24 characters or fewer, no trailing period, unique case-insensitively
   category  one of the brief's fixed list (CATEGORIES below, override with --categories)
   tags      3-6 from a fixed vocabulary, '|'-separated (Tier F; may be empty at P)
@@ -52,7 +53,7 @@ SLUG_RE = re.compile(r"^[a-z0-9-]+$")
 COLUMNS = ["slug", "name", "category", "tags", "edge", "author", "notes"]
 
 SAMPLE_CSV = """slug,name,category,tags,edge,author,notes
-init,Init,Bed,,N,Oberli Audio,the parameter table's defaults
+init,Clean Slate,Bed,,N,Oberli Audio,the parameter table's defaults
 warm,Warm Bed,Bed,soft|wide|slow,N,Oberli Audio,
 edge,Edge of Light,Bright,bright|wide|airy,Y,Oberli Audio,widest and brightest; translation battery
 """
@@ -116,10 +117,12 @@ def check_bank(rows, tier="P", track="instrument", categories=None, listing=None
         errs.append("exactly one 'init' row is required (Init = the table defaults)")
     elif slugs[0] != "init":
         errs.append("'init' must be the first row (first in the list, F.14.3)")
+    if any(r["slug"] == "init" and r["name"].strip().lower() == "init" for r in rows):
+        errs.append("init: the defaults' preset is named for its use (\"Clean Slate\"), never \"Init\" (F.14.3)")
     lo, hi = BANK_SIZE[(tier, track)]
     n_real = len([r for r in rows if r["slug"] != "init"])
     if tier != "S" and not lo <= n_real <= hi:
-        errs.append("%d presets besides Init; Tier %s %s asks for %d-%d" % (n_real, tier, track, lo, hi))
+        errs.append("%d presets besides the defaults' preset; Tier %s %s asks for %d-%d" % (n_real, tier, track, lo, hi))
     edges = [r for r in rows if r["edge"] == "Y"]
     if tier != "S" and not 1 <= len(edges) <= 4:
         errs.append("%d edge presets; mark 3-4 (widest, darkest, most reverb, loudest bass) for the translation battery" % len(edges))
@@ -362,7 +365,9 @@ def selftest():
         expect("name length and period", sum(("characters" in e) + ("period" in e) for e in check_bank(bad, "S")) == 2)
         bad = read_bank(SAMPLE_CSV.replace("edge,Edge of Light,Bright", "edge,Edge of Light,Lush"))
         expect("category list", any("not in" in e for e in check_bank(bad, "S")))
-        bad = read_bank(SAMPLE_CSV.replace("init,Init", "warm2,Init"))
+        bad = read_bank(SAMPLE_CSV.replace("init,Clean Slate", "init,Init"))
+        expect("never named Init", any("never \"Init\"" in e for e in check_bank(bad, "S")))
+        bad = read_bank(SAMPLE_CSV.replace("init,Clean Slate", "warm2,Clean Slate"))
         expect("one init", any("exactly one 'init'" in e for e in check_bank(bad, "S")))
         with env(FAKE_SLUG_DUP=1):
             expect("harness listing diff", any("--list-presets differs" in e for e in check_bank(rows, "S", listing=K.list_presets(harness))))
