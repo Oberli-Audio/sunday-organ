@@ -130,7 +130,16 @@ set(PRODUCT_SOURCES
     Source/gui/OberliLookAndFeel.cpp
     Source/gui/OberliLookAndFeel.h
     Source/gui/Widgets.cpp
-    Source/gui/Widgets.h)
+    Source/gui/Widgets.h
+    Source/gui/Snowfall.cpp
+    Source/gui/Snowfall.h
+    Source/gui/SnowOverlay.h)
+# the snow's own layer: macOS (CoreAnimation, F-21); elsewhere the editor draws it
+if (APPLE)
+    list(APPEND PRODUCT_SOURCES Source/gui/SnowOverlay_mac.mm)
+else()
+    list(APPEND PRODUCT_SOURCES Source/gui/SnowOverlay_other.cpp)
+endif()
 
 # The editor's type and marks (the Oberli Audio design system): Rubik's five static weights as
 # Google Fonts serves them, unmodified (SIL OFL 1.1, LICENSES/OFL-1.1.txt), the Logo group's SVGs;
@@ -295,6 +304,17 @@ target_compile_definitions(SundayOrganGuiSnapshot PRIVATE
 target_link_libraries(SundayOrganGuiSnapshot PRIVATE SundayOrganUiData SundayOrganPresetData
     juce::juce_audio_utils juce::juce_dsp juce::juce_recommended_config_flags)
 
+# The user preset flow and the session's preset recall (tools/preset_tests): no host, no editor,
+# a temporary preset root. Registered in CTest (fast) without python.
+juce_add_console_app(SundayOrganPresetTests PRODUCT_NAME "SundayOrganPresetTests")
+target_sources(SundayOrganPresetTests PRIVATE tools/preset_tests/Main.cpp ${PRODUCT_SOURCES})
+target_include_directories(SundayOrganPresetTests PRIVATE Source "${CMAKE_CURRENT_BINARY_DIR}/generated")
+target_compile_definitions(SundayOrganPresetTests PRIVATE
+    JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1 PRODUCT_IS_INSTRUMENT=1
+    JucePlugin_Name="$<TARGET_PROPERTY:SundayOrgan,JUCE_PLUGIN_NAME>" JucePlugin_VersionString="${PROJECT_VERSION}")
+target_link_libraries(SundayOrganPresetTests PRIVATE SundayOrganUiData SundayOrganPresetData
+    juce::juce_audio_utils juce::juce_dsp juce::juce_recommended_config_flags)
+
 # G5: the Doppler render of the plugin's own horn path (tools/g5/doppler_check.py reads it).
 add_executable(SundayOrganDopplerCheck tools/g5/DopplerCheck.cpp)
 target_compile_features(SundayOrganDopplerCheck PRIVATE cxx_std_17)
@@ -345,10 +365,15 @@ if (Python3_FOUND)
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
             set_tests_properties(release_bundles PROPERTIES LABELS fast)
         endif()
+        add_test(NAME editor_snow_cost
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/tests/check_snow_cost.py" "$<TARGET_FILE:SundayOrganGuiSnapshot>")
+        set_tests_properties(editor_snow_cost PROPERTIES LABELS fast)
+        add_test(NAME preset_user_flow COMMAND "$<TARGET_FILE:SundayOrganPresetTests>")
+        set_tests_properties(preset_user_flow PROPERTIES LABELS fast)
         add_test(NAME preset_bank
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/dsp-kit/presetlint.py" bank
                          "${CMAKE_CURRENT_SOURCE_DIR}/presets.csv" --tier P --track ${PRODUCT_KIND}
-                         --categories Jazz,Gospel,Worship,Rock,Ballad,Split --harness "$<TARGET_FILE:SundayOrganHarness>"
+                         --categories "Jazz,Gospel,Worship,Rock,Ballad,Split,Jingle Jam" --harness "$<TARGET_FILE:SundayOrganHarness>"
                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         set_tests_properties(preset_bank PROPERTIES ENVIRONMENT "${HARNESS_ENV}" LABELS "fast;lint")
     else()

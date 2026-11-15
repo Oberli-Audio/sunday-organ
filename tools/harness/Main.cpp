@@ -288,7 +288,13 @@ bool loadPreset (juce::AudioProcessorValueTreeState& apvts, const juce::String& 
     if (xml == nullptr)
         return false;
     auto* state = sundayorgan::State::stateOf (*xml);
-    return state != nullptr && sundayorgan::State::fromXml (*state, apvts);
+    if (state == nullptr || ! sundayorgan::State::fromXml (*state, apvts))
+        return false;
+    // the preset's name goes into --state-out as the editor's load writes it
+    if (auto* organ = dynamic_cast<SundayOrganAudioProcessor*> (&apvts.processor))
+        organ->setCurrentPreset ({ xml->getStringAttribute ("name"), xml->getStringAttribute ("category"), "factory:" + slug,
+                                   std::shared_ptr<const juce::XmlElement> (xml.release()) });
+    return true;
 }
 
 //------------------------------------------------------------------------------ signals

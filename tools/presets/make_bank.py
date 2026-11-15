@@ -13,7 +13,7 @@ REF = dict(notes="48,52,55,60", gate=4.0, seconds=6.0)
 # slug, name, category, edge, upper, lower, settings (plain units), notes. Drive: voiced by
 # tools/presets/voice_drive.py (2026-11-01: each preset's character as a distortion level)
 BANK = [
-    ("init", "Init", "Worship", "N", None, None, {}, "the parameter table's defaults"),
+    ("init", "Clean Slate", "Worship", "N", None, None, {}, "the parameter table's defaults"),
     ("jazz-trio", "Jazz Trio", "Jazz", "N", "888000000", None, dict(percOn=1, percThird=1, vibratoMode=6, drive=30), "third percussion, C3, light drive"),
     ("smoky-club", "Smoky Club", "Jazz", "N", "838000000", None, dict(percOn=1, percSoft=1, vibratoMode=6, drive=37, leakage=45), "second percussion soft, C3, worn"),
     ("bebop-lines", "Bebop Lines", "Jazz", "N", "888000000", None, dict(percOn=1, percThird=1, vibratoMode=0, keyClick=70), "dry, fast third percussion, sharp click"),
@@ -29,6 +29,13 @@ BANK = [
     ("warm-ballad", "Warm Ballad", "Ballad", "N", "808000000", None, dict(vibratoMode=5, drive=8, keyClick=25), "16' and 8', C2"),
     ("split-comping", "Split Comping", "Split", "N", "888000000", "008080000", dict(splitKey=60, percOn=1, percThird=1, vibratoMode=6), "split at C4: lower comping, upper lead with percussion"),
     ("bass-split", "Bass Split", "Split", "N", "888000000", None, dict(pedalSplit=48, pedalBar16=8, pedalBar8=4, percOn=1, vibratoMode=6, drive=20), "C2-B2 play the pedals, the rest the upper manual"),
+    # Jingle Jam (Björn 2026-11-15: a Christmas section for the jam - a soft ballad, Christmas swing, a gospel
+    # shout and a carol pad for "Stille Nacht"; Sleigh Bells kept as the fifth; the editor snows on them)
+    ("snowfall-ballad", "Snowfall Ballad", "Jingle Jam", "N", "008600000", None, dict(vibratoMode=5, drive=5, keyClick=15), "8' and 4' with the Leslie slow, C2: the soft ballad"),
+    ("christmas-swing", "Christmas Swing", "Jingle Jam", "N", "888000000", None, dict(percOn=1, vibratoMode=6, drive=36, keyClick=65), "888000000 with fast second percussion, C3, worn drive: swing"),
+    ("hallelujah-shout", "Hallelujah Shout", "Jingle Jam", "N", "888888888", None, dict(vibratoMode=6, leslieFast=1, drive=61, keyClick=70), "every drawbar out, Leslie fast, driven: the gospel shout"),
+    ("silent-night", "Silent Night", "Jingle Jam", "N", "006420000", "004000000", dict(leslieOn=0, vibratoMode=2, drive=0, keyClick=5, leakage=10, pedalBar16=4, pedalBar8=2), "soft flutes through vibrato V2, Leslie off: the carol pad"),
+    ("sleigh-bells", "Sleigh Bells", "Jingle Jam", "N", "008060800", None, dict(percOn=1, percThird=1, leslieFast=1, vibratoMode=0, drive=0, keyClick=70), "8', 2 2/3' and the tierce with fast third percussion, Leslie fast: chimes"),
 ]
 
 

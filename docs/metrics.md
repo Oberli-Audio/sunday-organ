@@ -15,4 +15,4 @@ Every quality target of `docs/brief.md`, measured on the plugin's harness: `pyth
 | chord_thd_db | < -60 dB at Drive 0, fullest chord | -63.81 | yes | preamp probe, Drive 0, expression 1 vs 0.5, 0.4-1.4 s: residual re signal |
 | drive_level_lu | reference chord < 1 LU over Drive | 0.13 | yes | C3-E3-G3-C4, 888000000, Leslie off, Drive 0/25/50/75/100 %: -22.10 -22.10 -22.16 -22.16 -22.04 LUFS |
 | true_peak_dbtp | <= -1 dBTP at the output | -1.70 | yes | fullest chord, Leslie fast, Output +12 dB, Drive 0 / 100 %: -1.70 / -3.10 dBTP (dspkit 4x) |
-| loudness_lufs | presets -23 LUFS +/-1 LU | 0.04 | yes | presetlint.py render presets.csv --tier P on C3-E3-G3-C4, 4 s hold: 16 presets, -23.04 to -22.96 LUFS; value = worst distance from -23 LU |
+| loudness_lufs | presets -23 LUFS +/-1 LU | 0.04 | yes | presetlint.py render presets.csv --tier P on C3-E3-G3-C4, 4 s hold: 21 presets, -23.04 to -22.96 LUFS; value = worst distance from -23 LU |

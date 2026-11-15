@@ -31,6 +31,8 @@ VOICE = {
     "shout-chorus": "grit",        # the gospel shout
     "power-chords": "driven",      # "driven"
     "rock-drive": "heavy",         # "heavy drive (most drive)"
+    "christmas-swing": "worn",     # "worn drive"
+    "hallelujah-shout": "driven",  # "driven"
 }
 
 

@@ -185,7 +185,7 @@ def loudness():
         rep = os.path.join(d, "presets.json")
         subprocess.run([sys.executable, str(ROOT / "scripts/dsp-kit/presetlint.py"), "render", str(ROOT / "presets.csv"), str(ROOT / "parameters.csv"),
                         "--tier", "P", "--harness", O.HARNESS, "--notes", "48,52,55,60", "--seconds", "6", "--gate", "4",
-                        "--categories", "Jazz,Gospel,Worship,Rock,Ballad,Split", "--json", rep], capture_output=True, text=True)
+                        "--categories", "Jazz,Gospel,Worship,Rock,Ballad,Split,Jingle Jam", "--json", rep], capture_output=True, text=True)
         r = json.load(open(rep))
     lufs = {k: v["lufs"] if isinstance(v, dict) else v for k, v in (r.get("loudness", {}).get("presets") or r.get("presets", {})).items()} if isinstance(r, dict) else {}
     vals = [v for v in lufs.values() if isinstance(v, (int, float))]

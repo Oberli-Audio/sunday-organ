@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Presets.h"
 #include "State.h"
 
 #include <cmath>
@@ -29,6 +30,9 @@ SundayOrganAudioProcessor::SundayOrganAudioProcessor()
         raw[(size_t) i] = apvts.getRawParameterValue (ids[i]);
         jassert (raw[(size_t) i] != nullptr);   // the table and the code disagree: parameters.csv is the source
     }
+    // a fresh instance plays the parameter table's defaults: the bank's first preset (Init's role)
+    if (const auto& bank = sundayorgan::Presets::factory(); ! bank.empty())
+        preset = { bank[0].name, bank[0].category, "factory:" + bank[0].slug, std::make_shared<juce::XmlElement> (*bank[0].doc) };
 }
 
 sundayorgan::dsp::Organ::Settings SundayOrganAudioProcessor::readSettings() noexcept
@@ -184,9 +188,28 @@ juce::AudioProcessorEditor* SundayOrganAudioProcessor::createEditor()
     return new SundayOrganAudioProcessorEditor (*this);
 }
 
+SundayOrganAudioProcessor::PresetRef SundayOrganAudioProcessor::currentPreset() const
+{
+    const juce::ScopedLock lock (presetLock);
+    return preset;
+}
+
+void SundayOrganAudioProcessor::setCurrentPreset (PresetRef ref)
+{
+    const juce::ScopedLock lock (presetLock);
+    preset = std::move (ref);
+}
+
 void SundayOrganAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    copyXmlToBinary (*sundayorgan::State::toXml (apvts), destData);
+    auto xml = sundayorgan::State::toXml (apvts);
+    if (const auto ref = currentPreset(); ref.name.isNotEmpty())
+        if (auto* extra = xml->getChildByName ("Extra"))
+        {
+            extra->setAttribute ("preset", ref.name);
+            extra->setAttribute ("presetSource", ref.source);
+        }
+    copyXmlToBinary (*xml, destData);
 }
 
 void SundayOrganAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -203,7 +226,37 @@ bool SundayOrganAudioProcessor::loadState (const void* data, int sizeInBytes)
     if (xml == nullptr)
         return false;
     auto* state = sundayorgan::State::stateOf (*xml);
-    return state != nullptr && sundayorgan::State::fromXml (*state, apvts);
+    if (state == nullptr || ! sundayorgan::State::fromXml (*state, apvts))
+        return false;
+    // the preset the session was saved with; its document again when it is still there
+    PresetRef ref;
+    if (auto* extra = state->getChildByName ("Extra"))
+    {
+        ref.name = extra->getStringAttribute ("preset");
+        ref.source = extra->getStringAttribute ("presetSource");
+    }
+    if (ref.source.startsWith ("factory:"))
+    {
+        const int i = sundayorgan::Presets::findFactory (ref.source.fromFirstOccurrenceOf (":", false, false));
+        if (i >= 0)
+        {
+            const auto& e = sundayorgan::Presets::factory()[(size_t) i];
+            ref.category = e.category;
+            ref.doc = std::make_shared<juce::XmlElement> (*e.doc);
+        }
+    }
+    else if (ref.source.startsWith ("user:"))
+    {
+        juce::String error;
+        const auto file = sundayorgan::Presets::userFolder().getChildFile (ref.source.fromFirstOccurrenceOf (":", false, false));
+        if (auto doc = sundayorgan::Presets::read (file, error))
+        {
+            ref.category = "User";
+            ref.doc = std::shared_ptr<const juce::XmlElement> (doc.release());
+        }
+    }
+    setCurrentPreset (std::move (ref));
+    return true;
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

@@ -86,14 +86,26 @@ public:
     /** True once after the safety limiter took 0.1 dB or more (the editor's LIMIT LED reads and
         clears it; the limiter holds -1 dBTP, so the output cannot clip and there is no CLIP LED). */
     bool takeLimiting() noexcept { return limiting.exchange (false); }
-    /** The factory preset loaded last (message thread; the editor's pill and drawer). */
-    int currentPreset = 0;
+    /** The preset loaded last: its name, where it came from ("factory:<slug>", "user:<file name>", or
+        empty for a sound with no name) and its document, which the editor compares the live values
+        with for the modified mark. Saved with the session (State <Extra preset=... presetSource=...>),
+        so a reopened project shows the name it was saved with (plugin-ui-bob audio-plugins.md 8).
+        Message thread, and setStateInformation's thread: guarded by a lock, never the audio thread. */
+    struct PresetRef
+    {
+        juce::String name, category, source;
+        std::shared_ptr<const juce::XmlElement> doc;
+    };
+    PresetRef currentPreset() const;
+    void setCurrentPreset (PresetRef);
 
     /** What the editor may read from the audio thread: the 20 ms RMS per channel (D.6.2). */
     float outputLevel (int channel) const noexcept { return channel == 0 ? rmsL.load (std::memory_order_relaxed) : rmsR.load (std::memory_order_relaxed); }
 
 private:
     juce::AudioProcessorValueTreeState apvts;
+    juce::CriticalSection presetLock;
+    PresetRef preset;
 
     // cached parameter pointers (never string lookups on the audio thread)
     std::array<std::atomic<float>*, 38> raw {};

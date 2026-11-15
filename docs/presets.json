@@ -1,277 +1,334 @@
 {
  "tier": "P",
- "notes": "48,52,55,60",
+ "notes": "48,55,60,64",
  "gate": 4.0,
- "seconds": 6.0,
+ "seconds": 8.0,
  "seed": 1,
  "loudness": {
-  "median_lufs": -17.983077149602295,
-  "spread_lu": 0.046474678784683476,
-  "span_lu": 0.0736700621152977,
+  "median_lufs": -23.28364992380658,
+  "spread_lu": 0.6578310837248331,
+  "span_lu": 1.1855855759311282,
   "limit_lu": 1.0,
   "presets": {
    "init": {
-    "lufs": -17.370395811412248,
+    "lufs": -23.174641068488043,
     "swing": 0.0,
-    "true_peak": -9.851229311529915,
-    "click_db": -30.988593759783996,
+    "true_peak": -14.55162714780691,
+    "click_db": -29.16054963321068,
     "nan": 0,
-    "offset": 0.6126813381900469
+    "offset": 0.10900885531853532
    },
    "jazz-trio": {
-    "lufs": -17.95607450615386,
+    "lufs": -23.3501548909284,
     "swing": 0.0,
-    "true_peak": -10.233501638359146,
-    "click_db": -30.398620730934883,
+    "true_peak": -13.954327670758648,
+    "click_db": -29.495763309657193,
     "nan": 0,
-    "offset": 0.027002643448433616
+    "offset": -0.06650496712182274
    },
    "smoky-club": {
-    "lufs": -17.964244722678465,
+    "lufs": -23.262678129119642,
     "swing": 0.0,
-    "true_peak": -11.499431362734322,
-    "click_db": -30.310110066474884,
+    "true_peak": -14.114114640879396,
+    "click_db": -31.91563349071242,
     "nan": 0,
-    "offset": 0.01883242692382936
+    "offset": 0.020971794686936107
    },
    "bebop-lines": {
-    "lufs": -17.967898301544054,
+    "lufs": -23.172192845209878,
     "swing": 0.0,
-    "true_peak": -10.451229479805237,
-    "click_db": -30.3908553601389,
+    "true_peak": -14.551627507348668,
+    "click_db": -29.16054894197851,
     "nan": 0,
-    "offset": 0.015178848058241101
+    "offset": 0.1114570785967004
    },
    "gospel-full": {
-    "lufs": -18.022043960258923,
+    "lufs": -23.199046338265713,
     "swing": 0.0,
-    "true_peak": -8.807501006042001,
-    "click_db": -20.214939448493077,
+    "true_peak": -13.155117763542687,
+    "click_db": -21.90937697311977,
     "nan": 0,
-    "offset": -0.038966810656628326
+    "offset": 0.08460358554086511
    },
    "shout-chorus": {
-    "lufs": -18.02625226206741,
+    "lufs": -23.33978838410133,
     "swing": 0.0,
-    "true_peak": -10.477399847118605,
-    "click_db": -27.139956999782775,
+    "true_peak": -13.669136866286884,
+    "click_db": -28.30657352345968,
     "nan": 0,
-    "offset": -0.043175112465114296
+    "offset": -0.05613846029475056
    },
    "sunday-morning": {
-    "lufs": -17.983077149602295,
+    "lufs": -23.40343512405419,
     "swing": 0.0,
-    "true_peak": -11.157940399990151,
-    "click_db": -29.167642588377856,
+    "true_peak": -14.052341189794745,
+    "click_db": -29.63626556732403,
     "nan": 0,
-    "offset": 0.0
+    "offset": -0.11978520024761252
    },
    "sanctuary": {
-    "lufs": -17.97380446637139,
+    "lufs": -23.304621718493518,
     "swing": 0.0,
-    "true_peak": -9.760923658190038,
-    "click_db": -31.792024069817558,
+    "true_peak": -14.24976630519545,
+    "click_db": -30.043003320556817,
     "nan": 0,
-    "offset": 0.009272683230904022
+    "offset": -0.02097179468693966
    },
    "swell-pad": {
-    "lufs": -17.971013994887578,
+    "lufs": -23.789912089925007,
     "swing": 0.0,
-    "true_peak": -9.527088068329046,
-    "click_db": -30.48463056994631,
+    "true_peak": -14.681388412374039,
+    "click_db": -29.676557710109247,
     "nan": 0,
-    "offset": 0.012063154714716973
+    "offset": -0.5062621661184288
    },
    "quiet-prayer": {
-    "lufs": -17.972285347564785,
+    "lufs": -23.46567254091518,
     "swing": 0.0,
-    "true_peak": -10.329200012225277,
-    "click_db": -29.899177688148285,
+    "true_peak": -15.71263128611424,
+    "click_db": -28.7616007518318,
     "nan": 0,
-    "offset": 0.010791802037509513
+    "offset": -0.18202261710860057
    },
    "rock-drive": {
-    "lufs": -18.029184990726733,
+    "lufs": -23.143144449673976,
     "swing": 0.0,
-    "true_peak": -11.866858079991205,
-    "click_db": -27.372938672186923,
+    "true_peak": -15.586928397481458,
+    "click_db": -28.299598962856514,
     "nan": 0,
-    "offset": -0.046107841124438664
+    "offset": 0.14050547413260261
    },
    "power-chords": {
-    "lufs": -18.02908984724304,
+    "lufs": -23.1748430604405,
     "swing": 0.0,
-    "true_peak": -10.264296103212802,
-    "click_db": -25.895325093562604,
+    "true_peak": -14.687000070177216,
+    "click_db": -27.882243401250385,
     "nan": 0,
-    "offset": -0.04601269764074445
+    "offset": 0.10880686336607681
    },
    "ballad": {
-    "lufs": -18.014489557129735,
+    "lufs": -23.811404416012873,
     "swing": 0.0,
-    "true_peak": -9.486673290830694,
-    "click_db": -31.48584524330092,
+    "true_peak": -14.342747700626928,
+    "click_db": -31.03707370781047,
     "nan": 0,
-    "offset": -0.03141240752744068
+    "offset": -0.5277544922062951
    },
    "warm-ballad": {
-    "lufs": -18.00441029804835,
+    "lufs": -23.202153816155715,
     "swing": 0.0,
-    "true_peak": -10.089398973825283,
-    "click_db": -34.67488363052598,
+    "true_peak": -14.29889145163919,
+    "click_db": -32.70014946439913,
     "nan": 0,
-    "offset": -0.02133314844605394
+    "offset": 0.08149610765086379
    },
    "split-comping": {
-    "lufs": -18.02955182838698,
+    "lufs": -22.625818840081745,
     "swing": 0.0,
-    "true_peak": -9.99563655455299,
-    "click_db": -27.993667267214338,
+    "true_peak": -12.611240305442905,
+    "click_db": -28.21888545968603,
     "nan": 0,
-    "offset": -0.046474678784683476
+    "offset": 0.6578310837248331
    },
    "bass-split": {
-    "lufs": -17.95588176627168,
+    "lufs": -23.348605517811105,
     "swing": 0.0,
-    "true_peak": -10.57217547916131,
-    "click_db": -29.892141249590672,
+    "true_peak": -13.941279253952565,
+    "click_db": -29.456445892712836,
     "nan": 0,
-    "offset": 0.02719538333061422
+    "offset": -0.06495559400452677
+   },
+   "snowfall-ballad": {
+    "lufs": -23.58449011697493,
+    "swing": 0.0,
+    "true_peak": -15.284370263150821,
+    "click_db": -28.3078624699575,
+    "nan": 0,
+    "offset": -0.30084019316835153
+   },
+   "christmas-swing": {
+    "lufs": -23.36858538627469,
+    "swing": 0.0,
+    "true_peak": -13.990808280564487,
+    "click_db": -29.545936147193874,
+    "nan": 0,
+    "offset": -0.08493546246811334
+   },
+   "hallelujah-shout": {
+    "lufs": -23.083402044628976,
+    "swing": 0.0,
+    "true_peak": -13.112007639115472,
+    "click_db": -21.422649803988953,
+    "nan": 0,
+    "offset": 0.20024787917760278
+   },
+   "silent-night": {
+    "lufs": -22.98650195358871,
+    "swing": 0.0,
+    "true_peak": -14.9595851568549,
+    "click_db": -27.412581169707337,
+    "nan": 0,
+    "offset": 0.29714797021786765
+   },
+   "sleigh-bells": {
+    "lufs": -23.04479716373431,
+    "swing": 0.0,
+    "true_peak": -13.59715859036747,
+    "click_db": -22.975958022719645,
+    "nan": 0,
+    "offset": 0.23885276007226963
    }
   }
  },
  "cpu": {
   "init": {
-   "p99_pct": 7.840865999999987,
-   "p999_pct": 10.005084000000052,
-   "max_pct": 11.046674999999999,
+   "p99_pct": 3.297049499999998,
+   "p999_pct": 5.103243750000011,
+   "max_pct": 19.231275,
    "over_deadline": 0,
-   "first_block_pct": 9.001575
+   "first_block_pct": 3.553125
   },
   "jazz-trio": {
-   "p99_pct": 8.417482499999975,
-   "p999_pct": 12.391138500000215,
-   "max_pct": 61.401225000000004,
+   "p99_pct": 3.193787999999999,
+   "p999_pct": 3.635046150000001,
+   "max_pct": 4.265625,
    "over_deadline": 0,
-   "first_block_pct": 6.747075000000001,
-   "max_reading": "scheduling",
-   "note": "max 61.4 % moved between runs: scheduling, not DSP (perf.py)"
+   "first_block_pct": 2.950050000000001
   },
   "smoky-club": {
-   "p99_pct": 7.899232499999999,
-   "p999_pct": 11.775115650000117,
-   "max_pct": 35.772149999999996,
+   "p99_pct": 5.701273499999823,
+   "p999_pct": 9.515005050000283,
+   "max_pct": 23.625,
    "over_deadline": 0,
-   "first_block_pct": 6.208350000000001
+   "first_block_pct": 2.993775
   },
   "bebop-lines": {
-   "p99_pct": 9.545410499999997,
-   "p999_pct": 14.820467700000489,
-   "max_pct": 33.846000000000004,
+   "p99_pct": 3.262561499999999,
+   "p999_pct": 3.793725,
+   "max_pct": 6.506250000000001,
    "over_deadline": 0,
-   "first_block_pct": 6.402900000000001
+   "first_block_pct": 2.9406
   },
   "gospel-full": {
-   "p99_pct": 8.5434405,
-   "p999_pct": 10.530916950000195,
-   "max_pct": 14.0406,
+   "p99_pct": 3.196937999999999,
+   "p999_pct": 3.606318750000011,
+   "max_pct": 4.137449999999999,
    "over_deadline": 0,
-   "first_block_pct": 8.194575
+   "first_block_pct": 2.950050000000001
   },
   "shout-chorus": {
-   "p99_pct": 9.338785499999972,
-   "p999_pct": 12.099858750000058,
-   "max_pct": 51.561975000000004,
+   "p99_pct": 3.324975,
+   "p999_pct": 3.602530050000003,
+   "max_pct": 4.209375000000001,
    "over_deadline": 0,
-   "first_block_pct": 6.316649999999999,
-   "max_reading": "scheduling",
-   "note": "max 240.3 % moved between runs: scheduling, not DSP (perf.py)"
+   "first_block_pct": 3.13125
   },
   "sunday-morning": {
-   "p99_pct": 10.729253999999981,
-   "p999_pct": 15.600476850000161,
-   "max_pct": 160.45890000000003,
-   "over_deadline": 1,
-   "first_block_pct": 6.050325000000001,
-   "max_reading": "scheduling",
-   "note": "max 160.5 % moved between runs: scheduling, not DSP (perf.py)"
+   "p99_pct": 3.03435,
+   "p999_pct": 3.52186515,
+   "max_pct": 3.67815,
+   "over_deadline": 0,
+   "first_block_pct": 2.97495
   },
   "sanctuary": {
-   "p99_pct": 8.922677999999955,
-   "p999_pct": 18.61953690000061,
-   "max_pct": 56.817825000000006,
+   "p99_pct": 2.800037999999998,
+   "p999_pct": 3.117543750000002,
+   "max_pct": 3.46875,
    "over_deadline": 0,
-   "first_block_pct": 7.002149999999999,
-   "max_reading": "scheduling",
-   "note": "max 56.8 % moved between runs: scheduling, not DSP (perf.py)"
+   "first_block_pct": 3.028125
   },
   "swell-pad": {
-   "p99_pct": 7.82987099999999,
-   "p999_pct": 14.619684600000546,
-   "max_pct": 152.2725,
-   "over_deadline": 2,
-   "first_block_pct": 5.57565,
-   "max_reading": "scheduling",
-   "note": "max 152.3 % moved between runs: scheduling, not DSP (perf.py)"
+   "p99_pct": 2.800360499999993,
+   "p999_pct": 3.213111300000001,
+   "max_pct": 3.390675000000001,
+   "over_deadline": 0,
+   "first_block_pct": 3.22815
   },
   "quiet-prayer": {
-   "p99_pct": 8.354653499999994,
-   "p999_pct": 12.814574700000291,
-   "max_pct": 170.30077500000002,
-   "over_deadline": 3,
-   "first_block_pct": 7.44105,
-   "max_reading": "scheduling",
-   "note": "max 170.3 % moved between runs: scheduling, not DSP (perf.py)"
+   "p99_pct": 2.790725999999997,
+   "p999_pct": 3.198768750000002,
+   "max_pct": 3.5625,
+   "over_deadline": 0,
+   "first_block_pct": 3.0156
   },
   "rock-drive": {
-   "p99_pct": 9.232867499999955,
-   "p999_pct": 14.383180350000444,
-   "max_pct": 26.190224999999998,
+   "p99_pct": 2.890837499999996,
+   "p999_pct": 3.323173800000005,
+   "max_pct": 3.52185,
    "over_deadline": 0,
-   "first_block_pct": 6.527175
+   "first_block_pct": 2.965650000000001
   },
   "power-chords": {
-   "p99_pct": 8.828257499999985,
-   "p999_pct": 15.637511400000204,
-   "max_pct": 48.62445000000001,
+   "p99_pct": 2.9187015,
+   "p999_pct": 3.373819950000005,
+   "max_pct": 3.781275,
    "over_deadline": 0,
-   "first_block_pct": 5.714625
+   "first_block_pct": 3.196875
   },
   "ballad": {
-   "p99_pct": 8.546068499999999,
-   "p999_pct": 16.19099235000047,
-   "max_pct": 65.561925,
+   "p99_pct": 3.828200999999997,
+   "p999_pct": 9.112781250000031,
+   "max_pct": 11.949975,
    "over_deadline": 0,
-   "first_block_pct": 5.586,
-   "max_reading": "scheduling",
-   "note": "max 65.6 % moved between runs: scheduling, not DSP (perf.py)"
+   "first_block_pct": 3.0219
   },
   "warm-ballad": {
-   "p99_pct": 7.701137999999993,
-   "p999_pct": 14.905310850000275,
-   "max_pct": 71.5158,
+   "p99_pct": 2.928712499999987,
+   "p999_pct": 3.330656250000007,
+   "max_pct": 3.643725,
    "over_deadline": 0,
-   "first_block_pct": 5.661075,
-   "max_reading": "scheduling",
-   "note": "max 151.5 % moved between runs: scheduling, not DSP (perf.py)"
+   "first_block_pct": 3.01875
   },
   "split-comping": {
-   "p99_pct": 7.583929499999998,
-   "p999_pct": 11.793780150000668,
-   "max_pct": 18.94755,
+   "p99_pct": 2.8562265,
+   "p999_pct": 3.382497600000002,
+   "max_pct": 12.359325,
    "over_deadline": 0,
-   "first_block_pct": 6.666150000000001
+   "first_block_pct": 3.156225000000001
   },
   "bass-split": {
-   "p99_pct": 8.326696499999985,
-   "p999_pct": 22.710953700001024,
-   "max_pct": 139.2066,
-   "over_deadline": 1,
-   "first_block_pct": 5.41635,
-   "max_reading": "scheduling",
-   "note": "max 191.6 % moved between runs: scheduling, not DSP (perf.py)"
+   "p99_pct": 2.772100499999994,
+   "p999_pct": 3.247521150000001,
+   "max_pct": 3.665625,
+   "over_deadline": 0,
+   "first_block_pct": 2.95935
   },
-  "_heaviest": "quiet-prayer"
+  "snowfall-ballad": {
+   "p99_pct": 2.7375,
+   "p999_pct": 3.230044950000006,
+   "max_pct": 3.52815,
+   "over_deadline": 0,
+   "first_block_pct": 3.296850000000001
+  },
+  "christmas-swing": {
+   "p99_pct": 2.7312015,
+   "p999_pct": 3.066898800000005,
+   "max_pct": 3.418725,
+   "over_deadline": 0,
+   "first_block_pct": 2.871900000000001
+  },
+  "hallelujah-shout": {
+   "p99_pct": 2.79375,
+   "p999_pct": 3.229533900000019,
+   "max_pct": 3.54375,
+   "over_deadline": 0,
+   "first_block_pct": 2.8875
+  },
+  "silent-night": {
+   "p99_pct": 2.75625,
+   "p999_pct": 3.095022600000001,
+   "max_pct": 3.67815,
+   "over_deadline": 0,
+   "first_block_pct": 3.024975
+  },
+  "sleigh-bells": {
+   "p99_pct": 2.83125,
+   "p999_pct": 3.190123800000014,
+   "max_pct": 3.4062,
+   "over_deadline": 0,
+   "first_block_pct": 2.94375
+  },
+  "_heaviest": "smoky-club"
  },
  "errors": []
 }

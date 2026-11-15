@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OberliPreset name="Silent Night" author="Oberli Audio" category="Jingle Jam"
+              description="Soft flutes through vibrato V2, Leslie off: the carol pad."
+              pluginVersion="0.1.0" created="2026-10-31" factory="true">
+  <SundayOrganState version="1" dspVersion="1">
+    <PARAMETERS>
+      <PARAM id="leslieOn" value="0"/>
+      <PARAM id="vibratoMode" value="2"/>
+      <PARAM id="drive" value="0"/>
+      <PARAM id="keyClick" value="5"/>
+      <PARAM id="leakage" value="10"/>
+      <PARAM id="pedalBar16" value="4"/>
+      <PARAM id="pedalBar8" value="2"/>
+      <PARAM id="upperBar1" value="0"/>
+      <PARAM id="upperBar2" value="0"/>
+      <PARAM id="upperBar3" value="6"/>
+      <PARAM id="upperBar4" value="4"/>
+      <PARAM id="upperBar5" value="2"/>
+      <PARAM id="upperBar6" value="0"/>
+      <PARAM id="upperBar7" value="0"/>
+      <PARAM id="upperBar8" value="0"/>
+      <PARAM id="upperBar9" value="0"/>
+      <PARAM id="lowerBar1" value="0"/>
+      <PARAM id="lowerBar2" value="0"/>
+      <PARAM id="lowerBar3" value="4"/>
+      <PARAM id="lowerBar4" value="0"/>
+      <PARAM id="lowerBar5" value="0"/>
+      <PARAM id="lowerBar6" value="0"/>
+      <PARAM id="lowerBar7" value="0"/>
+      <PARAM id="lowerBar8" value="0"/>
+      <PARAM id="lowerBar9" value="0"/>
+      <PARAM id="outGain" value="8.8"/>
+    </PARAMETERS>
+    <Extra/>
+  </SundayOrganState>
+</OberliPreset>
